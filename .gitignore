@@ -36,3 +36,10 @@ env/
 # Local test output
 receipt.json
 bundle.sev
+
+# Security disclosure key material — NEVER commit
+gnupg-specora-security/
+specora-security-private*.asc
+specora-security-private*.pem
+specora-security-fingerprint.txt
+specora-security-revocation.asc
