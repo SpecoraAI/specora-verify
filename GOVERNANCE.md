@@ -12,11 +12,10 @@ Maintainers have `write` access to the repository, `publish` access to PyPI, and
 
 | Name | GitHub | Area | Appointed |
 |---|---|---|---|
-| *(Legal/CEO to nominate at least 2 maintainers from engineering before launch day)* | `@...` | Core / signing / CI | 2026-06-XX |
-| *(…)* | `@...` | Readers / integrations | 2026-06-XX |
-| *(…)* | `@...` | Docs / DevRel | 2026-06-XX |
+| `@cho-cvc` | Core verifier, wire-spec conformance, CI, release engineering, cryptographic primitives | 2026-04-14 |
+| `@nickcontinentalvc` | Provider audit-log readers, integration tests, docs | 2026-04-14 |
 
-The current roster is maintained in [MAINTAINERS.md](MAINTAINERS.md).
+Both maintainers are Specora, Inc. employees and share security sign-off authority (both can triage embargoed vulnerability reports from [SECURITY.md](SECURITY.md), so disclosure handling is not blocked on a single person). The current roster is maintained in [MAINTAINERS.md](MAINTAINERS.md).
 
 ### Emeritus maintainers
 
