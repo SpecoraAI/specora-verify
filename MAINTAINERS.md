@@ -1,15 +1,13 @@
 # Maintainers
 
-<!-- TODO(ceo): replace TBD entries with named maintainers before this repo goes public. -->
-<!-- EPIC-A01 acceptance requires at least two named maintainers at launch. -->
+The maintainers of `specora-verify` are listed below. Each has write access to the repository, sign-off authority on releases, and shared responsibility for security triage. See [GOVERNANCE.md](GOVERNANCE.md) for how maintainers are added, removed, and what each role commits to.
 
-| Name | GitHub | Areas | Security sign-off | Appointed |
-|------|--------|-------|-------------------|-----------|
-| TBD  | `@TBD` | Core / signing / CI        | ✅ | 2026-06 |
-| TBD  | `@TBD` | Readers / integrations     | ☐  | 2026-06 |
-| TBD  | `@TBD` | Docs / DevRel              | ☐  | 2026-06 |
+| GitHub | Areas | Security sign-off | Appointed |
+|--------|-------|:-:|-----------|
+| [`@cho-cvc`](https://github.com/cho-cvc) | Core verifier, wire-spec conformance, CI, release engineering, cryptographic primitives | ✅ | 2026-04-14 |
+| [`@nickcontinentalvc`](https://github.com/nickcontinentalvc) | Provider audit-log readers, integration tests, docs | ✅ | 2026-04-14 |
 
-See [GOVERNANCE.md](GOVERNANCE.md) for how maintainers are added, removed, and what each role commits to.
+Both maintainers are Specora, Inc. employees as of 2026-04-14. Security sign-off authority is held by both so that embargoed vulnerability reports received via [SECURITY.md](SECURITY.md) can be triaged without a single-person dependency.
 
 ## Emeritus
 
