@@ -1,0 +1,20 @@
+{
+  "policy_version": "1.0.0",
+  "tier": "basic",
+  "governance": {
+    "deterministic_routing": true,
+    "routing_weight_version_binding": true,
+    "replay_enabled": true,
+    "anchor_enabled": false,
+    "audit_export_enabled": false
+  },
+  "verification": {
+    "manifest_hash_required": true,
+    "cross_language_parity_required": true,
+    "offline_verification_required": true
+  },
+  "ci": {
+    "vector_verification_blocking": true,
+    "certification_check_blocking": true
+  }
+}

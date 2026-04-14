@@ -1,0 +1,64 @@
+{
+  "spec_id": "witness-registry-snapshot",
+  "schema_version": "1.0.0",
+  "registry_version": 2,
+  "generated_at": "2026-02-15T00:00:00Z",
+  "previous_registry_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "registry_authority": "Specora Witness Authority",
+  "witnesses": [
+    {
+      "witness_org_id": "witness-org-alpha",
+      "org_name": "Witness Organization Alpha",
+      "trust_level": "external",
+      "status": "active",
+      "registered_at": "2026-02-01T00:00:00Z",
+      "keys": [
+        {
+          "public_key_id": "wpk-66687aadf862bd77",
+          "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "status": "active",
+          "created_at": "2026-02-01T00:00:00Z",
+          "revoked_at": null,
+          "revocation_reason": null
+        }
+      ]
+    },
+    {
+      "witness_org_id": "witness-org-beta",
+      "org_name": "Witness Organization Beta",
+      "trust_level": "external",
+      "status": "active",
+      "registered_at": "2026-02-01T00:00:00Z",
+      "keys": [
+        {
+          "public_key_id": "wpk-72cd6e8422c407fb",
+          "public_key": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
+          "status": "active",
+          "created_at": "2026-02-01T00:00:00Z",
+          "revoked_at": null,
+          "revocation_reason": null
+        }
+      ]
+    },
+    {
+      "witness_org_id": "witness-org-gamma",
+      "org_name": "Witness Organization Gamma",
+      "trust_level": "partner",
+      "status": "active",
+      "registered_at": "2026-02-15T00:00:00Z",
+      "keys": [
+        {
+          "public_key_id": "wpk-75877bb41d393b5f",
+          "public_key": "AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=",
+          "status": "active",
+          "created_at": "2026-02-15T00:00:00Z",
+          "revoked_at": null,
+          "revocation_reason": null
+        }
+      ]
+    }
+  ],
+  "registry_hash": "445a6f292d48e6053b5ba81c966b6f5645fff57d542dc0ea013a760cae4a1bc4",
+  "registry_key_id": "rpk-baa501b37267c06d",
+  "registry_signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+}

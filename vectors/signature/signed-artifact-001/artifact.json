@@ -1,0 +1,9 @@
+{
+  "spec_id": "governance-attestation",
+  "schema_version": "1.0.0",
+  "snapshot_id": "snap-20260301-001",
+  "org_id": "org-demo-001",
+  "created_at": "2026-03-01T12:00:00Z",
+  "policies_evaluated": 5,
+  "all_policies_passed": true
+}

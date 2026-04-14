@@ -1,0 +1,31 @@
+{
+  "spec_id": "stp-certification-attestation",
+  "schema_version": "1.0.0",
+  "protocol_version": "1.0.0",
+  "issued_at": "2026-03-01T00:00:00Z",
+  "tier": "compatible",
+  "adapter": {
+    "name": "sample-adapter",
+    "version": "1.0.0"
+  },
+  "bundle_root_hash": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
+  "evidence_hashes": {
+    "meta": "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    "sample_agent-identity-request": "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+  },
+  "proof_surface_url": "https://specora.ai/proof",
+  "issuer_key_id": "specora-root-key",
+  "requirements_met": [
+    "STP-REQ-101",
+    "STP-REQ-102",
+    "STP-REQ-103",
+    "STP-REQ-104",
+    "STP-REQ-105",
+    "STP-REQ-106",
+    "STP-REQ-107",
+    "STP-REQ-108",
+    "STP-REQ-109",
+    "STP-REQ-110"
+  ],
+  "requirements_missing": []
+}

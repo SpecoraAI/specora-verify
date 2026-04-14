@@ -1,0 +1,80 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "specora-verify-sbom",
+  "documentNamespace": "https://specora.ai/sbom/specora-verify-1.0.0",
+  "creationInfo": {
+    "created": "2026-03-01T00:00:00Z",
+    "creators": [
+      "Organization: Specora",
+      "Tool: manual"
+    ],
+    "licenseListVersion": "3.19"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-specora-verify",
+      "name": "specora-verify",
+      "versionInfo": "1.0.0",
+      "downloadLocation": "https://github.com/specora/specora-verify",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright 2026 Specora",
+      "supplier": "Organization: Specora",
+      "originator": "Organization: Specora",
+      "description": "Standalone CLI for verifying Specora proof manifests and bundles offline",
+      "primaryPackagePurpose": "APPLICATION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/specora-verify@1.0.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-cryptography",
+      "name": "cryptography",
+      "versionInfo": ">=41.0.0",
+      "downloadLocation": "https://pypi.org/project/cryptography/",
+      "filesAnalyzed": false,
+      "licenseConcluded": "Apache-2.0 OR BSD-3-Clause",
+      "licenseDeclared": "Apache-2.0 OR BSD-3-Clause",
+      "copyrightText": "Copyright The cryptography developers",
+      "supplier": "Organization: Python Cryptographic Authority",
+      "description": "Optional dependency for Ed25519 signature verification",
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "Optional dependency - only required for signature verification features",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:pypi/cryptography"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-specora-verify"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-specora-verify",
+      "relationshipType": "OPTIONAL_DEPENDENCY_OF",
+      "relatedSpdxElement": "SPDXRef-Package-cryptography"
+    }
+  ],
+  "annotations": [
+    {
+      "annotationDate": "2026-03-01T00:00:00Z",
+      "annotationType": "OTHER",
+      "annotator": "Organization: Specora",
+      "comment": "This SBOM covers the specora-verify CLI tool. Runtime dependencies (Python stdlib) are not listed as they are part of the Python runtime. The cryptography package is an optional dependency for signature verification features.",
+      "subject": "SPDXRef-Package-specora-verify"
+    }
+  ]
+}

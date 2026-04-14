@@ -1,0 +1,8 @@
+{
+  "key_fingerprint_sha256": "e1c8139bffc31826d0bad3384200ed2be209b29cced8af4221368019e59a3ae0",
+  "derived_key_id": "spk-e1c8139bffc31826",
+  "signing_algorithm": "ed25519",
+  "hash_algorithm": "sha256",
+  "signature_covers": "manifest_hash_utf8",
+  "note": "This test vector was generated for verification testing. The private key is not stored."
+}

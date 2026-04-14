@@ -1,0 +1,40 @@
+{
+  "registry_version": 1,
+  "generated_at": "2026-03-01T00:00:00Z",
+  "registry_authority": "Specora Witness Authority",
+  "witnesses": [
+    {
+      "witness_org_id": "witness-org-alpha",
+      "org_name": "Witness Organization Alpha",
+      "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "public_key_id": "wpk-66687aadf862bd77",
+      "trust_level": "external",
+      "status": "active",
+      "registered_at": "2026-02-01T00:00:00Z",
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "witness_org_id": "witness-org-beta",
+      "org_name": "Witness Organization Beta",
+      "public_key": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
+      "public_key_id": "wpk-72cd6e8422c407fb",
+      "trust_level": "external",
+      "status": "active",
+      "registered_at": "2026-02-01T00:00:00Z",
+      "revoked_at": null,
+      "revocation_reason": null
+    },
+    {
+      "witness_org_id": "witness-org-gamma",
+      "org_name": "Witness Organization Gamma",
+      "public_key": "AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=",
+      "public_key_id": "wpk-75877bb41d393b5f",
+      "trust_level": "partner",
+      "status": "active",
+      "registered_at": "2026-02-15T00:00:00Z",
+      "revoked_at": null,
+      "revocation_reason": null
+    }
+  ]
+}

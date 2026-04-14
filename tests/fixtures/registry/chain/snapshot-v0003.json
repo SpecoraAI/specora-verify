@@ -1,0 +1,64 @@
+{
+  "spec_id": "witness-registry-snapshot",
+  "schema_version": "1.0.0",
+  "registry_version": 3,
+  "generated_at": "2026-03-01T00:00:00Z",
+  "previous_registry_hash": "eba3cfc330fe4be15f9908d5070fbe9a8e8e97fc314bd845db8d2260ff664c2a",
+  "registry_authority": "Specora Witness Authority",
+  "witnesses": [
+    {
+      "witness_org_id": "witness-org-alpha",
+      "org_name": "Witness Organization Alpha",
+      "trust_level": "external",
+      "status": "active",
+      "registered_at": "2026-02-01T00:00:00Z",
+      "keys": [
+        {
+          "public_key_id": "wpk-66687aadf862bd77",
+          "public_key": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "status": "active",
+          "created_at": "2026-02-01T00:00:00Z",
+          "revoked_at": null,
+          "revocation_reason": null
+        }
+      ]
+    },
+    {
+      "witness_org_id": "witness-org-beta",
+      "org_name": "Witness Organization Beta",
+      "trust_level": "external",
+      "status": "revoked",
+      "registered_at": "2026-02-01T00:00:00Z",
+      "keys": [
+        {
+          "public_key_id": "wpk-72cd6e8422c407fb",
+          "public_key": "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=",
+          "status": "revoked",
+          "created_at": "2026-02-01T00:00:00Z",
+          "revoked_at": "2026-03-01T00:00:00Z",
+          "revocation_reason": "Key compromised"
+        }
+      ]
+    },
+    {
+      "witness_org_id": "witness-org-gamma",
+      "org_name": "Witness Organization Gamma",
+      "trust_level": "partner",
+      "status": "active",
+      "registered_at": "2026-02-15T00:00:00Z",
+      "keys": [
+        {
+          "public_key_id": "wpk-75877bb41d393b5f",
+          "public_key": "AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=",
+          "status": "active",
+          "created_at": "2026-02-15T00:00:00Z",
+          "revoked_at": null,
+          "revocation_reason": null
+        }
+      ]
+    }
+  ],
+  "registry_hash": "b1654b6e2ad34df7d78fa400fc1a3c3bdc2144a1edb6b350514718318b5dcf7b",
+  "registry_key_id": "rpk-baa501b37267c06d",
+  "registry_signature": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+}

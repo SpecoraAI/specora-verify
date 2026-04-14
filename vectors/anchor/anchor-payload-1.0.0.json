@@ -1,0 +1,18 @@
+{
+  "payload_schema_version": "1.0.0",
+  "root_hash": "a4d31481f3caafb2cc89bdf11f422eb1cf658603672d2fb4ab21dcba67d3e6ba",
+  "root_type": "daily",
+  "period_start": "2026-03-01T00:00:00Z",
+  "period_end": "2026-03-01T23:59:59Z",
+  "leaf_count": 4250,
+  "first_seq": 100001,
+  "last_seq": 104250,
+  "manifest_hash": "4e4cd3656219d8d8b52e75c94f20ce03f2ee592e71d8d6f49c17facfdbf960af",
+  "manifest_spec_id": "proof-manifest",
+  "manifest_schema_version": "1.0.0",
+  "hash_algorithm": "sha256",
+  "hash_algorithm_version": "1",
+  "ledger_hash_algorithm": "sha256",
+  "ledger_hash_algorithm_version": "1",
+  "org_id": "c16922ef-95de-4d43-ac62-a279fac7e14f"
+}

@@ -1,0 +1,222 @@
+# Draft GitHub Actions workflow — copy to `.github/workflows/ci.yml` in the public repo.
+#
+# Two jobs:
+#   1. `test` — runs on every push + PR. Runs the full pytest suite
+#      (~422 test functions across 20 modules), ruff, mypy.
+#   2. `release` — runs on tag push (v*). Builds sdist + wheel + standalone
+#      binaries, signs them with Sigstore (keyless, via GitHub OIDC),
+#      publishes to PyPI via trusted publishing, publishes a GitHub Release.
+#
+# Requirements for the public repo before this can run:
+#   - Branch protection on `main` requiring the `test` job to pass
+#   - PyPI project `specora-verify` configured with GitHub trusted publishing
+#     (no long-lived tokens in repo secrets)
+#   - Sigstore OIDC trust enabled (no key storage — uses ambient GitHub
+#     identity via sigstore-python)
+#   - Release workflow allowed to read `id-token: write` for Sigstore
+#     and `contents: write` for GitHub Releases.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Test matrix: runs on every push and PR.
+  # ---------------------------------------------------------------------------
+  test:
+    name: test (py${{ matrix.python }} / ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,all]"
+
+      - name: Lint (ruff check)
+        run: ruff check .
+
+      - name: Format check (ruff format)
+        run: ruff format --check .
+
+      - name: Type check (mypy --strict)
+        run: mypy --strict specora_verify
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short --color=yes
+
+      - name: Self-test against golden vectors
+        run: python -m specora_verify vectors verify
+
+  # ---------------------------------------------------------------------------
+  # 2. Release: runs on tag push (e.g., v1.0.0). Produces signed artifacts,
+  # uploads to PyPI via trusted publishing, creates a GitHub Release with
+  # Sigstore bundles attached.
+  # ---------------------------------------------------------------------------
+  release:
+    name: release
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write    # create GitHub Release
+      id-token: write    # request Sigstore signing identity
+    environment:
+      name: release
+      url: https://pypi.org/project/specora-verify/
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install build pyinstaller sigstore
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Build standalone binary (linux-x86_64)
+        run: |
+          pyinstaller \
+            --onefile \
+            --name specora-verify-linux-x86_64 \
+            --collect-all specora_verify \
+            specora_verify/__main__.py
+          mv dist/specora-verify-linux-x86_64 ./specora-verify-linux-x86_64
+
+      - name: Sign artifacts with Sigstore
+        # Keyless signing via GitHub Actions OIDC. No private key material
+        # stored in the repo. The signing identity is the workflow run's
+        # ephemeral OIDC token, which Sigstore transparency-logs.
+        run: |
+          python -m sigstore sign \
+            --bundle dist/specora_verify-*.whl.sigstore \
+            dist/specora_verify-*.whl
+          python -m sigstore sign \
+            --bundle dist/specora_verify-*.tar.gz.sigstore \
+            dist/specora_verify-*.tar.gz
+          python -m sigstore sign \
+            --bundle specora-verify-linux-x86_64.sigstore \
+            specora-verify-linux-x86_64
+
+      - name: Publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: false
+          verbose: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') }}
+          generate_release_notes: true
+          files: |
+            dist/specora_verify-*.whl
+            dist/specora_verify-*.whl.sigstore
+            dist/specora_verify-*.tar.gz
+            dist/specora_verify-*.tar.gz.sigstore
+            specora-verify-linux-x86_64
+            specora-verify-linux-x86_64.sigstore
+
+  # ---------------------------------------------------------------------------
+  # Additional standalone-binary builds for macOS and Windows. Kept as
+  # separate jobs so a platform-specific failure does not block the Linux
+  # release or the PyPI publish.
+  # ---------------------------------------------------------------------------
+  binary-macos:
+    name: standalone binary (macOS)
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: macos-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install pyinstaller sigstore -e ".[all]"
+      - run: |
+          pyinstaller --onefile --name specora-verify-darwin-universal \
+            --target-arch universal2 \
+            --collect-all specora_verify \
+            specora_verify/__main__.py
+          mv dist/specora-verify-darwin-universal ./
+      - run: |
+          python -m sigstore sign \
+            --bundle specora-verify-darwin-universal.sigstore \
+            specora-verify-darwin-universal
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            specora-verify-darwin-universal
+            specora-verify-darwin-universal.sigstore
+
+  binary-windows:
+    name: standalone binary (Windows)
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          pip install pyinstaller sigstore
+          pip install -e ".[all]"
+      - run: |
+          pyinstaller --onefile --name specora-verify-windows-x86_64.exe `
+            --collect-all specora_verify `
+            specora_verify/__main__.py
+          move dist\specora-verify-windows-x86_64.exe .
+      - run: |
+          python -m sigstore sign `
+            --bundle specora-verify-windows-x86_64.exe.sigstore `
+            specora-verify-windows-x86_64.exe
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            specora-verify-windows-x86_64.exe
+            specora-verify-windows-x86_64.exe.sigstore

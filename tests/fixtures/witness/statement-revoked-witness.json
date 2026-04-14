@@ -1,0 +1,14 @@
+{
+  "spec_id": "witness-statement",
+  "schema_version": "1.0.0",
+  "witness_statement_id": "ws-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "timestamp": "2026-03-02T04:15:00Z",
+  "anchor_hash": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1",
+  "anchor_index": 1842,
+  "verified_surfaces": ["github_release", "s3_versioned"],
+  "verification_result": "pass",
+  "verification_timestamp": "2026-03-02T04:14:58Z",
+  "witness_org_id": "witness-org-revoked",
+  "witness_public_key_id": "wpk-648aa5c579fb30f3",
+  "witness_signature": "PLACEHOLDER_SIGNATURE_FOR_TESTING"
+}

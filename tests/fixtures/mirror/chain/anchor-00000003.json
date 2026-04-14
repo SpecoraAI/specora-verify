@@ -1,0 +1,11 @@
+{
+  "spec_id": "external-anchor",
+  "schema_version": "1.0.0",
+  "chain_head_index": 3,
+  "anchor_hash": "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6",
+  "previous_anchor_hash": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5",
+  "timestamp": "2026-03-01T00:00:00Z",
+  "manifest_hashes": {
+    "manifest_hash": "333abc456def789012345678901234567890123456789012345678901234abcd"
+  }
+}
