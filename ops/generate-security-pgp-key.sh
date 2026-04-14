@@ -133,16 +133,24 @@ fi
 echo "$FPR" > "$FINGERPRINT_OUT"
 gpg --armor --export "$FPR" > "$PUBLIC_OUT"
 
-# ----- generate revocation certificate -----
-# This allows revoking the key even if the private key is lost.
+# ----- copy the default revocation certificate -----
+# GPG 2.x automatically generates a revocation certificate during key
+# creation and stores it at $GNUPGHOME/openpgp-revocs.d/<FPR>.rev.  We
+# do NOT call `gpg --gen-revoke` explicitly — combining --batch with
+# --gen-revoke fails ("gpg: can't do this in batch mode") because
+# --gen-revoke requires interactive confirmation that --batch disables.
+#
+# Copy the auto-generated cert alongside the other artifacts so the
+# operator can move it to secure storage together with the checklist.
 # STORE IT SEPARATELY from the private key.
-gpg --output "$REVOCATION_OUT" --gen-revoke --batch --yes \
-    --pinentry-mode loopback "$FPR" <<EOF
-y
-0
-No reason given
-y
-EOF
+DEFAULT_REVOCATION="$GNUPGHOME/openpgp-revocs.d/$FPR.rev"
+if [[ ! -f "$DEFAULT_REVOCATION" ]]; then
+    echo "ERROR: default revocation cert not found at $DEFAULT_REVOCATION" >&2
+    echo "       GPG may not have generated one — fall back to manual" >&2
+    echo "       gpg --output $REVOCATION_OUT --gen-revoke $FPR" >&2
+    exit 1
+fi
+cp "$DEFAULT_REVOCATION" "$REVOCATION_OUT"
 chmod 600 "$REVOCATION_OUT"
 
 # ----- pretty-print fingerprint for display -----
