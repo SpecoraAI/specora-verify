@@ -17,6 +17,7 @@ from specora_verify.errors import EXIT_ERROR, EXIT_PASS
 
 FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "anthropic"
 CT_FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "cloudtrail"
+AZ_FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "azure_cl"
 
 
 def _run(argv: list[str]) -> int:
@@ -219,6 +220,95 @@ def test_cli_read_cloudtrail_non_strict_recovers(tmp_path: Path, capsys) -> None
             str(CT_FIXTURE_DIR / "malformed.json"),
             "--key-id",
             "spk-ct-non-strict",
+            "--non-strict",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["metadata"]["record_count"] == 3
+    err = capsys.readouterr().err
+    assert "3 records" in err
+    assert "2 warnings" in err
+
+
+# ---------------------------------------------------------------------------
+# Azure Confidential Ledger CLI integration tests
+# ---------------------------------------------------------------------------
+
+
+def test_cli_read_azure_cl_minimal_to_file(tmp_path: Path, capsys) -> None:
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "read",
+            "azure-cl",
+            "--input",
+            str(AZ_FIXTURE_DIR / "minimal-valid.json"),
+            "--key-id",
+            "spk-azcl-cli",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    assert out.exists()
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["metadata"]["provider"] == "azure-cl"
+    assert payload["metadata"]["record_count"] == 2
+    assert payload["metadata"]["key_id"] == "spk-azcl-cli"
+    # TEE attestation rides first-class.
+    assert payload["records"][0]["tee_attestation"]["enclaveQuote"]
+    assert payload["records"][0]["upstream_inclusion_proof"]["signature"]
+    captured = capsys.readouterr()
+    assert "read azure-cl: 2 records" in captured.err
+
+
+def test_cli_read_azure_cl_deterministic_across_runs(tmp_path: Path) -> None:
+    out_a = tmp_path / "a.json"
+    out_b = tmp_path / "b.json"
+    for out in (out_a, out_b):
+        code = _run(
+            [
+                "read",
+                "azure-cl",
+                "--input",
+                str(AZ_FIXTURE_DIR / "minimal-valid.json"),
+                "--key-id",
+                "spk-azcl-deterministic",
+                "--out",
+                str(out),
+            ]
+        )
+        assert code == EXIT_PASS
+    assert out_a.read_bytes() == out_b.read_bytes()
+
+
+def test_cli_read_azure_cl_strict_malformed_errors(tmp_path: Path, capsys) -> None:
+    code = _run(
+        [
+            "read",
+            "azure-cl",
+            "--input",
+            str(AZ_FIXTURE_DIR / "malformed.json"),
+            "--key-id",
+            "spk-azcl-strict",
+        ]
+    )
+    assert code == EXIT_ERROR
+
+
+def test_cli_read_azure_cl_non_strict_recovers(tmp_path: Path, capsys) -> None:
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "read",
+            "azure-cl",
+            "--input",
+            str(AZ_FIXTURE_DIR / "malformed.json"),
+            "--key-id",
+            "spk-azcl-non-strict",
             "--non-strict",
             "--out",
             str(out),

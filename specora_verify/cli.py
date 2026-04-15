@@ -1260,6 +1260,48 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write the canonical bundle payload JSON to this path (default: stdout)",
     )
 
+    read_azure_cl = read_sub.add_parser(
+        "azure-cl",
+        help="Read an Azure Confidential Ledger entries-with-receipts export",
+    )
+    read_azure_cl.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help="Path to an Azure Confidential Ledger JSON export ({'entries': [...]})",
+    )
+    read_azure_cl.add_argument(
+        "--key-id",
+        required=True,
+        help="Specora signing key ID to associate with the emitted bundle payload",
+    )
+    read_azure_cl.add_argument(
+        "--public-key",
+        type=Path,
+        default=None,
+        help=(
+            "Accepted for interface compatibility with other readers. Azure "
+            "Confidential Ledger receipts are consortium-signed (ECDSA P-384), "
+            "not ed25519; the full inclusion proof is preserved in the bundle."
+        ),
+    )
+    read_azure_cl.add_argument(
+        "--schema-version",
+        default=None,
+        help="Override the reader-side Azure-CL schema version (default: 1.0)",
+    )
+    read_azure_cl.add_argument(
+        "--non-strict",
+        action="store_true",
+        help="Drop malformed entries with warnings instead of failing the read",
+    )
+    read_azure_cl.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Write the canonical bundle payload JSON to this path (default: stdout)",
+    )
+
     read_cloudtrail = read_sub.add_parser(
         "cloudtrail",
         help="Read an AWS CloudTrail JSON export (Bedrock AR Checks)",
@@ -1435,6 +1477,11 @@ def cmd_read_anthropic(args: argparse.Namespace) -> int:
 def cmd_read_cloudtrail(args: argparse.Namespace) -> int:
     """Handle: specora-verify read cloudtrail --input <json> ..."""
     return _dispatch_read(args, "cloudtrail")
+
+
+def cmd_read_azure_cl(args: argparse.Namespace) -> int:
+    """Handle: specora-verify read azure-cl --input <json> ..."""
+    return _dispatch_read(args, "azure-cl")
 
 
 def cmd_vectors_verify(args: argparse.Namespace) -> int:
@@ -3111,6 +3158,8 @@ def main(argv: list[str] | None = None) -> NoReturn:
             exit_code = cmd_read_anthropic(args)
         elif args.read_command == "cloudtrail":
             exit_code = cmd_read_cloudtrail(args)
+        elif args.read_command == "azure-cl":
+            exit_code = cmd_read_azure_cl(args)
         else:
             parser.print_help()
     elif args.command == "verify-external-anchor":

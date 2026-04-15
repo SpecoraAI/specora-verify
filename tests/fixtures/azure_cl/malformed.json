@@ -1,0 +1,195 @@
+{
+  "entries": [
+    {
+      "collectionId": "subledger-ai-audit-2026",
+      "contents": {
+        "record": {
+          "context_hash": "sha256:c6fc677773ddaed07335a95cbb3c9afada2fc5ac7a823fc18e3d9d71fbbd34fb",
+          "decision": "approved",
+          "model": "gpt-4o",
+          "model_version": "2024-08",
+          "policy_refs": [
+            "pol-1",
+            "pol-7"
+          ],
+          "record_id": "azcl-rec-000500",
+          "request_id": "req-azcl-000001f4",
+          "timestamp": "2026-06-11T09:20:20Z"
+        }
+      },
+      "receipt": {
+        "enclaveQuote": "zzxgcGS/bj1A/vQk64sVBvBxTGUrMU4p/y7ZX7uNfsNxdW90ZS0wMA==",
+        "leafComponents": {
+          "claimsDigest": "4e8408a8c6a0ac5bceaf3b6a4067dfbbf50e75f9bf184e37c2ff05c4c17eaf55",
+          "commitEvidence": "ce:1.0500",
+          "writeSetDigest": "71baad53b0d9271a797b4d9f8e3cb5cc400d84087fd557ce2c86794970645152"
+        },
+        "mrenclave": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "mrsigner": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "nodeCerts": [
+          "-----BEGIN CERTIFICATE-----\nFAKE-NODE-CERT-500\n-----END CERTIFICATE-----"
+        ],
+        "proof": [
+          {
+            "left": "f20334173cb117dfc36a485b2a445f19e04701133d52ac482ca1322c67b6bd4c"
+          },
+          {
+            "right": "0d687487d1c09016dd40df7e7ee073c99a5b9c4ac38c9df78e876950f0a87900"
+          }
+        ],
+        "reportData": "61634c27805f0455813973c029097ffb4dc78c5dda7a1cef9c1b6771504d376b",
+        "serviceId": "specora-demo-ccf-service",
+        "signature": "NDSilukZYd2La0UofvcOGRZuqKtGiSVfKwX9F6Tm83JzaWctMDAwMA=="
+      },
+      "transactionId": "2.600"
+    },
+    {
+      "collectionId": "subledger-ai-audit-2026",
+      "contents": {
+        "record": {
+          "context_hash": "sha256:3fda47ace1b5ebe9340adb7306cf07d1a140226d221e6c7b5a1d6b33429ebf93",
+          "decision": "approved",
+          "model": "gpt-4o",
+          "model_version": "2024-08",
+          "policy_refs": [
+            "pol-1",
+            "pol-7"
+          ],
+          "record_id": "azcl-rec-000501",
+          "request_id": "req-azcl-000001f5",
+          "timestamp": "2026-06-11T09:21:27Z"
+        }
+      },
+      "receipt": {
+        "enclaveQuote": "7LtACeVIUFf/xDYTFY3jb8tk6966Sc42wMxBU7REODRxdW90ZS0wMA==",
+        "leafComponents": {
+          "claimsDigest": "5dfc45149b9da993306e718c67d0a8fe536bf7eb06c86f741dc6f6ec2180e255",
+          "commitEvidence": "ce:1.0501",
+          "writeSetDigest": "b212285a61c10bbab6e7605702b0343563f457139279213251db497652a84439"
+        },
+        "mrenclave": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "mrsigner": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "nodeCerts": [
+          "-----BEGIN CERTIFICATE-----\nFAKE-NODE-CERT-501\n-----END CERTIFICATE-----"
+        ],
+        "proof": [
+          {
+            "left": "aa26d4bc1e9ebe1290984c01d272f8fefad26b51b684e28d86e6ee7fe2dfba7d"
+          },
+          {
+            "right": "b1c33d61e7aea7b9a9bef7990fafc203490e3fe8c9601cb10d34fae379b1222f"
+          }
+        ],
+        "reportData": "3c02b2aff4b4529f8d2d1340d52aa6633cd34813d8a7395d99921338a2663416",
+        "serviceId": "specora-demo-ccf-service",
+        "signature": "uTD+HbaMtsHQgSHw0ObLZ1vaj0r0UGNC2SnNNxuNSwBzaWctMDAwMA=="
+      },
+      "transactionId": "2.601"
+    },
+    {
+      "collectionId": "subledger-ai-audit-2026",
+      "contents": {
+        "record": {
+          "context_hash": "sha256:4a6ebc3d78dec4e91fe819f0717a3a457f5ae5ec7927a7f8fd2b8bc4f81e4c6c",
+          "decision": "approved",
+          "model": "gpt-4o",
+          "model_version": "2024-08",
+          "policy_refs": [
+            "pol-1",
+            "pol-7"
+          ],
+          "record_id": "azcl-rec-000502",
+          "request_id": "req-azcl-000001f6",
+          "timestamp": "2026-06-11T09:22:34Z"
+        }
+      },
+      "receipt": {
+        "enclaveQuote": "tSGwSBRMtCoDR+CMmgR/OLLPLTPHiq3Cufu0Qag3ENdxdW90ZS0wMA==",
+        "leafComponents": {
+          "claimsDigest": "862ee17512bf2f782f4c47f13507ae4ae2586c733587d9e7e4ef707050482964",
+          "commitEvidence": "ce:1.0502",
+          "writeSetDigest": "474a1013f43ddd54777974ab0ae9302e3b75b91adaa2c26a12da7a21d96de2fc"
+        },
+        "mrenclave": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "mrsigner": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "nodeCerts": [
+          "-----BEGIN CERTIFICATE-----\nFAKE-NODE-CERT-502\n-----END CERTIFICATE-----"
+        ],
+        "proof": [
+          {
+            "left": "1b08f3642fcbc0dffda832013f6791820003fbb0acca8a607fd1d7e2e8d76593"
+          },
+          {
+            "right": "c78a87b02caa872552bc1ce801da927a91e96bf3c60fa67d032e457df55d43ea"
+          }
+        ],
+        "reportData": "67906ee36e4e8d5fbdc7b444ce59acce663d39160dad26fb0a4ea06ab5fa6758",
+        "serviceId": "specora-demo-ccf-service",
+        "signature": "FiJ7EsQEKSBrgPcpsAsLHxMwDc71Xjk8wBHkfhGbsahzaWctMDAwMA=="
+      },
+      "transactionId": "2.602"
+    },
+    {
+      "collectionId": "subledger-ai-audit-2026",
+      "contents": {
+        "record": {
+          "context_hash": "sha256:df736044576cf14eb4b7a76d3d729f5401ba2ab275a11ae31cf2ebfb2b52c54c",
+          "decision": "approved",
+          "model": "gpt-4o",
+          "model_version": "2024-08",
+          "policy_refs": [
+            "pol-1",
+            "pol-7"
+          ],
+          "record_id": "azcl-rec-000600",
+          "request_id": "req-azcl-00000258",
+          "timestamp": "2026-06-11T09:00:00Z"
+        }
+      },
+      "transactionId": "2.700"
+    },
+    {
+      "collectionId": "subledger-ai-audit-2026",
+      "contents": {
+        "record": {
+          "context_hash": "md5:nope",
+          "decision": "approved",
+          "model": "gpt-4o",
+          "model_version": "2024-08",
+          "policy_refs": [
+            "pol-1",
+            "pol-7"
+          ],
+          "record_id": "azcl-rec-000601",
+          "request_id": "req-azcl-00000259",
+          "timestamp": "2026-06-11T09:01:07Z"
+        }
+      },
+      "receipt": {
+        "enclaveQuote": "nbnU3/k5GUJvZku6C5HoZBmY//k3FEw8Vnp+igUV5NdxdW90ZS0wMA==",
+        "leafComponents": {
+          "claimsDigest": "1f02e91667a3dac42113671b6fea5daf14fae8b324811af74efe1147e0246cb4",
+          "commitEvidence": "ce:1.0601",
+          "writeSetDigest": "21f2525b82604f9ea58d0f78c4b2202d458e1cec6bffbff4c4f9c70f4ca8f1a0"
+        },
+        "mrenclave": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "mrsigner": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "nodeCerts": [
+          "-----BEGIN CERTIFICATE-----\nFAKE-NODE-CERT-601\n-----END CERTIFICATE-----"
+        ],
+        "proof": [
+          {
+            "left": "b456002dc15ce5d99e735ab3a7b94d8715ee36614ea4da7730fe64a6a2f48ea5"
+          },
+          {
+            "right": "22769a1d5174deeffb304adb6679e2cd36ac311c0e81280bf438205d5da03003"
+          }
+        ],
+        "reportData": "18e369e18b82b972fb23e73999252f64607631bca1879e4e77b419a89d6a5705",
+        "serviceId": "specora-demo-ccf-service",
+        "signature": "Gy386qp3+kfUGsrT9kDtvOlMmEvCKd7X+FJFecQ55dBzaWctMDAwMA=="
+      },
+      "transactionId": "2.701"
+    }
+  ]
+}
