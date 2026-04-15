@@ -15,52 +15,58 @@ import json
 from typing import Any
 
 
-def canonical_json_bytes(payload: dict[str, Any]) -> bytes:
-    """Serialize dict to canonical JSON bytes for hashing.
+def canonical_json_bytes(payload: Any) -> bytes:
+    """Serialize a JSON value to canonical bytes for hashing.
 
-    This is the authoritative serialization format matching:
-    - Specora Wire Spec v1.0 Annex A (Canonical JSON reference impl)
+    Accepts any JSON-serializable value (object, array, string, number,
+    boolean, null) per Specora Wire Spec v1.0 §4, which defines canonical
+    form over the full JSON value type — not just top-level objects.
 
-    Canonical format:
+    Canonical format (Wire Spec v1.0 §4.1):
     - sort_keys=True (deterministic key ordering, lexicographic)
     - separators=(",", ":") (compact, no whitespace)
-    - ensure_ascii=True (portable encoding, non-ASCII escaped as \\uXXXX)
-    - UTF-8 byte encoding
-    - No trailing newlines
+    - ensure_ascii=True (non-ASCII escaped as \\uXXXX for byte-identical
+      output across encoders)
+    - allow_nan=False (NaN / ±Infinity rejected)
+    - UTF-8 byte encoding, no trailing newlines
 
     Args:
-        payload: Dictionary to serialize
+        payload: Any JSON value (dict, list, str, int, float, bool, None).
 
     Returns:
-        UTF-8 encoded bytes of canonical JSON
+        UTF-8 encoded bytes of canonical JSON.
 
     Example:
         >>> canonical_json_bytes({"b": 2, "a": 1})
         b'{"a":1,"b":2}'
+        >>> canonical_json_bytes([3, 1, 2])
+        b'[3,1,2]'
     """
     return json.dumps(
         payload,
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=True,
+        allow_nan=False,
     ).encode("utf-8")
 
 
-def canonical_json_str(payload: dict[str, Any]) -> str:
-    """Serialize dict to canonical JSON string.
+def canonical_json_str(payload: Any) -> str:
+    """Serialize a JSON value to canonical string form.
 
     Use canonical_json_bytes() for hashing. This function is provided
     for cases where a string is needed (e.g., display, comparison).
 
     Args:
-        payload: Dictionary to serialize
+        payload: Any JSON-serializable value.
 
     Returns:
-        Canonical JSON as string
+        Canonical JSON as string.
     """
     return json.dumps(
         payload,
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=True,
+        allow_nan=False,
     )
