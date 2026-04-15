@@ -175,7 +175,7 @@ For production deployments, pair `specora-verify` with a key-transparency log or
 
 ## Reproducing the golden vectors
 
-Every hash and signature this tool emits is deterministic. You can verify them in a language of your choice by implementing the [wire spec v1.0](https://spec.specora.ai/v1.0) directly. The spec is short (~30 pages), the cryptography is Ed25519 (RFC 8032), and the canonical JSON rules are written out explicitly.
+Every hash and signature this tool emits is deterministic. You can verify them in a language of your choice by implementing [Wire Spec v1.0](docs/wire-spec-v1.0.md) directly. The spec is short, the cryptography is Ed25519 (RFC 8032), and the canonical JSON rules are written out explicitly.
 
 ```bash
 # The vectors directory
@@ -191,13 +191,14 @@ If your independent implementation disagrees with `specora-verify`, we want to k
 
 ## Documentation
 
-- **Wire spec v1.0:** https://spec.specora.ai/v1.0
-- **Installation guide:** [docs/installation.md](docs/installation.md)
+- **Wire Spec v1.0 (canonical):** [docs/wire-spec-v1.0.md](docs/wire-spec-v1.0.md) — normative contract. The `spec.specora.ai/v1.0` badge URL above is reserved for a future rendered view of this in-repo document; the repo is the authoritative source.
+- **Versioning policy:** [docs/versioning-policy.md](docs/versioning-policy.md)
 - **Quickstart tutorial:** [docs/quickstart.md](docs/quickstart.md)
-- **Reader reference:** [docs/readers/](docs/readers/)
 - **Trust model:** [docs/trust-model.md](docs/trust-model.md)
-- **Golden vector reproduction guide:** [docs/vectors.md](docs/vectors.md)
-- **API reference (for library users):** [docs/api.md](docs/api.md)
+- **Golden vectors guide:** [docs/vectors.md](docs/vectors.md)
+- **Reader reference:** [docs/readers/](docs/readers/)
+- **Installation guide:** [docs/installation.md](docs/installation.md) *(pending A01)*
+- **API reference (for library users):** [docs/api.md](docs/api.md) *(pending A01)*
 
 ## Contributing
 

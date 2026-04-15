@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SpecoraAI/specora-verify/docs/schemas/signed-artifact-envelope-v1.0.json",
+  "title": "Specora Signed Artifact Envelope — metadata.json v1.0",
+  "description": "Normative JSON Schema for the metadata.json file that accompanies every Signed Artifact Envelope (Wire Spec v1.0 §2.8 and §4). The envelope itself is a directory layout; this schema covers only the metadata object, which is the machine-readable component.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "key_fingerprint_sha256",
+    "derived_key_id",
+    "signing_algorithm",
+    "hash_algorithm",
+    "signature_covers"
+  ],
+  "properties": {
+    "key_fingerprint_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Full SHA-256 hex digest of the raw Ed25519 public key bytes."
+    },
+    "derived_key_id": {
+      "type": "string",
+      "pattern": "^spk-[0-9a-f]{16}$",
+      "description": "Stable key identifier: 'spk-' prefix + first 16 hex chars of key_fingerprint_sha256."
+    },
+    "signing_algorithm": {
+      "type": "string",
+      "enum": ["ed25519"]
+    },
+    "hash_algorithm": {
+      "type": "string",
+      "enum": ["sha256"]
+    },
+    "signature_covers": {
+      "type": "string",
+      "enum": ["manifest_hash_utf8"],
+      "description": "v1.0 permits only 'manifest_hash_utf8' — the UTF-8 bytes of the lowercase hex SHA-256 of the canonical payload bytes."
+    },
+    "note": {
+      "type": "string",
+      "description": "Optional free-form human note (e.g. 'test vector, private key not stored')."
+    }
+  }
+}

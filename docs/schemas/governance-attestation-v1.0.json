@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SpecoraAI/specora-verify/docs/schemas/governance-attestation-v1.0.json",
+  "title": "Specora Governance Attestation v1.0 (signed-artifact payload)",
+  "description": "Schema for the canonical payload carried inside a Signed Artifact Envelope (Wire Spec v1.0 §2.8). The 'governance-attestation' spec_id is the reference example used in vectors/signature/signed-artifact-001/. Third parties may sign other payload types — a Signed Artifact Envelope is agnostic to the payload's spec_id — but 'governance-attestation' is the shape referenced from the golden vector suite.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "spec_id",
+    "snapshot_id",
+    "org_id",
+    "created_at",
+    "policies_evaluated",
+    "all_policies_passed"
+  ],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["1.0.0"]},
+    "spec_id": {"type": "string", "enum": ["governance-attestation"]},
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "org_id": {"type": "string", "minLength": 1},
+    "created_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "policies_evaluated": {"type": "integer", "minimum": 0},
+    "all_policies_passed": {"type": "boolean"}
+  }
+}
