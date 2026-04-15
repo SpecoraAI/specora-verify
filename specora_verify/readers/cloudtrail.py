@@ -62,7 +62,7 @@ from pathlib import Path
 from typing import Any
 
 from specora_verify.canonical import canonical_json_bytes
-from specora_verify.errors import ReaderError, ReaderIOError, ReaderSchemaError
+from specora_verify.errors import ReaderIOError, ReaderSchemaError
 from specora_verify.hash import sha256_hex
 from specora_verify.readers import ReadResult, reader
 
@@ -183,7 +183,19 @@ class CloudTrailReader:
             ReaderIOError: input file missing or unreadable.
             ReaderSchemaError: schema mismatch (strict mode only).
         """
-        del public_key_path  # intentionally unused — see docstring.
+        # --public-key is accepted for interface symmetry with other readers
+        # (see docstring) but CloudTrail has no per-event signatures. We
+        # surface this into ReadResult.warnings so a user who passed a key
+        # expecting verification sees it instead of silent ignore. Closes
+        # B01 CloudTrail session 1 advisory finding #2.
+        public_key_notice: str | None = None
+        if public_key_path is not None:
+            public_key_notice = (
+                f"--public-key {public_key_path!s} was provided but is ignored: "
+                "CloudTrail has no per-event signatures. Integrity is anchored "
+                "at the log file validation level (aws cloudtrail validate-logs). "
+                "See docs/readers/cloudtrail.md §1."
+            )
         input_path = Path(input_path)
         if not input_path.exists():
             raise ReaderIOError(str(input_path), "file not found")
@@ -242,6 +254,8 @@ class CloudTrailReader:
                 f"skipped {skipped_non_ar} non-AR Bedrock event(s) (filter: "
                 f"eventSource=={_BEDROCK_SOURCE!r} and AR event name allowlist)"
             )
+        if public_key_notice is not None:
+            warnings.append(public_key_notice)
 
         effective_schema_version = observed_schema_version or (
             schema_version or _SUPPORTED_VERSIONS[-1]

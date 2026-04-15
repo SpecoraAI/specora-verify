@@ -1349,7 +1349,31 @@ def _load_json_file(path: Path, output_format: str) -> dict | None:
 
 
 def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
-    """Shared implementation for all ``specora-verify read <provider>`` subcommands."""
+    """Shared dispatch path for every ``specora-verify read <provider>`` subcommand.
+
+    **Architectural contract (recorded 2026-04-15, B01 CloudTrail session 1
+    chore commit).** This helper is the single code path every provider
+    reader subcommand goes through. A new reader integrates as follows:
+
+    1. Implement ``ReaderProtocol`` in ``specora_verify/readers/<provider>.py``.
+    2. Register via the ``@reader("<provider>")`` decorator so it lands in
+       the ``READERS`` dict at import time.
+    3. Add an ``argparse`` subparser under ``read_sub`` with the standard
+       argument set — ``--input``, ``--key-id``, ``--public-key``,
+       ``--schema-version``, ``--non-strict``, ``--out`` — matching the
+       shape ``_dispatch_read`` expects on ``args``.
+    4. Add a one-line ``cmd_read_<provider>`` wrapper that returns
+       ``_dispatch_read(args, "<provider>")`` and wire it into the
+       ``args.read_command`` elif ladder below.
+
+    Any reader that needs to bypass this path (different argument shape,
+    different output contract, non-canonical bundle emission) requires a
+    prior design note in ``docs/strategy/b01-reader-design-notes-2026-Q2.md``
+    with CEO + Engineering lead sign-off. Do not silently fork the dispatch
+    layer — the whole point of this helper is that every new reader inherits
+    identical CLI ergonomics, warning surfacing, canonical JSON output,
+    and exit-code handling without re-implementing them.
+    """
     from specora_verify.canonical import canonical_json_str
     from specora_verify.errors import ReaderError
     from specora_verify.readers import get_reader
