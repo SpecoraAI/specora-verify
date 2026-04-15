@@ -32,3 +32,23 @@ def anthropic_malformed(anthropic_fixture_dir: Path) -> Path:
 @pytest.fixture
 def anthropic_public_key(anthropic_fixture_dir: Path) -> Path:
     return anthropic_fixture_dir / "keys" / "public.hex"
+
+
+@pytest.fixture
+def cloudtrail_fixture_dir() -> Path:
+    return FIXTURE_ROOT / "cloudtrail"
+
+
+@pytest.fixture
+def cloudtrail_minimal(cloudtrail_fixture_dir: Path) -> Path:
+    return cloudtrail_fixture_dir / "minimal-valid.json"
+
+
+@pytest.fixture
+def cloudtrail_complex(cloudtrail_fixture_dir: Path) -> Path:
+    return cloudtrail_fixture_dir / "realistic-complex.json"
+
+
+@pytest.fixture
+def cloudtrail_malformed(cloudtrail_fixture_dir: Path) -> Path:
+    return cloudtrail_fixture_dir / "malformed.json"

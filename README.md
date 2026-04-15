@@ -146,7 +146,7 @@ specora-verify bundle verify bundle.sev
 Reader coverage at launch (2026-06-14):
 
 - [x] Anthropic Compliance API — [docs](docs/readers/anthropic.md) · [module](specora_verify/readers/anthropic.py)
-- [ ] AWS CloudTrail Lake + Bedrock output *(Q3 2026)*
+- [x] AWS CloudTrail Lake + Bedrock Automated Reasoning Checks — [docs](docs/readers/cloudtrail.md) · [module](specora_verify/readers/cloudtrail.py)
 - [ ] Azure Confidential Ledger receipts *(Q3 2026)*
 - [ ] OpenAI Compliance Platform JSONL *(Q3 2026)*
 - [ ] LangSmith Fleet audit export *(Q3 2026)*
