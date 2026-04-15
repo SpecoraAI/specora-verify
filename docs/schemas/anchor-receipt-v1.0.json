@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SpecoraAI/specora-verify/docs/schemas/anchor-receipt-v1.0.json",
+  "title": "Specora Anchor Receipt v1.0",
+  "description": "Normative JSON Schema for the anchor-receipt canonical payload, Specora Wire Spec v1.0 §2.5.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "spec_id",
+    "org_id",
+    "receipt_id",
+    "anchor_backend",
+    "transparency_log_index",
+    "payload_hash",
+    "receipt_signature",
+    "receipt_timestamp",
+    "hash_algorithm",
+    "hash_algorithm_version"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"]
+    },
+    "spec_id": {
+      "type": "string",
+      "enum": ["anchor-receipt"]
+    },
+    "org_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "receipt_id": {"type": "string", "minLength": 1},
+    "anchor_backend": {"type": "string", "minLength": 1},
+    "transparency_log_index": {"type": "integer", "minimum": 0},
+    "payload_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "receipt_signature": {"type": "string", "minLength": 1},
+    "receipt_timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "hash_algorithm": {"type": "string", "enum": ["sha256"]},
+    "hash_algorithm_version": {"type": "string"}
+  }
+}

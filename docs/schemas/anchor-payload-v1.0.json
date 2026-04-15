@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SpecoraAI/specora-verify/docs/schemas/anchor-payload-v1.0.json",
+  "title": "Specora Anchor Payload v1.0",
+  "description": "Normative JSON Schema for the anchor-payload canonical payload, Specora Wire Spec v1.0 §2.4.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "payload_schema_version",
+    "org_id",
+    "period_start",
+    "period_end",
+    "first_seq",
+    "last_seq",
+    "leaf_count",
+    "manifest_spec_id",
+    "manifest_schema_version",
+    "manifest_hash",
+    "root_hash",
+    "root_type",
+    "hash_algorithm",
+    "hash_algorithm_version",
+    "ledger_hash_algorithm",
+    "ledger_hash_algorithm_version"
+  ],
+  "properties": {
+    "payload_schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"]
+    },
+    "org_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "period_start": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "period_end": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "first_seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "last_seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "leaf_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "manifest_spec_id": {
+      "type": "string",
+      "enum": ["proof-manifest"]
+    },
+    "manifest_schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"]
+    },
+    "manifest_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "root_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "root_type": {
+      "type": "string",
+      "enum": ["daily"]
+    },
+    "hash_algorithm": {
+      "type": "string",
+      "enum": ["sha256"]
+    },
+    "hash_algorithm_version": {
+      "type": "string"
+    },
+    "ledger_hash_algorithm": {
+      "type": "string",
+      "enum": ["sha256"]
+    },
+    "ledger_hash_algorithm_version": {
+      "type": "string"
+    }
+  }
+}
