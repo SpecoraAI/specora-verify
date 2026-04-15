@@ -43,6 +43,31 @@ lives in the internal Specora platform repo at
 `docs/strategy/b01-reader-design-notes-2026-Q2.md` and is linked from
 the epic suite entry for EPIC-A03 / EPIC-B01.
 
+## CLI dispatch layer — `_dispatch_read`
+
+Every `specora-verify read <provider>` subcommand goes through a
+single shared helper, `_dispatch_read` in
+[`specora_verify/cli.py`](../../specora_verify/cli.py). The helper is
+the architectural contract that ties every reader's CLI ergonomics
+together: it pulls the registered reader out of `READERS`, calls its
+`read()` method with the standard argument set, emits the canonical
+JSON bundle payload (stdout or `--out`), surfaces every
+`ReadResult.warnings` entry to stderr, and returns the right exit
+code. The result is that adding a new reader is three mechanical
+steps — implement `ReaderProtocol`, decorate with `@reader("<name>")`,
+add a subparser and a one-line `cmd_read_<name>` wrapper that delegates
+to `_dispatch_read` — and every new reader inherits identical CLI
+behavior without re-implementing the output path.
+
+A reader that needs to bypass `_dispatch_read` — different argument
+shape, non-canonical output, or a custom exit-code contract — requires
+a design note in the platform-repo
+`docs/strategy/b01-reader-design-notes-2026-Q2.md` decisions log with
+CEO + Engineering lead sign-off. Silent forks of the dispatch layer are
+the exact failure mode this contract exists to prevent; future reader
+sessions (Azure Confidential Ledger, OpenAI Compliance Platform,
+LangSmith Fleet) inherit the contract and do not re-open it.
+
 ## Offline, no network calls
 
 Every reader is offline by construction. No reader talks to the

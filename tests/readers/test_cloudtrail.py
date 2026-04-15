@@ -395,6 +395,30 @@ def test_empty_records_array_succeeds(tmp_path: Path) -> None:
     assert result.warnings == ()
 
 
+def test_public_key_passed_surfaces_ignore_warning(
+    cloudtrail_minimal: Path, tmp_path: Path
+) -> None:
+    """A user who passes --public-key must be told CloudTrail ignores it.
+
+    Closes B01 CloudTrail session 1 IAP advisory finding #2 — rather than
+    silently ignoring the flag, the reader records an explicit warning
+    that CloudTrail has no per-event signatures and points to the log
+    file validation mechanism.
+    """
+    fake_key = tmp_path / "unused.hex"
+    fake_key.write_text("00" * 32 + "\n", encoding="utf-8")
+    reader = get_reader("cloudtrail")
+    result = reader.read(
+        input_path=cloudtrail_minimal,
+        key_id="spk-ct-pk-check",
+        public_key_path=fake_key,
+        strict=True,
+    )
+    assert result.record_count == 2
+    assert any("--public-key" in w and "ignored" in w for w in result.warnings)
+    assert any("log file validation" in w for w in result.warnings)
+
+
 def test_reader_is_stateless(cloudtrail_minimal: Path) -> None:
     """Re-using a reader across calls must not leak state between invocations."""
     reader = CloudTrailReader()
