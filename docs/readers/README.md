@@ -22,12 +22,12 @@ reader. One file per provider, same structure everywhere:
 |---|---|---|---|---|
 | Anthropic Claude Enterprise Compliance API | `specora-verify read anthropic` | [anthropic.md](anthropic.md) | [`tests/fixtures/anthropic/`](../../tests/fixtures/anthropic/) | shipped 2026-04-15 (A03) |
 | AWS CloudTrail Lake + Bedrock Automated Reasoning Checks | `specora-verify read cloudtrail` | [cloudtrail.md](cloudtrail.md) | [`tests/fixtures/cloudtrail/`](../../tests/fixtures/cloudtrail/) | shipped 2026-04-15 (B01 #1) |
+| Azure Confidential Ledger (entries + receipts, TEE attestation extracted) | `specora-verify read azure-cl` | [azure_cl.md](azure_cl.md) | [`tests/fixtures/azure_cl/`](../../tests/fixtures/azure_cl/) | shipped 2026-04-15 (B01 #2) |
 
 ## Planned (B01 reader suite, Q3 2026)
 
 | Reader | Upstream source |
 |---|---|
-| Azure Confidential Ledger | Confidential Ledger receipts for AI inference records |
 | OpenAI Compliance Platform | OpenAI Compliance Platform JSONL export |
 | LangSmith Fleet | LangSmith Fleet audit-log export |
 

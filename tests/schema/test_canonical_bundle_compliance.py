@@ -44,6 +44,8 @@ LIVE_FIXTURES: list[tuple[str, str]] = [
     ("anthropic", "anthropic/realistic-complex.jsonl"),
     ("cloudtrail", "cloudtrail/minimal-valid.json"),
     ("cloudtrail", "cloudtrail/realistic-complex.json"),
+    ("azure-cl", "azure_cl/minimal-valid.json"),
+    ("azure-cl", "azure_cl/realistic-complex.json"),
 ]
 
 
