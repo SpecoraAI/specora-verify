@@ -1215,6 +1215,51 @@ def build_parser() -> argparse.ArgumentParser:
         help="Expected SHA-256 hash to verify against",
     )
 
+    # read command — provider audit-log readers
+    read_parser = subparsers.add_parser(
+        "read",
+        help="Ingest a provider audit-log export and emit a Specora evidence bundle payload",
+    )
+    read_sub = read_parser.add_subparsers(dest="read_command")
+
+    read_anthropic = read_sub.add_parser(
+        "anthropic",
+        help="Read an Anthropic Claude Enterprise Compliance API JSONL export",
+    )
+    read_anthropic.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help="Path to the Anthropic Compliance API JSONL export",
+    )
+    read_anthropic.add_argument(
+        "--key-id",
+        required=True,
+        help="Specora signing key ID to associate with the emitted bundle payload",
+    )
+    read_anthropic.add_argument(
+        "--public-key",
+        type=Path,
+        default=None,
+        help="Optional Ed25519 public key (raw 32 bytes or 64-char hex) to verify upstream signatures",
+    )
+    read_anthropic.add_argument(
+        "--schema-version",
+        default=None,
+        help="Override the expected upstream schema version (default: per-record declared version)",
+    )
+    read_anthropic.add_argument(
+        "--non-strict",
+        action="store_true",
+        help="Drop malformed records with warnings instead of failing the read",
+    )
+    read_anthropic.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Write the canonical bundle payload JSON to this path (default: stdout)",
+    )
+
     return parser
 
 
@@ -1256,6 +1301,61 @@ def _load_json_file(path: Path, output_format: str) -> dict | None:
             file=sys.stderr,
         )
         return None
+
+
+def cmd_read_anthropic(args: argparse.Namespace) -> int:
+    """Handle: specora-verify read anthropic --input <jsonl> ..."""
+    from specora_verify.canonical import canonical_json_str
+    from specora_verify.errors import ReaderError
+    from specora_verify.readers import get_reader
+
+    try:
+        reader_impl = get_reader("anthropic")
+        result = reader_impl.read(
+            input_path=args.input,
+            key_id=args.key_id,
+            public_key_path=args.public_key,
+            schema_version=args.schema_version,
+            strict=not args.non_strict,
+        )
+    except ReaderError as exc:
+        print(
+            format_error(
+                str(exc),
+                output_format=args.format,
+                code=getattr(exc, "code", "READER_ERROR"),
+            ),
+            file=sys.stderr,
+        )
+        return EXIT_ERROR
+
+    output = canonical_json_str(result.bundle_payload)
+    if args.out:
+        args.out.write_text(output + "\n", encoding="utf-8")
+    else:
+        print(output)
+
+    if args.format == "json":
+        summary = {
+            "provider": result.provider,
+            "schema_version": result.schema_version,
+            "record_count": result.record_count,
+            "upstream_key_id": result.upstream_key_id,
+            "warnings": list(result.warnings),
+            "out": str(args.out) if args.out else None,
+        }
+        print(json.dumps(summary), file=sys.stderr)
+    else:
+        print(
+            f"read anthropic: {result.record_count} records, "
+            f"schema {result.schema_version}, "
+            f"{len(result.warnings)} warnings",
+            file=sys.stderr,
+        )
+        for warning in result.warnings:
+            print(f"  warning: {warning}", file=sys.stderr)
+
+    return EXIT_PASS
 
 
 def cmd_vectors_verify(args: argparse.Namespace) -> int:
@@ -2925,6 +3025,11 @@ def main(argv: list[str] | None = None) -> NoReturn:
             exit_code = cmd_certify_hash(args)
         elif args.certify_command == "verify":
             exit_code = cmd_certify_verify(args)
+        else:
+            parser.print_help()
+    elif args.command == "read":
+        if args.read_command == "anthropic":
+            exit_code = cmd_read_anthropic(args)
         else:
             parser.print_help()
     elif args.command == "verify-external-anchor":

@@ -129,3 +129,55 @@ class ZipMalformedError(VerificationError):
     def __init__(self, detail: str) -> None:
         super().__init__("ZIP_MALFORMED", f"Malformed ZIP bundle: {detail}")
         self.detail = detail
+
+
+class ReaderError(VerificationError):
+    """Base exception for provider audit-log reader failures.
+
+    Readers produce Specora evidence bundles from upstream provider audit
+    exports (Anthropic Compliance API, AWS CloudTrail Lake, etc.). Any
+    hard failure during parse, validation, schema mapping, or cryptographic
+    verification raises a ReaderError subclass. Non-strict reads collect
+    per-record failures into ReadResult.warnings instead of raising.
+    """
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(code, message)
+
+
+class ReaderSchemaError(ReaderError):
+    """Upstream export does not conform to the expected schema."""
+
+    def __init__(self, provider: str, detail: str, line: int | None = None) -> None:
+        location = f" at line {line}" if line is not None else ""
+        super().__init__(
+            "READER_SCHEMA_ERROR",
+            f"{provider} reader schema error{location}: {detail}",
+        )
+        self.provider = provider
+        self.detail = detail
+        self.line = line
+
+
+class ReaderCryptoError(ReaderError):
+    """Upstream signature verification or cryptographic check failed."""
+
+    def __init__(self, provider: str, detail: str) -> None:
+        super().__init__(
+            "READER_CRYPTO_ERROR",
+            f"{provider} reader crypto error: {detail}",
+        )
+        self.provider = provider
+        self.detail = detail
+
+
+class ReaderIOError(ReaderError):
+    """Reader could not read its input file."""
+
+    def __init__(self, path: str, detail: str) -> None:
+        super().__init__(
+            "READER_IO_ERROR",
+            f"Reader I/O error for {path}: {detail}",
+        )
+        self.path = path
+        self.detail = detail
