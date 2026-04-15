@@ -91,7 +91,18 @@ def test_schema_validates_vector(schema_name: str, vector_rel: str) -> None:
 
 
 def test_all_schemas_have_expected_metadata() -> None:
-    """Every schema under docs/schemas/ must declare $schema, $id, title, description."""
+    """Every schema under docs/schemas/ must declare $schema, $id, title, description.
+
+    Drift-check semantic (tightened -> loosened on 2026-04-15 under EPIC-B02):
+    this check asserts every schema has **at least one** reference in
+    SCHEMA_VECTOR_PAIRS. It was loosened from a strict 1:1 count match to
+    "every schema referenced at least once" so new schemas like
+    canonical-bundle-v1.0.json can pair with multiple golden vectors
+    without breaking the suite. If you add a schema to docs/schemas/, add
+    at least one (schema, vector) pair to SCHEMA_VECTOR_PAIRS that
+    references it — otherwise the schema is an orphan and this test will
+    fail.
+    """
     schema_files = sorted(SCHEMAS_DIR.glob("*.json"))
     referenced = {name for name, _ in SCHEMA_VECTOR_PAIRS}
     unreferenced = [p.name for p in schema_files if p.name not in referenced]
