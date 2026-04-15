@@ -1,0 +1,34 @@
+"""Shared fixtures for reader tests."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
+
+
+@pytest.fixture
+def anthropic_fixture_dir() -> Path:
+    return FIXTURE_ROOT / "anthropic"
+
+
+@pytest.fixture
+def anthropic_minimal(anthropic_fixture_dir: Path) -> Path:
+    return anthropic_fixture_dir / "minimal-valid.jsonl"
+
+
+@pytest.fixture
+def anthropic_complex(anthropic_fixture_dir: Path) -> Path:
+    return anthropic_fixture_dir / "realistic-complex.jsonl"
+
+
+@pytest.fixture
+def anthropic_malformed(anthropic_fixture_dir: Path) -> Path:
+    return anthropic_fixture_dir / "malformed.jsonl"
+
+
+@pytest.fixture
+def anthropic_public_key(anthropic_fixture_dir: Path) -> Path:
+    return anthropic_fixture_dir / "keys" / "public.hex"
