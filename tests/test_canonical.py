@@ -145,3 +145,36 @@ class TestEdgeCases:
         payload = {"a": {"b": {"c": {"d": {"e": 1}}}}}
         result = canonical_json_bytes(payload)
         assert result == b'{"a":{"b":{"c":{"d":{"e":1}}}}}'
+
+
+class TestWireSpecV1ValueTypes:
+    """Wire Spec v1.0 §4 defines canonical form over any JSON value, not
+    just top-level objects. These tests lock the widened contract."""
+
+    def test_top_level_array(self) -> None:
+        assert canonical_json_bytes([3, 1, 2]) == b"[3,1,2]"
+
+    def test_top_level_string(self) -> None:
+        assert canonical_json_bytes("hello") == b'"hello"'
+
+    def test_top_level_integer(self) -> None:
+        assert canonical_json_bytes(42) == b"42"
+
+    def test_top_level_null(self) -> None:
+        assert canonical_json_bytes(None) == b"null"
+
+    def test_array_of_objects_inner_keys_sorted(self) -> None:
+        payload = [{"z": 1, "a": 2}, {"y": 3, "b": 4}]
+        assert canonical_json_bytes(payload) == b'[{"a":2,"z":1},{"b":4,"y":3}]'
+
+    def test_nan_rejected(self) -> None:
+        import math
+
+        with pytest.raises(ValueError):
+            canonical_json_bytes({"x": math.nan})
+
+    def test_infinity_rejected(self) -> None:
+        import math
+
+        with pytest.raises(ValueError):
+            canonical_json_bytes({"x": math.inf})
