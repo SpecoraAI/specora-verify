@@ -86,6 +86,18 @@ Releases are cut by maintainers following the process in [GOVERNANCE.md](GOVERNA
 
 Participation in this project is governed by the [Code of Conduct](CODE_OF_CONDUCT.md). Be kind. Disagree with ideas, not people. Assume good faith.
 
+## Wire-spec and schema changes
+
+Changes to `docs/wire-spec-v1.0.md`, `docs/schemas/`, `specora_verify/canonical.py`, or anything that affects bundle compatibility go through the **RFC process** defined in [GOVERNANCE.md §5](GOVERNANCE.md). Open an RFC pull request under `docs/rfcs/` before submitting an implementation. Bug fixes that preserve bundle compatibility do not need an RFC.
+
+## Becoming a maintainer
+
+Sustained contribution can lead to a maintainer nomination. The eligibility criteria, nomination process, and vote mechanics are in [GOVERNANCE.md §3](GOVERNANCE.md). Non-Specora contributors are actively sought — see [GOVERNANCE.md §8.1](GOVERNANCE.md) for the project's multi-maintainer commitment.
+
+## Community engagement
+
+The project holds a monthly community call starting 2026-07. Agenda, join information, and meeting notes are described in [COMMUNITY.md](COMMUNITY.md).
+
 ## Questions
 
 - Public: open a GitHub Discussion or issue.

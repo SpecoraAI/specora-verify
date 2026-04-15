@@ -1,0 +1,93 @@
+# CODEOWNERS for specora-verify
+#
+# This file maps directories to the maintainers responsible for reviewing
+# changes in that area. It is read by GitHub to automatically request
+# review from the right maintainer.
+#
+# Entries are kept in sync with MAINTAINERS.md. If the maintainer roster
+# changes, update both files in the same pull request.
+#
+# The last matching pattern wins, so more-specific rules go last.
+#
+# Handle legend (see MAINTAINERS.md for affiliation and contact info):
+#   @cho-cvc             — core verifier, wire-spec, CI, release engineering, crypto
+#   @nickcontinentalvc   — provider audit-log readers, integration tests, reader docs
+
+# Default owner — catches anything not otherwise assigned.
+*                                       @cho-cvc
+
+# Core library and CLI
+/specora_verify/                        @cho-cvc
+/specora_verify/canonical.py            @cho-cvc
+/specora_verify/signature.py            @cho-cvc
+/specora_verify/hash.py                 @cho-cvc
+/specora_verify/cli.py                  @cho-cvc
+/specora_verify/__init__.py             @cho-cvc
+
+# Reader framework — Nick owns the readers themselves, Cho co-reviews any
+# change that touches how readers map to the wire spec.
+/specora_verify/readers/                @nickcontinentalvc @cho-cvc
+
+# Tests mirror the layout of the code they exercise.
+/tests/                                 @cho-cvc
+/tests/readers/                         @nickcontinentalvc @cho-cvc
+/tests/fixtures/                        @nickcontinentalvc @cho-cvc
+/tests/test_wire_spec_schemas.py        @cho-cvc
+
+# Documentation tree
+/docs/                                  @cho-cvc
+/docs/README.md                         @cho-cvc
+/docs/quickstart.md                     @cho-cvc
+
+# Wire spec — the normative document and its schemas are owned by the
+# spec owner. Any change here requires an RFC per GOVERNANCE.md §5.
+/docs/wire-spec-v1.0.md                 @cho-cvc
+/docs/schemas/                          @cho-cvc
+/docs/versioning-policy.md              @cho-cvc
+/docs/vectors.md                        @cho-cvc
+
+# Trust model — positioning-sensitive, requires spec-owner review.
+/docs/trust-model.md                    @cho-cvc
+
+# Reader documentation — owned by the reader-framework owner, with
+# spec-owner co-review because reader docs describe schema mappings.
+/docs/readers/                          @nickcontinentalvc @cho-cvc
+/docs/readers/README.md                 @nickcontinentalvc @cho-cvc
+/docs/readers/cloudtrail.md             @nickcontinentalvc @cho-cvc
+/docs/readers/anthropic.md              @nickcontinentalvc @cho-cvc
+
+# Golden vectors — wire-spec conformance artifacts. Changes require an
+# RFC per GOVERNANCE.md §5.
+/vectors/                               @cho-cvc
+
+# Examples — Nick owns examples that exercise readers; Cho owns examples
+# that exercise the core verification path.
+/examples/                              @nickcontinentalvc @cho-cvc
+
+# Governance, community, and foundation-facing files.
+# Changes to these files require explicit maintainer review and, for
+# material changes, a formal vote per GOVERNANCE.md §4.2.
+/GOVERNANCE.md                          @cho-cvc @nickcontinentalvc
+/MAINTAINERS.md                         @cho-cvc @nickcontinentalvc
+/ROADMAP.md                             @cho-cvc @nickcontinentalvc
+/COMMUNITY.md                           @cho-cvc @nickcontinentalvc
+/CONTRIBUTING.md                        @cho-cvc @nickcontinentalvc
+/CODE_OF_CONDUCT.md                     @cho-cvc @nickcontinentalvc
+/SECURITY.md                            @cho-cvc @nickcontinentalvc
+/LICENSE                                @cho-cvc @nickcontinentalvc
+/NOTICE                                 @cho-cvc @nickcontinentalvc
+/README.md                              @cho-cvc @nickcontinentalvc
+
+# CI and release infrastructure.
+/.github/                               @cho-cvc
+/.github/workflows/                     @cho-cvc
+/.github/CODEOWNERS                     @cho-cvc @nickcontinentalvc
+/.github/dependabot.yml                 @cho-cvc
+
+# Packaging and project metadata.
+/pyproject.toml                         @cho-cvc
+/sbom.spdx.json                         @cho-cvc
+/specora-security-public.asc            @cho-cvc @nickcontinentalvc
+
+# Ops runbooks (release ceremonies, PGP key generation).
+/ops/                                   @cho-cvc @nickcontinentalvc
