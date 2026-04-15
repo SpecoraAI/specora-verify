@@ -55,6 +55,14 @@ SCHEMA_VECTOR_PAIRS: list[tuple[str, str]] = [
         "signed-artifact-envelope-v1.0.json",
         "signature/signed-artifact-001/metadata.json",
     ),
+    (
+        "canonical-bundle-v1.0.json",
+        "canonical-bundle/canonical-bundle-anthropic-1.0.0.canonical.json",
+    ),
+    (
+        "canonical-bundle-v1.0.json",
+        "canonical-bundle/canonical-bundle-cloudtrail-1.0.0.canonical.json",
+    ),
 ]
 
 
@@ -85,9 +93,11 @@ def test_schema_validates_vector(schema_name: str, vector_rel: str) -> None:
 def test_all_schemas_have_expected_metadata() -> None:
     """Every schema under docs/schemas/ must declare $schema, $id, title, description."""
     schema_files = sorted(SCHEMAS_DIR.glob("*.json"))
-    assert len(schema_files) == len(SCHEMA_VECTOR_PAIRS), (
-        "schema count drift: update SCHEMA_VECTOR_PAIRS or add missing schema. "
-        f"found={[p.name for p in schema_files]}"
+    referenced = {name for name, _ in SCHEMA_VECTOR_PAIRS}
+    unreferenced = [p.name for p in schema_files if p.name not in referenced]
+    assert not unreferenced, (
+        "schema drift: every schema under docs/schemas/ must appear in at least one "
+        f"SCHEMA_VECTOR_PAIRS entry. Unreferenced: {unreferenced}"
     )
     for path in schema_files:
         data = json.loads(path.read_text())
