@@ -1,0 +1,72 @@
+{
+  "Records": [
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000001",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:01Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1001,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-2",
+            "constraint-2"
+          ],
+          "proofHash": "sha256:df34d29c2da4c9efa59723933964883a4779e17ecdebbf4e08a62d768999c750",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 301,
+        "requestId": "req-bedrock-00000001"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/1",
+        "principalId": "AROA00000001:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000002",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:02Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1002,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-3",
+            "constraint-3"
+          ],
+          "proofHash": "sha256:697d7a82745a9ff67bf205c5d4f4cc6fb56cd90ccc2763db65e09853fb57c165",
+          "verdict": "invalid"
+        },
+        "modelInvocationResult": "blocked",
+        "outputTokens": 302,
+        "requestId": "req-bedrock-00000002"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/2",
+        "principalId": "AROA00000002:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    }
+  ]
+}

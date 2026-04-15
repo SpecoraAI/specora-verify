@@ -16,6 +16,7 @@ from specora_verify.cli import main
 from specora_verify.errors import EXIT_ERROR, EXIT_PASS
 
 FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "anthropic"
+CT_FIXTURE_DIR = Path(__file__).resolve().parent / "fixtures" / "cloudtrail"
 
 
 def _run(argv: list[str]) -> int:
@@ -142,3 +143,90 @@ def test_cli_read_anthropic_with_upstream_public_key(tmp_path: Path) -> None:
         ]
     )
     assert code == EXIT_PASS
+
+
+# ---------------------------------------------------------------------------
+# CloudTrail CLI integration tests
+# ---------------------------------------------------------------------------
+
+
+def test_cli_read_cloudtrail_minimal_to_file(tmp_path: Path, capsys) -> None:
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "read",
+            "cloudtrail",
+            "--input",
+            str(CT_FIXTURE_DIR / "minimal-valid.json"),
+            "--key-id",
+            "spk-ct-cli",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    assert out.exists()
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["metadata"]["provider"] == "cloudtrail"
+    assert payload["metadata"]["record_count"] == 2
+    assert payload["metadata"]["key_id"] == "spk-ct-cli"
+    assert payload["records"][0]["decision"]["formal_verdict"] == "valid"
+    captured = capsys.readouterr()
+    assert "read cloudtrail: 2 records" in captured.err
+
+
+def test_cli_read_cloudtrail_deterministic_across_runs(tmp_path: Path) -> None:
+    out_a = tmp_path / "a.json"
+    out_b = tmp_path / "b.json"
+    for out in (out_a, out_b):
+        code = _run(
+            [
+                "read",
+                "cloudtrail",
+                "--input",
+                str(CT_FIXTURE_DIR / "minimal-valid.json"),
+                "--key-id",
+                "spk-ct-deterministic",
+                "--out",
+                str(out),
+            ]
+        )
+        assert code == EXIT_PASS
+    assert out_a.read_bytes() == out_b.read_bytes()
+
+
+def test_cli_read_cloudtrail_strict_malformed_errors(tmp_path: Path, capsys) -> None:
+    code = _run(
+        [
+            "read",
+            "cloudtrail",
+            "--input",
+            str(CT_FIXTURE_DIR / "malformed.json"),
+            "--key-id",
+            "spk-ct-strict",
+        ]
+    )
+    assert code == EXIT_ERROR
+
+
+def test_cli_read_cloudtrail_non_strict_recovers(tmp_path: Path, capsys) -> None:
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "read",
+            "cloudtrail",
+            "--input",
+            str(CT_FIXTURE_DIR / "malformed.json"),
+            "--key-id",
+            "spk-ct-non-strict",
+            "--non-strict",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["metadata"]["record_count"] == 3
+    err = capsys.readouterr().err
+    assert "3 records" in err
+    assert "2 warnings" in err

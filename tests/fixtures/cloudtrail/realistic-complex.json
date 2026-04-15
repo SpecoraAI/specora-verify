@@ -1,0 +1,916 @@
+{
+  "Records": [
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000201",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:21Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1201,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-2",
+            "constraint-6"
+          ],
+          "proofHash": "sha256:e5234c37b75ace7caddb05ed7b6d4d8b3099b517fa81967a6cc7ed877db78244",
+          "verdict": "invalid"
+        },
+        "modelInvocationResult": "blocked",
+        "outputTokens": 301,
+        "requestId": "req-bedrock-000000c9"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/201",
+        "principalId": "AROA000000C9:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000202",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:22Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1202,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-3",
+            "constraint-7"
+          ],
+          "proofHash": "sha256:8b1320d6c0da3fa203161ac6609627fa0c71b6ee5ebb846868a0a7ff1c4cb851",
+          "verdict": "unknown"
+        },
+        "modelInvocationResult": "pending",
+        "outputTokens": 302,
+        "requestId": "req-bedrock-000000ca"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/202",
+        "principalId": "AROA000000CA:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000203",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:23Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1203,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": true,
+          "logicalConstraints": [
+            "constraint-4",
+            "constraint-1"
+          ],
+          "proofHash": "sha256:43588a2bea59f08ba74d5c9a14b7ee8b33ae1e8f3dff5e9f626e74da8862ad3e",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 303,
+        "requestId": "req-bedrock-000000cb"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/203",
+        "principalId": "AROA000000CB:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000204",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:24Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1204,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-5",
+            "constraint-2"
+          ],
+          "proofHash": "sha256:0b5fc3b23d481049d27d94d3916a6d936be62280a1d190bf62d3251b41954076",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 304,
+        "requestId": "req-bedrock-000000cc"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/204",
+        "principalId": "AROA000000CC:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000205",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:25Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1205,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-1",
+            "constraint-3"
+          ],
+          "proofHash": "sha256:125e5e5c830de800717e4207f3e524c119ff169db8b229ad689897ba7043583b",
+          "verdict": "invalid"
+        },
+        "modelInvocationResult": "blocked",
+        "outputTokens": 305,
+        "requestId": "req-bedrock-000000cd"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/205",
+        "principalId": "AROA000000CD:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000206",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:26Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1206,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-2",
+            "constraint-4"
+          ],
+          "proofHash": "sha256:c5bde927bbfad60f107ddba964de4bf6881d175466c4cfb92c3725c61790fdae",
+          "verdict": "unknown"
+        },
+        "modelInvocationResult": "pending",
+        "outputTokens": 306,
+        "requestId": "req-bedrock-000000ce"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/206",
+        "principalId": "AROA000000CE:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000207",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:27Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1207,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": true,
+          "logicalConstraints": [
+            "constraint-3",
+            "constraint-5"
+          ],
+          "proofHash": "sha256:90371225658a626a0274d03a6997fe48c163b6073dc9aedac993b5f12cbfb119",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 307,
+        "requestId": "req-bedrock-000000cf"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/207",
+        "principalId": "AROA000000CF:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000208",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:28Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1208,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-4",
+            "constraint-6"
+          ],
+          "proofHash": "sha256:2e6c1a5106c01f1436f80887be759b6c8e8b669e5e0f360c768669b4fd3e15cd",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 308,
+        "requestId": "req-bedrock-000000d0"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/208",
+        "principalId": "AROA000000D0:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000209",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:29Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1209,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-5",
+            "constraint-7"
+          ],
+          "proofHash": "sha256:f8d5f8688fbeb327af6d57ba1e6b32551a2ce2aef70b45c551cfd4c1180afd32",
+          "verdict": "invalid"
+        },
+        "modelInvocationResult": "blocked",
+        "outputTokens": 309,
+        "requestId": "req-bedrock-000000d1"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/209",
+        "principalId": "AROA000000D1:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000210",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:30Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1210,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-1",
+            "constraint-1"
+          ],
+          "proofHash": "sha256:e2ec5f89ccb5db425133e762f69c3a6de04197473c98aae781a4499294d37147",
+          "verdict": "unknown"
+        },
+        "modelInvocationResult": "pending",
+        "outputTokens": 310,
+        "requestId": "req-bedrock-000000d2"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/210",
+        "principalId": "AROA000000D2:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000211",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:31Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1211,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": true,
+          "logicalConstraints": [
+            "constraint-2",
+            "constraint-2"
+          ],
+          "proofHash": "sha256:748bacf3b967bd2bb1a13d04db14cea49edc92b1039f565501c6f2ba7ba68616",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 311,
+        "requestId": "req-bedrock-000000d3"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/211",
+        "principalId": "AROA000000D3:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000212",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:32Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1212,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-3",
+            "constraint-3"
+          ],
+          "proofHash": "sha256:0fcdc2d8634603ecc7b092cd80e90bf82bc6d072190e4e289053aa7eaf1f546f",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 312,
+        "requestId": "req-bedrock-000000d4"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/212",
+        "principalId": "AROA000000D4:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000213",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:33Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1213,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-4",
+            "constraint-4"
+          ],
+          "proofHash": "sha256:e4b26d4d560c461adb36510688b9fecbcdf37bd43b66bf462d386aac0852d84b",
+          "verdict": "invalid"
+        },
+        "modelInvocationResult": "blocked",
+        "outputTokens": 313,
+        "requestId": "req-bedrock-000000d5"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/213",
+        "principalId": "AROA000000D5:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000214",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:34Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1214,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-5",
+            "constraint-5"
+          ],
+          "proofHash": "sha256:5381cde4b5a922a498362959643a0a4f62f74a558e2d2d50d9706e2a061b8c4d",
+          "verdict": "unknown"
+        },
+        "modelInvocationResult": "pending",
+        "outputTokens": 314,
+        "requestId": "req-bedrock-000000d6"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/214",
+        "principalId": "AROA000000D6:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000215",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:35Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1215,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": true,
+          "logicalConstraints": [
+            "constraint-1",
+            "constraint-6"
+          ],
+          "proofHash": "sha256:4152a4c7af7eddcdfaadc34cfb2f7ef61f156ce37499638f134bc99e5dff2f3a",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 315,
+        "requestId": "req-bedrock-000000d7"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/215",
+        "principalId": "AROA000000D7:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000216",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:36Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1216,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-2",
+            "constraint-7"
+          ],
+          "proofHash": "sha256:cbdfebedfee39bb54cdd7a40b0a32ef669909332aeb9bc847725beab5e458257",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 316,
+        "requestId": "req-bedrock-000000d8"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/216",
+        "principalId": "AROA000000D8:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000217",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:37Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1217,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-3",
+            "constraint-1"
+          ],
+          "proofHash": "sha256:4902c102bc0251e4c93206546ff435df4d881b3d9220f7fc6452b9e9e3ded93a",
+          "verdict": "invalid"
+        },
+        "modelInvocationResult": "blocked",
+        "outputTokens": 317,
+        "requestId": "req-bedrock-000000d9"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/217",
+        "principalId": "AROA000000D9:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000218",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:38Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1218,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-4",
+            "constraint-2"
+          ],
+          "proofHash": "sha256:7578c71617437be473a4c9c51cd55cc3dd7ceba65d04a139b884a482e21512e0",
+          "verdict": "unknown"
+        },
+        "modelInvocationResult": "pending",
+        "outputTokens": 318,
+        "requestId": "req-bedrock-000000da"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/218",
+        "principalId": "AROA000000DA:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000219",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:39Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1219,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": true,
+          "logicalConstraints": [
+            "constraint-5",
+            "constraint-3"
+          ],
+          "proofHash": "sha256:4717da60cc5c0e0ebac94ce4a0bef2f7958bd159c69b2c147a7e5c79fbc5c4d4",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 319,
+        "requestId": "req-bedrock-000000db"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/219",
+        "principalId": "AROA000000DB:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000220",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:40Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1220,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-1",
+            "constraint-4"
+          ],
+          "proofHash": "sha256:4347827b9bc2ff11b476e2e81457f58e30f563de05c09dee4c95dfdb846d25b9",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 320,
+        "requestId": "req-bedrock-000000dc"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/220",
+        "principalId": "AROA000000DC:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000221",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:41Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1221,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-2",
+            "constraint-5"
+          ],
+          "proofHash": "sha256:bee7a79f8f3cea2dec844ecad54beda332bf9713c62d42b56aa182ff0ee7e2bf",
+          "verdict": "invalid"
+        },
+        "modelInvocationResult": "blocked",
+        "outputTokens": 321,
+        "requestId": "req-bedrock-000000dd"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/221",
+        "principalId": "AROA000000DD:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-west-2",
+      "eventID": "ct-event-000222",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:42Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-def456",
+        "inputTokens": 1222,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-3",
+            "constraint-6"
+          ],
+          "proofHash": "sha256:f5b3e340308d76717687330da8d0665a8e79a8920f9696df2537713eab9ccfdf",
+          "verdict": "unknown"
+        },
+        "modelInvocationResult": "pending",
+        "outputTokens": 322,
+        "requestId": "req-bedrock-000000de"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/222",
+        "principalId": "AROA000000DE:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "eu-central-1",
+      "eventID": "ct-event-000223",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:43Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-ghi789",
+        "inputTokens": 1223,
+        "maxTokens": 2048,
+        "modelId": "amazon.titan-text-premier-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": true,
+          "logicalConstraints": [
+            "constraint-4",
+            "constraint-7"
+          ],
+          "proofHash": "sha256:5e9ce9f5aa56077d16ca4b03bd686b31fa7efb02a19e5d565ecd0bd328806984",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 323,
+        "requestId": "req-bedrock-000000df"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/223",
+        "principalId": "AROA000000DF:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000224",
+      "eventName": "InvokeModelWithAutomatedReasoning",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:44Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "automatedReasoningPolicyId": "arp-abc123",
+        "inputTokens": 1224,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "automatedReasoningResult": {
+          "escalationRequired": false,
+          "logicalConstraints": [
+            "constraint-5",
+            "constraint-1"
+          ],
+          "proofHash": "sha256:45a59ad7a485089d6f5431d24a307a389d3e76d7dbb64d91537f01c60c223bf9",
+          "verdict": "valid"
+        },
+        "modelInvocationResult": "approved",
+        "outputTokens": 324,
+        "requestId": "req-bedrock-000000e0"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/224",
+        "principalId": "AROA000000E0:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000301",
+      "eventName": "InvokeModel",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:01Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "inputTokens": 1301,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "modelInvocationResult": "approved",
+        "outputTokens": 401,
+        "requestId": "req-bedrock-0000012d"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/301",
+        "principalId": "AROA0000012D:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000302",
+      "eventName": "InvokeModel",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:02Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "inputTokens": 1302,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "modelInvocationResult": "approved",
+        "outputTokens": 402,
+        "requestId": "req-bedrock-0000012e"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/302",
+        "principalId": "AROA0000012E:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-000303",
+      "eventName": "InvokeModel",
+      "eventSource": "bedrock.amazonaws.com",
+      "eventTime": "2026-06-10T14:22:03Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "inputTokens": 1303,
+        "maxTokens": 2048,
+        "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      },
+      "responseElements": {
+        "modelInvocationResult": "approved",
+        "outputTokens": 403,
+        "requestId": "req-bedrock-0000012f"
+      },
+      "userIdentity": {
+        "accountId": "123456789012",
+        "arn": "arn:aws:sts::123456789012:assumed-role/bedrock-caller/303",
+        "principalId": "AROA0000012F:bedrock-caller",
+        "type": "AssumedRole"
+      }
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-400001",
+      "eventName": "AssumeRole",
+      "eventSource": "sts.amazonaws.com",
+      "eventTime": "2026-06-10T14:23:00Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "roleArn": "arn:aws:iam::123456789012:role/demo"
+      },
+      "responseElements": {}
+    },
+    {
+      "awsRegion": "us-east-1",
+      "eventID": "ct-event-400002",
+      "eventName": "GetObject",
+      "eventSource": "s3.amazonaws.com",
+      "eventTime": "2026-06-10T14:23:01Z",
+      "eventVersion": "1.09",
+      "requestParameters": {
+        "bucketName": "demo-bucket"
+      },
+      "responseElements": {}
+    }
+  ]
+}

@@ -1260,6 +1260,51 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write the canonical bundle payload JSON to this path (default: stdout)",
     )
 
+    read_cloudtrail = read_sub.add_parser(
+        "cloudtrail",
+        help="Read an AWS CloudTrail JSON export (Bedrock AR Checks)",
+    )
+    read_cloudtrail.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help="Path to a CloudTrail JSON export ({'Records': [...]})",
+    )
+    read_cloudtrail.add_argument(
+        "--key-id",
+        required=True,
+        help="Specora signing key ID to associate with the emitted bundle payload",
+    )
+    read_cloudtrail.add_argument(
+        "--public-key",
+        type=Path,
+        default=None,
+        help=(
+            "Accepted for interface compatibility with other readers. CloudTrail "
+            "has no per-event signatures; integrity is anchored at the log file "
+            "validation level (aws cloudtrail validate-logs)."
+        ),
+    )
+    read_cloudtrail.add_argument(
+        "--schema-version",
+        default=None,
+        help="Override the expected CloudTrail eventVersion (default: per-record)",
+    )
+    read_cloudtrail.add_argument(
+        "--non-strict",
+        action="store_true",
+        help=(
+            "Drop malformed records with warnings instead of failing. Non-AR "
+            "Bedrock invocations and non-Bedrock events are always silently skipped."
+        ),
+    )
+    read_cloudtrail.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Write the canonical bundle payload JSON to this path (default: stdout)",
+    )
+
     return parser
 
 
@@ -1303,14 +1348,14 @@ def _load_json_file(path: Path, output_format: str) -> dict | None:
         return None
 
 
-def cmd_read_anthropic(args: argparse.Namespace) -> int:
-    """Handle: specora-verify read anthropic --input <jsonl> ..."""
+def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
+    """Shared implementation for all ``specora-verify read <provider>`` subcommands."""
     from specora_verify.canonical import canonical_json_str
     from specora_verify.errors import ReaderError
     from specora_verify.readers import get_reader
 
     try:
-        reader_impl = get_reader("anthropic")
+        reader_impl = get_reader(provider)
         result = reader_impl.read(
             input_path=args.input,
             key_id=args.key_id,
@@ -1347,7 +1392,7 @@ def cmd_read_anthropic(args: argparse.Namespace) -> int:
         print(json.dumps(summary), file=sys.stderr)
     else:
         print(
-            f"read anthropic: {result.record_count} records, "
+            f"read {provider}: {result.record_count} records, "
             f"schema {result.schema_version}, "
             f"{len(result.warnings)} warnings",
             file=sys.stderr,
@@ -1356,6 +1401,16 @@ def cmd_read_anthropic(args: argparse.Namespace) -> int:
             print(f"  warning: {warning}", file=sys.stderr)
 
     return EXIT_PASS
+
+
+def cmd_read_anthropic(args: argparse.Namespace) -> int:
+    """Handle: specora-verify read anthropic --input <jsonl> ..."""
+    return _dispatch_read(args, "anthropic")
+
+
+def cmd_read_cloudtrail(args: argparse.Namespace) -> int:
+    """Handle: specora-verify read cloudtrail --input <json> ..."""
+    return _dispatch_read(args, "cloudtrail")
 
 
 def cmd_vectors_verify(args: argparse.Namespace) -> int:
@@ -3030,6 +3085,8 @@ def main(argv: list[str] | None = None) -> NoReturn:
     elif args.command == "read":
         if args.read_command == "anthropic":
             exit_code = cmd_read_anthropic(args)
+        elif args.read_command == "cloudtrail":
+            exit_code = cmd_read_cloudtrail(args)
         else:
             parser.print_help()
     elif args.command == "verify-external-anchor":
