@@ -1347,6 +1347,56 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write the canonical bundle payload JSON to this path (default: stdout)",
     )
 
+    read_openai = read_sub.add_parser(
+        "openai",
+        help="Read an OpenAI Compliance Platform audit-log export",
+    )
+    read_openai.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help=(
+            "Path to an OpenAI Compliance Platform export "
+            "({'object': 'list', 'data': [...]}, a bare JSON array, "
+            "or JSONL)"
+        ),
+    )
+    read_openai.add_argument(
+        "--key-id",
+        required=True,
+        help="Specora signing key ID to associate with the emitted bundle payload",
+    )
+    read_openai.add_argument(
+        "--public-key",
+        type=Path,
+        default=None,
+        help=(
+            "Accepted for interface compatibility with other readers. OpenAI "
+            "Compliance Platform does not emit per-event signatures; integrity "
+            "is anchored at the TLS transport layer and by the enterprise "
+            "admin console's tamper-evident audit log."
+        ),
+    )
+    read_openai.add_argument(
+        "--schema-version",
+        default=None,
+        help=(
+            "Override the reader-side OpenAI schema version "
+            "(default: openai-compliance-v1-preview)"
+        ),
+    )
+    read_openai.add_argument(
+        "--non-strict",
+        action="store_true",
+        help="Drop malformed events with warnings instead of failing the read",
+    )
+    read_openai.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Write the canonical bundle payload JSON to this path (default: stdout)",
+    )
+
     # run command (EPIC-B03: end-to-end out-of-band flow)
     # Note: `_dispatch_read` stays read-only. `run` is deliberately a
     # separate code path that composes reader + signer + on-disk bundle
@@ -1546,6 +1596,11 @@ def cmd_read_cloudtrail(args: argparse.Namespace) -> int:
 def cmd_read_azure_cl(args: argparse.Namespace) -> int:
     """Handle: specora-verify read azure-cl --input <json> ..."""
     return _dispatch_read(args, "azure-cl")
+
+
+def cmd_read_openai(args: argparse.Namespace) -> int:
+    """Handle: specora-verify read openai --input <json> ..."""
+    return _dispatch_read(args, "openai")
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -3302,6 +3357,8 @@ def main(argv: list[str] | None = None) -> NoReturn:
             exit_code = cmd_read_cloudtrail(args)
         elif args.read_command == "azure-cl":
             exit_code = cmd_read_azure_cl(args)
+        elif args.read_command == "openai":
+            exit_code = cmd_read_openai(args)
         else:
             parser.print_help()
     elif args.command == "run":

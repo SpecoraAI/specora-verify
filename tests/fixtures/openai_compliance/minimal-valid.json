@@ -1,0 +1,64 @@
+{
+  "object": "list",
+  "has_more": false,
+  "data": [
+    {
+      "id": "evt_openai_00000001",
+      "object": "compliance.event",
+      "type": "policy_check",
+      "effective_at": "2026-06-11T09:01:07Z",
+      "request_id": "req_openai_00000001",
+      "project_id": "proj_synthetic_alpha",
+      "model": "gpt-4o-2024-08-06",
+      "decision": {
+        "outcome": "allowed",
+        "policy_ids": ["pol-openai-1", "pol-openai-7"]
+      },
+      "moderation": {
+        "flagged": false,
+        "categories": {
+          "hate": false,
+          "self-harm": false,
+          "sexual": false,
+          "violence": false
+        },
+        "category_scores": {
+          "hate": 0.00012,
+          "self-harm": 0.00003,
+          "sexual": 0.00045,
+          "violence": 0.00021
+        }
+      },
+      "content_hash": "sha256:2d8b7fda5050635d227db3048be5b3174cd395fb033db51615e10c81750f8c54"
+    },
+    {
+      "id": "evt_openai_00000002",
+      "object": "compliance.event",
+      "type": "moderation",
+      "effective_at": 1760000000,
+      "request_id": "req_openai_00000002",
+      "project_id": "proj_synthetic_alpha",
+      "model": "gpt-4o-mini-2024-07-18",
+      "decision": {
+        "outcome": "blocked",
+        "policy_ids": ["pol-openai-2"]
+      },
+      "moderation": {
+        "flagged": true,
+        "categories": {
+          "hate": false,
+          "self-harm": false,
+          "sexual": false,
+          "violence": true
+        },
+        "category_scores": {
+          "hate": 0.00231,
+          "self-harm": 0.00010,
+          "sexual": 0.00099,
+          "violence": 0.91244
+        }
+      },
+      "content_hash": "sha256:3267eb93e5c7404229117285db27f51f3bd03e3b269be904a5ba33e2d8f32201"
+    }
+  ]
+}

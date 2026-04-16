@@ -1,0 +1,61 @@
+{
+  "object": "list",
+  "has_more": false,
+  "data": [
+    {
+      "id": "evt_mal_good_001",
+      "object": "compliance.event",
+      "type": "policy_check",
+      "effective_at": "2026-06-11T09:00:01Z",
+      "request_id": "req_mal_001",
+      "project_id": "proj_test",
+      "model": "gpt-4o-2024-08-06",
+      "decision": {
+        "outcome": "allowed",
+        "policy_ids": ["pol-1"]
+      },
+      "content_hash": "sha256:a000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "id": "evt_mal_bad_002",
+      "object": "compliance.event",
+      "type": "policy_check",
+      "effective_at": "2026-06-11T09:00:02Z",
+      "model": "gpt-4o-2024-08-06",
+      "decision": {
+        "outcome": "allowed",
+        "policy_ids": ["pol-1"]
+      },
+      "content_hash": "BAD-NOT-SHA256"
+    },
+    {
+      "id": "evt_mal_good_003",
+      "object": "compliance.event",
+      "type": "policy_check",
+      "effective_at": "2026-06-11T09:00:03Z",
+      "request_id": "req_mal_003",
+      "project_id": "proj_test",
+      "model": "gpt-4o-2024-08-06",
+      "decision": {
+        "outcome": "approved",
+        "policy_ids": ["pol-3"]
+      },
+      "content_hash": "sha256:b000000000000000000000000000000000000000000000000000000000000003"
+    },
+    "not-an-object",
+    {
+      "id": "evt_mal_good_005",
+      "object": "compliance.event",
+      "type": "moderation",
+      "effective_at": "2026-06-11T09:00:05Z",
+      "request_id": "req_mal_005",
+      "project_id": "proj_test",
+      "model": "gpt-4o-mini-2024-07-18",
+      "decision": {
+        "outcome": "blocked",
+        "policy_ids": ["pol-5"]
+      },
+      "content_hash": "sha256:c000000000000000000000000000000000000000000000000000000000000005"
+    }
+  ]
+}
