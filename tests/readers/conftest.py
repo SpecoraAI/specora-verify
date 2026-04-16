@@ -72,3 +72,23 @@ def azure_cl_complex(azure_cl_fixture_dir: Path) -> Path:
 @pytest.fixture
 def azure_cl_malformed(azure_cl_fixture_dir: Path) -> Path:
     return azure_cl_fixture_dir / "malformed.json"
+
+
+@pytest.fixture
+def openai_fixture_dir() -> Path:
+    return FIXTURE_ROOT / "openai_compliance"
+
+
+@pytest.fixture
+def openai_minimal(openai_fixture_dir: Path) -> Path:
+    return openai_fixture_dir / "minimal-valid.json"
+
+
+@pytest.fixture
+def openai_complex(openai_fixture_dir: Path) -> Path:
+    return openai_fixture_dir / "realistic-complex.jsonl"
+
+
+@pytest.fixture
+def openai_malformed(openai_fixture_dir: Path) -> Path:
+    return openai_fixture_dir / "malformed.json"

@@ -148,7 +148,7 @@ Reader coverage at launch (2026-06-14):
 - [x] Anthropic Compliance API — [docs](docs/readers/anthropic.md) · [module](specora_verify/readers/anthropic.py)
 - [x] AWS CloudTrail Lake + Bedrock Automated Reasoning Checks — [docs](docs/readers/cloudtrail.md) · [module](specora_verify/readers/cloudtrail.py)
 - [x] Azure Confidential Ledger (entries + receipts, TEE attestation extracted) — [docs](docs/readers/azure_cl.md) · [module](specora_verify/readers/azure_cl.py)
-- [ ] OpenAI Compliance Platform JSONL *(Q3 2026)*
+- [x] OpenAI Compliance Platform (moderation/policy-check evidence, design-accurate pending live-data validation) — [docs](docs/readers/openai-compliance.md) · [module](specora_verify/readers/openai_compliance.py)
 - [ ] LangSmith Fleet audit export *(Q3 2026)*
 
 Each reader is roughly 200 lines of Python and a schema-mapping document. Contributions for additional providers are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
