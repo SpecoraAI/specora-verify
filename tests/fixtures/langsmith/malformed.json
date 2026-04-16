@@ -1,0 +1,55 @@
+{
+  "runs": [
+    {
+      "id": "run_mal_good_001",
+      "name": "valid-chain",
+      "run_type": "chain",
+      "start_time": "2026-06-12T09:00:01Z",
+      "status": "success",
+      "model_name": "claude-3-5-sonnet-20241022",
+      "evaluation": {
+        "outcome": "pass",
+        "rule_ids": ["rule-1"]
+      },
+      "content_hash": "sha256:a000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "id": "run_mal_bad_002",
+      "name": "bad-content-hash",
+      "run_type": "chain",
+      "start_time": "2026-06-12T09:00:02Z",
+      "status": "success",
+      "evaluation": {
+        "outcome": "pass",
+        "rule_ids": ["rule-1"]
+      },
+      "content_hash": "BAD-NOT-SHA256"
+    },
+    {
+      "id": "run_mal_good_003",
+      "name": "another-valid",
+      "run_type": "llm",
+      "start_time": "2026-06-12T09:00:03Z",
+      "status": "success",
+      "model_name": "gpt-4o-2024-08-06",
+      "evaluation": {
+        "outcome": "approved",
+        "rule_ids": ["rule-3"]
+      },
+      "content_hash": "sha256:b000000000000000000000000000000000000000000000000000000000000003"
+    },
+    "not-an-object",
+    {
+      "id": "run_mal_good_005",
+      "name": "final-valid",
+      "run_type": "tool",
+      "start_time": "2026-06-12T09:00:05Z",
+      "status": "success",
+      "evaluation": {
+        "outcome": "fail",
+        "rule_ids": ["rule-5"]
+      },
+      "content_hash": "sha256:c000000000000000000000000000000000000000000000000000000000000005"
+    }
+  ]
+}
