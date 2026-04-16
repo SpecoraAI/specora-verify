@@ -1347,6 +1347,70 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write the canonical bundle payload JSON to this path (default: stdout)",
     )
 
+    # run command (EPIC-B03: end-to-end out-of-band flow)
+    # Note: `_dispatch_read` stays read-only. `run` is deliberately a
+    # separate code path that composes reader + signer + on-disk bundle
+    # writer. Keeping the two separated means `read` continues to do one
+    # thing (print canonical JSON to stdout or --out) and `run` owns the
+    # full e2e pipeline — no silent mode-switch on an existing command.
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Run the end-to-end out-of-band verification pipeline (EPIC-B03)",
+        description=(
+            "Read a provider audit-log export, normalize it to a canonical "
+            "Specora evidence bundle, sign it with an Ed25519 key, and write "
+            "a verifiable bundle directory. The output can be fed directly "
+            "into 'specora-verify verify'."
+        ),
+    )
+    run_parser.add_argument(
+        "--provider",
+        required=True,
+        help="Provider name (e.g. anthropic, cloudtrail, azure-cl)",
+    )
+    run_parser.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help="Path to the provider audit-log export",
+    )
+    run_parser.add_argument(
+        "--key-id",
+        required=True,
+        help="Specora signing key ID to record in the bundle metadata",
+    )
+    run_parser.add_argument(
+        "--private-key",
+        required=True,
+        type=Path,
+        help=(
+            "Path to the Ed25519 private key used to sign the bundle "
+            "(64-char hex, raw 32 bytes, or unencrypted PEM PKCS#8)"
+        ),
+    )
+    run_parser.add_argument(
+        "--out",
+        required=True,
+        type=Path,
+        help="Output directory for the signed bundle (created if missing)",
+    )
+    run_parser.add_argument(
+        "--public-key",
+        type=Path,
+        default=None,
+        help="Optional upstream provider public key (forwarded to the reader)",
+    )
+    run_parser.add_argument(
+        "--schema-version",
+        default=None,
+        help="Override the expected upstream schema version",
+    )
+    run_parser.add_argument(
+        "--non-strict",
+        action="store_true",
+        help="Drop malformed records with warnings instead of failing the read",
+    )
+
     return parser
 
 
@@ -1482,6 +1546,84 @@ def cmd_read_cloudtrail(args: argparse.Namespace) -> int:
 def cmd_read_azure_cl(args: argparse.Namespace) -> int:
     """Handle: specora-verify read azure-cl --input <json> ..."""
     return _dispatch_read(args, "azure-cl")
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    """Handle: specora-verify run --provider <p> --input <f> ... --out <dir>
+
+    EPIC-B03 end-to-end orchestration. Imports the orchestration module
+    lazily so the core ``read`` / ``verify`` paths stay independent of
+    the ``cryptography`` optional dependency (signing requires it, but
+    stdlib-only verification does not).
+    """
+    from specora_verify.errors import ReaderError
+    from specora_verify.orchestration import OrchestrationError, run_pipeline
+
+    try:
+        result = run_pipeline(
+            provider=args.provider,
+            input_path=args.input,
+            key_id=args.key_id,
+            private_key_path=args.private_key,
+            out_dir=args.out,
+            public_key_path=args.public_key,
+            schema_version=args.schema_version,
+            strict=not args.non_strict,
+        )
+    except ReaderError as exc:
+        print(
+            format_error(
+                str(exc),
+                output_format=args.format,
+                code=getattr(exc, "code", "READER_ERROR"),
+            ),
+            file=sys.stderr,
+        )
+        return EXIT_ERROR
+    except OrchestrationError as exc:
+        print(
+            format_error(
+                str(exc),
+                output_format=args.format,
+                code="ORCHESTRATION_ERROR",
+            ),
+            file=sys.stderr,
+        )
+        return EXIT_ERROR
+
+    if args.format == "json":
+        summary = {
+            "provider": result.provider,
+            "record_count": result.record_count,
+            "payload_sha256": result.payload_sha256,
+            "warnings": list(result.warnings),
+            "bundle_dir": str(result.bundle_dir),
+            "payload": str(result.payload_path),
+            "signature": str(result.signature_path),
+            "public_key": str(result.public_key_path),
+            "metadata": str(result.metadata_path),
+        }
+        print(json.dumps(summary))
+    else:
+        print(
+            f"run {result.provider}: {result.record_count} records -> {result.bundle_dir}",
+            file=sys.stderr,
+        )
+        print(f"  payload:    {result.payload_path}", file=sys.stderr)
+        print(f"  signature:  {result.signature_path}", file=sys.stderr)
+        print(f"  public key: {result.public_key_path}", file=sys.stderr)
+        print(f"  metadata:   {result.metadata_path}", file=sys.stderr)
+        for warning in result.warnings:
+            print(f"  warning: {warning}", file=sys.stderr)
+        print(
+            "verify with: specora-verify verify "
+            f"--artifact {result.payload_path} "
+            f"--signature {result.signature_path} "
+            f"--public-key {result.public_key_path}",
+            file=sys.stderr,
+        )
+
+    return EXIT_PASS
 
 
 def cmd_vectors_verify(args: argparse.Namespace) -> int:
@@ -3162,6 +3304,8 @@ def main(argv: list[str] | None = None) -> NoReturn:
             exit_code = cmd_read_azure_cl(args)
         else:
             parser.print_help()
+    elif args.command == "run":
+        exit_code = cmd_run(args)
     elif args.command == "verify-external-anchor":
         exit_code = cmd_verify_external_anchor(args)
     elif args.command == "verify-external-anchor-chain":
