@@ -1,0 +1,8 @@
+{
+  "url": "https://app.drata.com/webhooks/specora/evidence",
+  "events": ["bundle.created", "bundle.verified"],
+  "metadata": {
+    "platform": "drata",
+    "connection_id": "conn-abc123"
+  }
+}

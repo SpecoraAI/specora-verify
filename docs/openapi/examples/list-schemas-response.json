@@ -1,0 +1,34 @@
+{
+  "schemas": [
+    {
+      "name": "canonical-bundle",
+      "version": "1.0.0",
+      "url": "https://github.com/SpecoraAI/specora-verify/blob/main/docs/schemas/canonical-bundle-v1.0.json",
+      "description": "Normative JSON Schema for canonical evidence bundles produced by provider readers."
+    },
+    {
+      "name": "wire-spec",
+      "version": "1.0.0",
+      "url": "https://github.com/SpecoraAI/specora-verify/blob/main/docs/wire-spec-v1.0.md",
+      "description": "Specora Wire Spec v1.0 defining payload types, canonicalization, and signing."
+    },
+    {
+      "name": "attestation-manifest",
+      "version": "1.0.0",
+      "url": "https://github.com/SpecoraAI/specora-verify/blob/main/vectors/manifest/attestation-manifest-1.0.0.json",
+      "description": "Attestation manifest payload schema."
+    },
+    {
+      "name": "proof-manifest",
+      "version": "1.0.0",
+      "url": "https://github.com/SpecoraAI/specora-verify/blob/main/vectors/manifest/proof-manifest-1.0.0.json",
+      "description": "Proof manifest payload schema."
+    },
+    {
+      "name": "anchor-payload",
+      "version": "1.0.0",
+      "url": "https://github.com/SpecoraAI/specora-verify/blob/main/vectors/anchor/anchor-payload-1.0.0.json",
+      "description": "Anchor payload schema for transparency log anchoring."
+    }
+  ]
+}

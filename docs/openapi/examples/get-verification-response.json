@@ -1,0 +1,33 @@
+{
+  "bundle_id": "b7e2a1f0-4d3c-4e8b-9f1a-0123456789ab",
+  "status": "pass",
+  "verified_at": "2026-06-10T14:22:05Z",
+  "verifier_version": "1.0.0",
+  "checks": [
+    {
+      "name": "schema_conformance",
+      "result": "pass",
+      "detail": "Bundle conforms to canonical-bundle-v1.0.json"
+    },
+    {
+      "name": "canonical_hash",
+      "result": "pass",
+      "detail": "content_hash matches SHA-256 of canonical records"
+    },
+    {
+      "name": "signature",
+      "result": "pass",
+      "detail": "Ed25519 signature verified for all 2 records"
+    },
+    {
+      "name": "timestamp_ordering",
+      "result": "pass",
+      "detail": "All record timestamps are in non-decreasing order"
+    }
+  ],
+  "signature": {
+    "key_id": "specora-bundle-key-v1",
+    "algorithm": "ed25519",
+    "verified": true
+  }
+}

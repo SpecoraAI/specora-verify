@@ -1,0 +1,7 @@
+{
+  "type": "https://errors.specora.ai/not-found",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Bundle b7e2a1f0-4d3c-4e8b-9f1a-0123456789ab does not exist.",
+  "instance": "/v1/evidence/bundles/b7e2a1f0-4d3c-4e8b-9f1a-0123456789ab"
+}
