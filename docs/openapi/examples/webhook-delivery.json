@@ -1,0 +1,32 @@
+{
+  "event": "bundle.verified",
+  "timestamp": "2026-06-10T14:22:05Z",
+  "bundle": {
+    "id": "b7e2a1f0-4d3c-4e8b-9f1a-0123456789ab",
+    "provider": "anthropic",
+    "reader": "specora_verify.readers.anthropic",
+    "reader_version": "1.0.0",
+    "record_count": 2,
+    "content_hash": "sha256:546af375389e9ff2b228dd0941867f00a14100dee8984f735d3851594a43504a",
+    "key_id": "specora-bundle-key-v1",
+    "created_at": "2026-06-10T14:22:01Z",
+    "verification_status": "pass"
+  },
+  "verification": {
+    "bundle_id": "b7e2a1f0-4d3c-4e8b-9f1a-0123456789ab",
+    "status": "pass",
+    "verified_at": "2026-06-10T14:22:05Z",
+    "verifier_version": "1.0.0",
+    "checks": [
+      {"name": "schema_conformance", "result": "pass"},
+      {"name": "canonical_hash", "result": "pass"},
+      {"name": "signature", "result": "pass"},
+      {"name": "timestamp_ordering", "result": "pass"}
+    ],
+    "signature": {
+      "key_id": "specora-bundle-key-v1",
+      "algorithm": "ed25519",
+      "verified": true
+    }
+  }
+}

@@ -1,0 +1,610 @@
+openapi: 3.1.0
+info:
+  title: Specora Evidence Source API
+  version: 1.0.0
+  description: |
+    Public evidence-source contract for GRC platform integrations.
+
+    Specora produces cryptographically signed evidence bundles that prove
+    what an AI system did, when, and under what policy. This API exposes
+    those bundles to compliance automation platforms (Drata, Vanta,
+    AuditBoard, Splunk, Workiva, and others) so that auditors can review
+    AI evidence alongside their existing compliance evidence.
+
+    All response payloads conform to the Specora Wire Spec v1.0 and the
+    Canonical Evidence Bundle v1.0 schema. Bundles are immutable after
+    signing — the API is read-only for bundle content.
+
+    Authentication: Bearer token (API key issued per-organization).
+    Rate limiting: 100 requests per minute per API key.
+  contact:
+    name: Specora Engineering
+    email: security@specora.ai
+  license:
+    name: Apache 2.0
+    identifier: Apache-2.0
+
+servers:
+  - url: https://api.specora.ai/v1/evidence
+    description: Production
+  - url: https://api.staging.specora.ai/v1/evidence
+    description: Staging (test keys only)
+
+security:
+  - BearerAuth: []
+
+paths:
+  /bundles:
+    get:
+      operationId: listBundles
+      summary: List available evidence bundles
+      description: |
+        Returns a paginated list of evidence bundles for the authenticated
+        organization. Each item includes bundle metadata (provider, reader,
+        record count, content hash) but not the full record array. Use
+        GET /bundles/{id} to retrieve the complete bundle.
+      parameters:
+        - $ref: '#/components/parameters/PageCursor'
+        - $ref: '#/components/parameters/PageSize'
+        - name: provider
+          in: query
+          schema:
+            type: string
+          description: Filter by provider identifier (e.g. "anthropic", "cloudtrail").
+        - name: created_after
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Return bundles created after this RFC 3339 timestamp.
+        - name: created_before
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Return bundles created before this RFC 3339 timestamp.
+      responses:
+        '200':
+          description: Paginated list of bundle summaries.
+          headers:
+            X-Specora-Wire-Spec:
+              $ref: '#/components/headers/WireSpecVersion'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BundleListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /bundles/{bundle_id}:
+    get:
+      operationId: getBundle
+      summary: Retrieve a single evidence bundle
+      description: |
+        Returns the complete canonical JSON representation of an evidence
+        bundle, including all records. The response body is the exact
+        canonical form used for signing — byte-for-byte identical to what
+        the Frozen Canonicalizer v1.0.0 produces.
+      parameters:
+        - $ref: '#/components/parameters/BundleId'
+      responses:
+        '200':
+          description: Complete evidence bundle in canonical JSON.
+          headers:
+            X-Specora-Wire-Spec:
+              $ref: '#/components/headers/WireSpecVersion'
+            Content-Digest:
+              schema:
+                type: string
+              description: 'SHA-256 digest of the response body (RFC 9530). Format: sha-256=:base64:.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CanonicalBundle'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /bundles/{bundle_id}/verification:
+    get:
+      operationId: getBundleVerification
+      summary: Retrieve verification result for a bundle
+      description: |
+        Returns the independent verification result for a specific bundle.
+        The verification is performed by specora-verify against the
+        canonical bundle and its associated signature. GRC platforms
+        display this result alongside the evidence item.
+      parameters:
+        - $ref: '#/components/parameters/BundleId'
+      responses:
+        '200':
+          description: Verification result.
+          headers:
+            X-Specora-Wire-Spec:
+              $ref: '#/components/headers/WireSpecVersion'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResult'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /webhooks:
+    post:
+      operationId: registerWebhook
+      summary: Register a webhook for bundle events
+      description: |
+        Registers a URL to receive POST notifications when new evidence
+        bundles are created or when verification status changes. The
+        webhook payload includes the bundle summary and the event type.
+        Specora signs each webhook delivery with HMAC-SHA256 using a
+        shared secret returned at registration time.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRegistration'
+      responses:
+        '201':
+          description: Webhook registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookRegistrationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: A webhook with this URL is already registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /webhooks/{webhook_id}:
+    delete:
+      operationId: unregisterWebhook
+      summary: Unregister a webhook
+      description: Removes a previously registered webhook. Deliveries in flight may still arrive after deletion.
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Webhook unregistered.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /schemas:
+    get:
+      operationId: listSchemas
+      summary: List available schemas
+      description: |
+        Returns the list of JSON schemas and specifications that define
+        the evidence bundle format. Useful for GRC platforms that need to
+        validate payloads or display schema documentation to their users.
+      responses:
+        '200':
+          description: List of available schemas.
+          headers:
+            X-Specora-Wire-Spec:
+              $ref: '#/components/headers/WireSpecVersion'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchemaListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: |
+        API key issued per-organization. Include as: Authorization: Bearer <key>.
+        Keys are scoped to read-only evidence access by default. Webhook
+        management requires a key with the "webhooks:write" scope.
+
+  parameters:
+    BundleId:
+      name: bundle_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Unique identifier of the evidence bundle.
+
+    PageCursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+      description: Opaque cursor for pagination. Omit for the first page.
+
+    PageSize:
+      name: page_size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+      description: Number of items per page.
+
+  headers:
+    WireSpecVersion:
+      schema:
+        type: string
+        example: '1.0.0'
+      description: Specora Wire Spec version used for all payloads in this response.
+
+  schemas:
+    BundleListResponse:
+      type: object
+      required: [items, pagination]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BundleSummary'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    BundleSummary:
+      type: object
+      required: [id, provider, reader, reader_version, record_count, content_hash, created_at, verification_status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        provider:
+          type: string
+          description: Provider identifier (e.g. "anthropic", "cloudtrail").
+        reader:
+          type: string
+          pattern: '^specora_verify\.readers\.[a-z0-9_]+$'
+        reader_version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+$'
+        record_count:
+          type: integer
+          minimum: 0
+        content_hash:
+          type: string
+          pattern: '^sha256:[0-9a-f]{64}$'
+        key_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        verification_status:
+          type: string
+          enum: [pass, fail, pending]
+
+    CanonicalBundle:
+      type: object
+      description: |
+        Complete evidence bundle conforming to canonical-bundle-v1.0.json.
+        See https://github.com/SpecoraAI/specora-verify/docs/schemas/canonical-bundle-v1.0.json
+      required: [metadata, records]
+      properties:
+        metadata:
+          type: object
+          required: [provider, reader, reader_version, key_id, upstream_schema_version, record_count, content_hash]
+          properties:
+            provider:
+              type: string
+              minLength: 1
+            reader:
+              type: string
+              pattern: '^specora_verify\.readers\.[a-z0-9_]+$'
+            reader_version:
+              type: string
+              pattern: '^\d+\.\d+\.\d+$'
+            key_id:
+              type: string
+              minLength: 1
+            upstream_schema_version:
+              type: string
+              minLength: 1
+            record_count:
+              type: integer
+              minimum: 0
+            content_hash:
+              type: string
+              pattern: '^sha256:[0-9a-f]{64}$'
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceRecord'
+
+    EvidenceRecord:
+      type: object
+      required: [id, timestamp, model, decision, context, upstream_signature]
+      properties:
+        id:
+          type: string
+          minLength: 1
+        timestamp:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$'
+          description: RFC 3339 UTC, mandatory Z suffix, no fractional seconds.
+        upstream_request_id:
+          type: string
+        upstream_event_name:
+          type: string
+        model:
+          type: object
+          required: [name, version]
+          properties:
+            name:
+              type: string
+              minLength: 1
+            version:
+              type: string
+        decision:
+          type: object
+          required: [outcome, policy_refs]
+          properties:
+            outcome:
+              type: string
+              enum: [approved, rejected, deferred, escalated]
+            policy_refs:
+              type: array
+              items:
+                type: string
+                minLength: 1
+        context:
+          type: object
+          required: [hash]
+          properties:
+            hash:
+              type: string
+              pattern: '^sha256:[0-9a-f]{64}$'
+        upstream_signature:
+          oneOf:
+            - type: object
+              required: [alg, key_id, value]
+              properties:
+                alg:
+                  type: string
+                  enum: [ed25519]
+                key_id:
+                  type: string
+                value:
+                  type: string
+            - type: object
+              required: [absent_per_record, integrity_mechanism]
+              properties:
+                absent_per_record:
+                  type: boolean
+                  const: true
+                integrity_mechanism:
+                  type: string
+                  minLength: 1
+
+    VerificationResult:
+      type: object
+      required: [bundle_id, status, verified_at, verifier_version, checks]
+      properties:
+        bundle_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pass, fail]
+        verified_at:
+          type: string
+          format: date-time
+        verifier_version:
+          type: string
+          description: specora-verify version used for verification.
+        checks:
+          type: array
+          items:
+            type: object
+            required: [name, result]
+            properties:
+              name:
+                type: string
+                description: 'Check identifier (e.g. "canonical_hash", "signature", "schema_conformance").'
+              result:
+                type: string
+                enum: [pass, fail, skipped]
+              detail:
+                type: string
+        signature:
+          type: object
+          properties:
+            key_id:
+              type: string
+            algorithm:
+              type: string
+            verified:
+              type: boolean
+
+    WebhookRegistration:
+      type: object
+      required: [url, events]
+      properties:
+        url:
+          type: string
+          format: uri
+          description: HTTPS URL to receive webhook POST deliveries.
+        events:
+          type: array
+          items:
+            type: string
+            enum: [bundle.created, bundle.verified, bundle.verification_failed]
+          minItems: 1
+          description: Event types to subscribe to.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Arbitrary key-value pairs returned with each delivery.
+
+    WebhookRegistrationResponse:
+      type: object
+      required: [id, url, events, secret, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        secret:
+          type: string
+          description: |
+            HMAC-SHA256 shared secret for verifying webhook deliveries.
+            Store securely — this value is shown only once at registration.
+        created_at:
+          type: string
+          format: date-time
+
+    WebhookDelivery:
+      type: object
+      description: |
+        Shape of the POST body delivered to registered webhook URLs.
+        The X-Specora-Signature header contains the HMAC-SHA256 of the
+        raw request body using the shared secret from registration.
+      required: [event, timestamp, bundle]
+      properties:
+        event:
+          type: string
+          enum: [bundle.created, bundle.verified, bundle.verification_failed]
+        timestamp:
+          type: string
+          format: date-time
+        bundle:
+          $ref: '#/components/schemas/BundleSummary'
+        verification:
+          $ref: '#/components/schemas/VerificationResult'
+
+    SchemaListResponse:
+      type: object
+      required: [schemas]
+      properties:
+        schemas:
+          type: array
+          items:
+            type: object
+            required: [name, version, url, description]
+            properties:
+              name:
+                type: string
+              version:
+                type: string
+              url:
+                type: string
+                format: uri
+              description:
+                type: string
+
+    Pagination:
+      type: object
+      required: [has_more]
+      properties:
+        next_cursor:
+          type: string
+          description: Pass as ?cursor= to fetch the next page. Null if no more pages.
+        has_more:
+          type: boolean
+
+    ProblemDetail:
+      type: object
+      description: Error response per RFC 7807.
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: URI reference identifying the problem type.
+        title:
+          type: string
+          description: Short human-readable summary.
+        status:
+          type: integer
+          description: HTTP status code.
+        detail:
+          type: string
+          description: Human-readable explanation specific to this occurrence.
+        instance:
+          type: string
+          format: uri
+          description: URI reference identifying the specific occurrence.
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid API key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: 'https://errors.specora.ai/unauthorized'
+            title: Unauthorized
+            status: 401
+            detail: 'API key is missing or invalid. Include a valid key in the Authorization header.'
+
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: 'https://errors.specora.ai/not-found'
+            title: Not Found
+            status: 404
+            detail: 'The requested resource does not exist.'
+
+    BadRequest:
+      description: Invalid request body.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: 'https://errors.specora.ai/bad-request'
+            title: Bad Request
+            status: 400
+            detail: 'The request body is malformed or missing required fields.'
+
+    RateLimited:
+      description: Rate limit exceeded.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            type: 'https://errors.specora.ai/rate-limited'
+            title: Too Many Requests
+            status: 429
+            detail: 'Rate limit exceeded. See Retry-After header.'

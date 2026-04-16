@@ -189,6 +189,21 @@ specora-verify canonicalize vectors/manifest/proof-manifest-001.json | sha256sum
 
 If your independent implementation disagrees with `specora-verify`, we want to know. Open an issue and include your implementation — either `specora-verify` has a bug, or the spec is ambiguous. Both are worth fixing.
 
+## Integrations
+
+`specora-verify` defines a public [Evidence Source API](docs/openapi/evidence-source-v1.yaml) (OpenAPI 3.1) that GRC platforms integrate against to ingest Specora evidence bundles as compliance evidence.
+
+- **OpenAPI spec:** [docs/openapi/evidence-source-v1.yaml](docs/openapi/evidence-source-v1.yaml)
+- **Example payloads:** [docs/openapi/examples/](docs/openapi/examples/)
+- **GRC integration guide (for platform vendors):** [docs/integrations/grc-integration-guide.md](docs/integrations/grc-integration-guide.md)
+
+Supported GRC platforms (commercial connectors available from Specora):
+
+- [x] Drata — SOC 2, ISO 27001, ISO 42001
+- [ ] Vanta *(planned)*
+- [ ] Splunk *(planned)*
+- [ ] AuditBoard *(planned)*
+
 ## Documentation
 
 - **Wire Spec v1.0 (canonical):** [docs/wire-spec-v1.0.md](docs/wire-spec-v1.0.md) — normative contract. The `spec.specora.ai/v1.0` badge URL above is reserved for a future rendered view of this in-repo document; the repo is the authoritative source.
@@ -197,6 +212,7 @@ If your independent implementation disagrees with `specora-verify`, we want to k
 - **Trust model:** [docs/trust-model.md](docs/trust-model.md)
 - **Golden vectors guide:** [docs/vectors.md](docs/vectors.md)
 - **Reader reference:** [docs/readers/](docs/readers/)
+- **Evidence Source API (for GRC integrations):** [docs/openapi/evidence-source-v1.yaml](docs/openapi/evidence-source-v1.yaml)
 - **Installation guide:** [docs/installation.md](docs/installation.md) *(pending A01)*
 - **API reference (for library users):** [docs/api.md](docs/api.md) *(pending A01)*
 
