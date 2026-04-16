@@ -48,6 +48,8 @@ LIVE_FIXTURES: list[tuple[str, str]] = [
     ("azure-cl", "azure_cl/realistic-complex.json"),
     ("openai", "openai_compliance/minimal-valid.json"),
     ("openai", "openai_compliance/realistic-complex.jsonl"),
+    ("langsmith", "langsmith/minimal-valid.json"),
+    ("langsmith", "langsmith/realistic-complex.jsonl"),
 ]
 
 

@@ -132,4 +132,5 @@ def available_readers() -> list[str]:
 from specora_verify.readers import anthropic  # noqa: E402,F401  — registers "anthropic"
 from specora_verify.readers import azure_cl  # noqa: E402,F401  — registers "azure-cl"
 from specora_verify.readers import cloudtrail  # noqa: E402,F401  — registers "cloudtrail"
+from specora_verify.readers import langsmith  # noqa: E402,F401  — registers "langsmith"
 from specora_verify.readers import openai_compliance  # noqa: E402,F401  — registers "openai"

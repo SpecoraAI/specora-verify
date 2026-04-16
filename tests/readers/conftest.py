@@ -92,3 +92,23 @@ def openai_complex(openai_fixture_dir: Path) -> Path:
 @pytest.fixture
 def openai_malformed(openai_fixture_dir: Path) -> Path:
     return openai_fixture_dir / "malformed.json"
+
+
+@pytest.fixture
+def langsmith_fixture_dir() -> Path:
+    return FIXTURE_ROOT / "langsmith"
+
+
+@pytest.fixture
+def langsmith_minimal(langsmith_fixture_dir: Path) -> Path:
+    return langsmith_fixture_dir / "minimal-valid.json"
+
+
+@pytest.fixture
+def langsmith_complex(langsmith_fixture_dir: Path) -> Path:
+    return langsmith_fixture_dir / "realistic-complex.jsonl"
+
+
+@pytest.fixture
+def langsmith_malformed(langsmith_fixture_dir: Path) -> Path:
+    return langsmith_fixture_dir / "malformed.json"

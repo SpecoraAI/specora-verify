@@ -1,0 +1,86 @@
+{
+  "runs": [
+    {
+      "id": "run_ls_00000001-0000-0000-0000-000000000001",
+      "name": "customer-support-chain",
+      "run_type": "chain",
+      "start_time": "2026-06-12T10:15:30Z",
+      "end_time": "2026-06-12T10:15:34Z",
+      "status": "success",
+      "model_name": "claude-3-5-sonnet-20241022",
+      "evaluation": {
+        "outcome": "pass",
+        "rule_ids": ["rule-guardrail-1", "rule-toxicity-check"]
+      },
+      "feedback": [
+        {
+          "key": "correctness",
+          "score": 1.0,
+          "comment": "Output matches expected answer",
+          "source": "human"
+        },
+        {
+          "key": "helpfulness",
+          "score": 0.9,
+          "comment": "Thorough and well-structured",
+          "source": "human"
+        }
+      ],
+      "token_usage": {
+        "prompt_tokens": 245,
+        "completion_tokens": 89,
+        "total_tokens": 334
+      },
+      "total_cost": 0.00512,
+      "session_id": "sess_demo_alpha",
+      "tags": ["production", "customer-facing"],
+      "content_hash": "sha256:a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+      "child_runs": [
+        {
+          "id": "run_ls_child_001",
+          "name": "llm-call",
+          "run_type": "llm",
+          "start_time": "2026-06-12T10:15:31Z",
+          "status": "success"
+        }
+      ]
+    },
+    {
+      "id": "run_ls_00000002-0000-0000-0000-000000000002",
+      "name": "content-moderation-chain",
+      "run_type": "llm",
+      "start_time": "2026-06-12T10:16:00Z",
+      "end_time": "2026-06-12T10:16:02Z",
+      "status": "error",
+      "extra": {
+        "invocation_params": {
+          "model_name": "gpt-4o-2024-08-06"
+        },
+        "runtime": {
+          "library": "langchain",
+          "library_version": "0.3.1"
+        }
+      },
+      "evaluation": {
+        "outcome": "fail",
+        "rule_ids": ["rule-content-safety"]
+      },
+      "feedback": [
+        {
+          "key": "toxicity",
+          "score": 0.0,
+          "comment": "Content flagged by safety filter",
+          "source": "automated"
+        }
+      ],
+      "token_usage": {
+        "prompt_tokens": 180,
+        "completion_tokens": 12,
+        "total_tokens": 192
+      },
+      "total_cost": 0.00198,
+      "session_id": "sess_demo_alpha",
+      "content_hash": "sha256:b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b200"
+    }
+  ]
+}

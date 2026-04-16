@@ -1397,6 +1397,54 @@ def build_parser() -> argparse.ArgumentParser:
         help="Write the canonical bundle payload JSON to this path (default: stdout)",
     )
 
+    read_langsmith = read_sub.add_parser(
+        "langsmith",
+        help="Read a LangSmith Fleet audit-trace export",
+    )
+    read_langsmith.add_argument(
+        "--input",
+        required=True,
+        type=Path,
+        help=(
+            "Path to a LangSmith Fleet trace export "
+            "({'runs': [...]}, a bare JSON array, or JSONL)"
+        ),
+    )
+    read_langsmith.add_argument(
+        "--key-id",
+        required=True,
+        help="Specora signing key ID to associate with the emitted bundle payload",
+    )
+    read_langsmith.add_argument(
+        "--public-key",
+        type=Path,
+        default=None,
+        help=(
+            "Accepted for interface compatibility with other readers. LangSmith "
+            "Fleet does not emit per-trace signatures; integrity is anchored at "
+            "the TLS transport layer and by the Fleet tenant's audit log."
+        ),
+    )
+    read_langsmith.add_argument(
+        "--schema-version",
+        default=None,
+        help=(
+            "Override the reader-side LangSmith schema version "
+            "(default: langsmith-fleet-v1)"
+        ),
+    )
+    read_langsmith.add_argument(
+        "--non-strict",
+        action="store_true",
+        help="Drop malformed traces with warnings instead of failing the read",
+    )
+    read_langsmith.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Write the canonical bundle payload JSON to this path (default: stdout)",
+    )
+
     # run command (EPIC-B03: end-to-end out-of-band flow)
     # Note: `_dispatch_read` stays read-only. `run` is deliberately a
     # separate code path that composes reader + signer + on-disk bundle
@@ -1601,6 +1649,11 @@ def cmd_read_azure_cl(args: argparse.Namespace) -> int:
 def cmd_read_openai(args: argparse.Namespace) -> int:
     """Handle: specora-verify read openai --input <json> ..."""
     return _dispatch_read(args, "openai")
+
+
+def cmd_read_langsmith(args: argparse.Namespace) -> int:
+    """Handle: specora-verify read langsmith --input <json> ..."""
+    return _dispatch_read(args, "langsmith")
 
 
 def cmd_run(args: argparse.Namespace) -> int:
@@ -3359,6 +3412,8 @@ def main(argv: list[str] | None = None) -> NoReturn:
             exit_code = cmd_read_azure_cl(args)
         elif args.read_command == "openai":
             exit_code = cmd_read_openai(args)
+        elif args.read_command == "langsmith":
+            exit_code = cmd_read_langsmith(args)
         else:
             parser.print_help()
     elif args.command == "run":
