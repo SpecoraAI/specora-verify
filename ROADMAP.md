@@ -4,7 +4,7 @@ This is the public roadmap for `specora-verify`. It is 6-month granularity and c
 
 **This roadmap is intentionally scoped to the OSS verifier.** Commercial product plans, revenue targets, customer pipelines, and internal business strategy are not part of this document. If you are looking for those, they belong in a different repository and are not public.
 
-Last updated: 2026-04-15.
+Last updated: 2026-04-16.
 
 ## Horizon 1 — 2026-H1 (current, through 2026-06-14)
 
@@ -28,19 +28,19 @@ Last updated: 2026-04-15.
 
 ## Horizon 2 — 2026-H2 (2026-06-14 → 2026-12-31)
 
-### Reader suite completion
+### Reader suite completion (DONE)
 
-The full reader suite is five providers:
+The full reader suite is five providers — all shipped:
 
 | Reader | Status | Target |
 |---|---|---|
 | AWS CloudTrail Lake | **shipped** | 2026-H1 |
 | Anthropic Compliance API | **shipped** | 2026-H1 |
-| Azure Confidential Ledger | pending | 2026-Q3 |
-| OpenAI Compliance Platform | pending | 2026-Q3 |
-| LangSmith Fleet export | pending | 2026-Q4 |
+| Azure Confidential Ledger | **shipped** | 2026-H1 |
+| OpenAI Compliance Platform | **shipped** | 2026-H1 |
+| LangSmith Fleet export | **shipped** | 2026-H1 |
 
-Each pending reader ships as a library module + CLI subcommand + schema-mapping docs + integration tests against real fixture exports + end-to-end quickstart entry. No reader is "done" until every one of those exists and is non-trivial.
+All five readers are shipped as of 2026-04-18. Each reader includes a library module + CLI subcommand + schema-mapping docs + integration tests against real fixture exports + end-to-end quickstart entry.
 
 ### Wire spec maintenance
 
