@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/specora-logo-dark.svg">
+    <img src="docs/assets/specora-logo-light.svg" alt="Specora" width="320">
+  </picture>
+</p>
+
 # specora-verify
 
 > **`specora-verify` is the independent verifier for AI systems.**
