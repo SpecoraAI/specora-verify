@@ -146,9 +146,45 @@ structurally impossible for Specora to quietly favor a paying
 customer. That is the thing you are buying. It is also the thing we
 are most unwilling to compromise.
 
-## 5. Further reading
+## 5. Agent Identity Theorems (AID-970, demo lane)
+
+The investor-demo lane authorized in [`freeze-exceptions/2026-05-08-aid-investor-demo-build.md`](https://github.com/SpecoraAI/specora-platform) (platform repo, CSEA-SUPPRESS-2026-05-08-002, archive 2026-06-05) extends the verifier into an issuer for AI agent identity certificates. Three Lean theorems anchor that extension. Each one is proven in [`formal/lean/Specora/AgentIdentity/Theorems.lean`](https://github.com/SpecoraAI/specora-platform) in the platform monorepo with no `sorry` and no Mathlib axioms; the matching TLA+ model lives at [`formal/tla/agent_identity_revocation.tla`](https://github.com/SpecoraAI/specora-platform).
+
+### 5.1 THM-AID-UNIQ — Identity uniqueness
+
+> **Statement.** At any point in time, at most one identity certificate is in the `active` state for a given `(org_id, agent_id)` pair.
+
+This is the schema-level partial unique index on `prspec.ai_agent_identities` written into the migration at [`migrations/versions/1376_aid_900_*`](https://github.com/SpecoraAI/specora-platform). The Lean formulation (`wellformed_registry`) makes it a property of every reachable registry state. The runtime service (`AIAgentIdentityService.register_agent`) raises `AIAgentIdentityAlreadyActive` *before* attempting an INSERT that would violate the index, so the theorem is preserved by every state transition the API exposes.
+
+**Why it matters.** A relying party that pins a particular issued cert can be confident no second `active` cert exists for the same agent at the same time. Replay defenses and revocation lists are well-defined.
+
+### 5.2 THM-AID-SIG — Signature integrity
+
+> **Statement.** The bundle's `agent_identity` field validates if and only if (a) the cert chains to the active issuer root pubkey supplied out-of-band, **and** (b) the bundle's outer signature covers the field, **and** (c) the cert's Ed25519 signature verifies.
+
+The "if and only if" is what makes the verifier's [`validate_bundle_v1_1`](../specora_verify/wire_spec.py) reliable: tampering with any of the three sub-claims flips the verdict to FAIL. The verifier-side test [`tests/test_wire_spec_v1_1.py::TestTampering`](../tests/test_wire_spec_v1_1.py) exercises the contrapositive directly — mutate the cert's subject, the bundle flips to `invalid` with reason `"signature does not verify"`.
+
+**Why it matters.** A relying party reading the canonical bundle later can trust the agent identity claim as much as the bundle's outer signature. The two are cryptographically linked by canonical-JSON inclusion; nobody between the signer and the verifier can substitute or strip the cert without detection.
+
+### 5.3 THM-AID-REV — Revocation propagation
+
+> **Statement.** Once an identity transitions to `revoked` and is recorded as the head of the registry, no subsequent lookup for `(org_id, agent_id)` returns an `active` row.
+
+The Lean proof relies on the head-wins lookup pattern — newest writes prepended, `List.find?` returns the first match. Prepending a `revoked` row in front of any earlier `active` row dominates the lookup. The matching TLA+ liveness claim (`RevocationVisibleEventually` in `agent_identity_revocation.tla`) bounds the verifier's cache-refresh delay to a fixed number of model ticks, so the model checker can verify that revocation visibility is not just eventual but *bounded*.
+
+**Why it matters.** A revoked agent cannot rejoin the `active` set without a fresh registration. The relying party's revocation list can be a simple "highest-`revoked_at` wins" lookup against the issuance-events ledger.
+
+### 5.4 Demo-fidelity caveats
+
+The demo runtime is feature-flagged off in production deployments per the freeze-exception §3.1. The Lean module carries one `[advisory-no-runtime]` axiom (`runtime_correspondence`) that asserts the Python service preserves `wellformed_registry` across every transition. That assertion is verified end-to-end by the Lane B integration test at [`services/prspec-api/tests/test_db/test_aid_960_lifecycle_pairing.py`](https://github.com/SpecoraAI/specora-platform) — but the formal theorem statement uses an axiom rather than a fully-derived chain because the runtime wiring is post-archive (post-2026-06-05) work.
+
+The cert format identifier `specora-aid-cert-v1-demo` is load-bearing throughout. Production format will revise the suffix when the C01 ceremony root is operational; the verifier will refuse anything else.
+
+## 6. Further reading
 
 - [wire-spec-v1.0.md](wire-spec-v1.0.md) — normative contract.
+- [wire-spec-v1.1.md](wire-spec-v1.1.md) — additive demo-lane revision (agent identity).
+- [readers/agent-identity.md](readers/agent-identity.md) — reader-side pass-through guide.
 - [versioning-policy.md](versioning-policy.md) — how the spec will
   evolve without breaking the trust model.
 - [quickstart.md](quickstart.md) — runnable end-to-end example.
