@@ -63,6 +63,34 @@ SCHEMA_VECTOR_PAIRS: list[tuple[str, str]] = [
         "canonical-bundle-v1.0.json",
         "canonical-bundle/canonical-bundle-cloudtrail-1.0.0.canonical.json",
     ),
+    # Wire Spec v1.1 — additive over v1.0. v1.0 vectors continue to
+    # validate clean against canonical-bundle-v1.1.json (forward-compat
+    # tested below). New v1.1 vectors carry the optional agent_identity
+    # field on at least one record.
+    (
+        "canonical-bundle-v1.1.json",
+        "canonical-bundle/canonical-bundle-anthropic-1.0.0.canonical.json",
+    ),
+    (
+        "canonical-bundle-v1.1.json",
+        "canonical-bundle/canonical-bundle-cloudtrail-1.0.0.canonical.json",
+    ),
+    (
+        "canonical-bundle-v1.1.json",
+        "canonical-bundle/with-agent-identity/canonical-bundle-with-identity-1.0.0.canonical.json",
+    ),
+    (
+        "canonical-bundle-v1.1.json",
+        "canonical-bundle/with-agent-identity/canonical-bundle-mixed-identity-1.0.0.canonical.json",
+    ),
+    (
+        "canonical-bundle-v1.1.json",
+        "canonical-bundle/with-agent-identity/canonical-bundle-partial-identity-1.0.0.canonical.json",
+    ),
+    (
+        "canonical-bundle-v1.1.json",
+        "canonical-bundle/with-agent-identity/canonical-bundle-empty-with-identity-allowed-1.0.0.canonical.json",
+    ),
 ]
 
 
