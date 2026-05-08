@@ -220,8 +220,8 @@ Supported GRC platforms (commercial connectors available from Specora):
 - **Golden vectors guide:** [docs/vectors.md](docs/vectors.md)
 - **Reader reference:** [docs/readers/](docs/readers/)
 - **Evidence Source API (for GRC integrations):** [docs/openapi/evidence-source-v1.yaml](docs/openapi/evidence-source-v1.yaml)
-- **Installation guide:** [docs/installation.md](docs/installation.md) *(pending A01)*
-- **API reference (for library users):** [docs/api.md](docs/api.md) *(pending A01)*
+- **Installation guide:** [docs/installation.md](docs/installation.md)
+- **API reference (for library users):** [docs/api.md](docs/api.md)
 
 ## Contributing
 
