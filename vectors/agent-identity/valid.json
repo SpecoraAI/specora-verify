@@ -1,0 +1,27 @@
+{
+  "_metadata": {
+    "evaluate_at": "2026-05-15T12:00:00Z",
+    "expectation": "validate to OK",
+    "issuer_public_key_hex": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+    "kind": "demo-vector",
+    "marker": "for-demo-only-not-production"
+  },
+  "certificate": {
+    "format": "specora-aid-cert-v1-demo",
+    "issued_at": "2026-05-08T12:00:00Z",
+    "issuer": {
+      "common_name": "Specora Demo Root",
+      "organization": "Specora",
+      "organizational_unit": "for-demo-only-not-production"
+    },
+    "issuer_key_fingerprint": "10ba682c8ad13513971e8b56881aab8bd702bb807796eca81932c735a94d6e6d",
+    "not_after": "2026-06-07T12:00:00Z",
+    "public_key": "a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0",
+    "signature": "o+ZWLEp8A36i81TkXnsv28q7Fvi3cxZ0bO8DiKkBwIdP7a817QUKNsEB2ZaQlOnzvP0jBW2iBwKE+KaAalv4AA==",
+    "subject": {
+      "agent_id": "acme-demo-agent",
+      "identity_id": "00000000-0000-0000-0000-000000000001",
+      "org_id": "00000000-0000-0000-0000-0000000000aa"
+    }
+  }
+}
