@@ -336,7 +336,57 @@ class AnthropicReader:
         tool_invocations = record.get("tool_invocations")
         if isinstance(tool_invocations, list) and tool_invocations:
             mapped["tool_invocations"] = tool_invocations
+
+        # AID-940: agent identity pass-through (Wire Spec v1.1).
+        # Anthropic's Compliance API does not natively surface the
+        # Specora agent-identity claim, so the SDK-side path embeds the
+        # cert envelope under either:
+        #   * record["agent_identity"] — direct embedding by the
+        #     SDK-instrumented agent runtime
+        #   * record["request_metadata"]["x-specora-agent-identity"] —
+        #     header-style propagation via the request envelope
+        # The reader lifts whichever is present without inspection
+        # (validation is the verifier's job, not the reader's). Absent
+        # claims pass through silently — the v1.1 envelope is OPTIONAL.
+        # Doctrine: this reader NEVER fabricates an identity claim. If
+        # the upstream record has no claim, the bundle has no claim.
+        identity = self._extract_agent_identity(record)
+        if identity is not None:
+            mapped["agent_identity"] = identity
+
         return mapped
+
+    @staticmethod
+    def _extract_agent_identity(record: dict) -> dict | None:
+        """Lift any embedded Specora agent_identity envelope.
+
+        Two sources are accepted, in priority order:
+
+        1. ``record["agent_identity"]`` — the SDK-direct path. When the
+           agent uses :func:`specora.agent_identity.sign_action` the SDK
+           emits the cert envelope onto the upstream request body, the
+           Anthropic Compliance API mirrors it back, and it appears
+           here.
+        2. ``record["request_metadata"]["x-specora-agent-identity"]`` —
+           the header-propagated path. Used by agents that prefer to
+           keep the body untouched and inject the envelope as a
+           propagated header instead.
+
+        The reader returns the envelope as-is — no validation, no
+        normalization — so that the verifier's validate_bundle_v1_1
+        sees byte-identical input to what the agent runtime signed.
+        """
+        direct = record.get("agent_identity")
+        if isinstance(direct, dict):
+            return direct
+        request_metadata = record.get("request_metadata")
+        if isinstance(request_metadata, dict):
+            header_identity = request_metadata.get(
+                "x-specora-agent-identity"
+            )
+            if isinstance(header_identity, dict):
+                return header_identity
+        return None
 
     @staticmethod
     def _normalize_timestamp(value: Any) -> str:
