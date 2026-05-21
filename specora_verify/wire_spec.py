@@ -1,18 +1,20 @@
-"""Wire Spec v1.1 bundle-level validator (demo lane).
+"""Wire Spec v1.1 bundle-level validator.
 
 Apache 2.0. Pairs with ``docs/wire-spec-v1.1.md`` and the JSON Schema at
-``docs/schemas/canonical-bundle-v1.1.json``. Investor-demo lane only —
-v1.0 bundles continue to validate against the v1.0 schema unchanged
-(tested by ``tests/test_wire_spec_schemas.py``).
+``docs/schemas/canonical-bundle-v1.1.json``. v1.0 bundles continue to
+validate against the v1.0 schema unchanged (tested by
+``tests/test_wire_spec_schemas.py``).
 
 What v1.1 adds
 ==============
 
 A single OPTIONAL field on each ``records[]`` entry:
 
-* ``agent_identity`` — a demo-lane Specora cert envelope of format
-  ``specora-aid-cert-v1-demo``. Pairs with the AID-910 issuer in the
-  platform repo and the AID-910 reference validator in
+* ``agent_identity`` — a Specora cert envelope of format
+  ``specora-aid-cert-v1``. The envelope carries a ``principal`` block
+  attesting the OWNER public key (ADR-PLATFORM-009 / HonorNet ADR-009)
+  in addition to the AGENT identity. Pairs with the AID-910 issuer in
+  the platform repo and the AID-910 reference validator in
   ``specora_verify.agent_identity``. When absent, this validator ignores
   the field. When present, it round-trips the envelope through the
   AID-910 validator and propagates the verdict.

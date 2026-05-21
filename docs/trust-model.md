@@ -178,7 +178,7 @@ The Lean proof relies on the head-wins lookup pattern — newest writes prepende
 
 The demo runtime is feature-flagged off in production deployments per the freeze-exception §3.1. The Lean module carries one `[advisory-no-runtime]` axiom (`runtime_correspondence`) that asserts the Python service preserves `wellformed_registry` across every transition. That assertion is verified end-to-end by the Lane B integration test at [`services/prspec-api/tests/test_db/test_aid_960_lifecycle_pairing.py`](https://github.com/SpecoraAI/specora-platform) — but the formal theorem statement uses an axiom rather than a fully-derived chain because the runtime wiring is post-archive (post-2026-06-05) work.
 
-The cert format identifier `specora-aid-cert-v1-demo` is load-bearing throughout. Production format will revise the suffix when the C01 ceremony root is operational; the verifier will refuse anything else.
+The cert format identifier is `specora-aid-cert-v1`. The same identifier covers both the prelaunch (DEMO-ROOT-signed) and the future production (C01-rooted) issuance lanes; relying parties separate the two by pinning the issuer key fingerprint, never by reading the format string. The cert envelope carries two sealed identity blocks — `subject` (the AGENT) and `principal` (the OWNER, including the owner's Ed25519 public key, per [ADR-PLATFORM-009](https://github.com/SpecoraAI/specora-platform/blob/staging/docs/platform/adr/ADR-PLATFORM-009-AGENT-IDENTITY-OWNER-PUBLIC-KEY.md)). Runtime authorization networks use the principal public key to verify owner-signed mandates in the three-part authorization presentation (HonorNet ADR-009); Specora attests the key and never sees or evaluates the mandate.
 
 ## 6. Further reading
 
