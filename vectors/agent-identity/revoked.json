@@ -2,22 +2,26 @@
   "_metadata": {
     "evaluate_at": "2026-05-15T12:00:00Z",
     "expectation": "certificate validates cryptographically (signature OK, not expired) but is REVOKED \u2014 relying party must consult the issuance-events ledger for revocation status. Demo lane represents this as a side-channel revocation marker.",
-    "issuer_public_key_hex": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+    "issuer_public_key_hex": "e566d46a8eabc87056bc23af81308b30bf4fe38553a000b00e213ce148892a2f",
     "kind": "demo-vector",
     "marker": "for-demo-only-not-production"
   },
   "certificate": {
-    "format": "specora-aid-cert-v1-demo",
+    "format": "specora-aid-cert-v1",
     "issued_at": "2026-05-08T12:00:00Z",
     "issuer": {
       "common_name": "Specora Demo Root",
       "organization": "Specora",
       "organizational_unit": "for-demo-only-not-production"
     },
-    "issuer_key_fingerprint": "10ba682c8ad13513971e8b56881aab8bd702bb807796eca81932c735a94d6e6d",
+    "issuer_key_fingerprint": "495bf96fce1b9bc49c337a338571db2ea5dee9f4835a6e7919f33fa2262b98e1",
     "not_after": "2026-06-07T12:00:00Z",
-    "public_key": "a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0",
-    "signature": "NoWSvUcwH/FqBuvB+seR9VZEgW7CYmy7acya8vLLpJKiNcUXgukDxG1MMCCsE/Yo6rsGDipJUQj30mQym0evAg==",
+    "principal": {
+      "id": "00000000-0000-0000-0000-0000000000aa",
+      "public_key": "90e6e2a07f4fc769abee1402d8482ea0d2a84ef1e29aa62c29059a2581a452ec"
+    },
+    "public_key": "da0f875fda391700cbf555d46c8f5762f59f4edb3d71c6fba86df263a024cc24",
+    "signature": "/T0X0V/RMssYo6RVuMBQim1JJDotlyLlwPeTl/iq/YSIkBUE1nY4ytzjIRHCQDNfozNg9yMy9o+z+aDs9SxsCw==",
     "subject": {
       "agent_id": "acme-revoked-agent",
       "identity_id": "00000000-0000-0000-0000-000000000003",

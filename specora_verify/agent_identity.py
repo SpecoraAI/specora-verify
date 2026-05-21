@@ -1,14 +1,24 @@
 """Agent identity certificate validator (AID-910 reference impl).
 
-Apache 2.0 — public reference validator for the demo-lane Specora agent
-identity certificate format. Pairs with the platform-side issuer in
-``prspec_api.ai_agent_identity.sealing`` and produces byte-identical
-verdicts against the golden vectors under ``vectors/agent-identity/``.
+Apache 2.0 — public reference validator for the Specora agent identity
+certificate format ``specora-aid-cert-v1``. Pairs with the platform-side
+issuer in ``prspec_api.ai_agent_identity.sealing`` and produces byte-
+identical verdicts against the golden vectors under
+``vectors/agent-identity/``.
 
-Status: investor-demo lane (CSEA-SUPPRESS-2026-05-08-002 in the platform
-repo). The on-wire format identifier ``specora-aid-cert-v1-demo`` is
-load-bearing — a future production format carries a different suffix
-so demo-issued certs can never be confused with production state.
+The envelope carries two distinct identity blocks:
+
+* ``subject`` — the AGENT (org_id + agent_id + identity_id).
+* ``principal`` — the OWNER that the agent acts on behalf of, with
+  ``{id, public_key}``. Runtime authorization networks (HonorNet) use
+  ``principal.public_key`` to verify owner-signed mandates per the
+  three-part authorization presentation (HonorNet ADR-009 / Specora
+  ADR-PLATFORM-009). Specora attests the key, never the mandate.
+
+The wire identifier ``specora-aid-cert-v1`` is the same in both the
+prelaunch (DEMO-ROOT) and the future production (C01-rooted) lanes;
+lane separation is enforced by the pinned ``issuer_key_fingerprint``,
+never by the format string.
 
 Design constraints:
 
@@ -20,8 +30,7 @@ Design constraints:
 * No network calls. Validation is fully offline; the relying party
   supplies the issuer public key out-of-band.
 
-See ``docs/readers/`` for the full demo-lane integration guide once
-the AID-940 reader pass-through ships.
+See ``docs/readers/agent-identity.md`` for the integration guide.
 """
 
 from __future__ import annotations
@@ -34,18 +43,27 @@ from typing import Any
 
 from specora_verify.canonical import canonical_json_bytes
 
-CERT_FORMAT_VERSION = "specora-aid-cert-v1-demo"
-"""Wire identifier for the demo-lane envelope. Production formats use
-a different suffix; relying parties should refuse anything else."""
+CERT_FORMAT_VERSION = "specora-aid-cert-v1"
+"""Wire identifier for the cert envelope. Same string across both the
+prelaunch (DEMO-ROOT) lane and the future production (C01-rooted) lane;
+lane separation is enforced by ``issuer_key_fingerprint``. See
+ADR-PLATFORM-009."""
 
 
 @dataclass
 class AgentIdentityValidationResult:
-    """Outcome of :func:`validate_agent_identity_certificate`."""
+    """Outcome of :func:`validate_agent_identity_certificate`.
+
+    On success, ``principal`` carries the parsed ``{id, public_key}``
+    block so cross-network presentations (HonorNet ``/authorize``) can
+    hand the owner public key to the mandate verifier without re-
+    parsing the cert.
+    """
 
     valid: bool
     reason: str | None = None
     subject: dict[str, Any] | None = None
+    principal: dict[str, str] | None = None
     issuer_key_fingerprint: str | None = None
 
 
@@ -60,7 +78,7 @@ def validate_agent_identity_certificate(
     issuer_public_key_hex: str,
     now: datetime | None = None,
 ) -> AgentIdentityValidationResult:
-    """Validate a demo-lane agent identity certificate.
+    """Validate an agent identity certificate.
 
     The verdict is byte-identical to the platform-side
     :func:`prspec_api.ai_agent_identity.sealing.validate_certificate`
@@ -69,20 +87,23 @@ def validate_agent_identity_certificate(
     Args:
         certificate: Parsed cert envelope (a JSON object).
         issuer_public_key_hex: Hex-encoded Ed25519 public key of the
-            DEMO-ROOT issuer, supplied out-of-band by the relying
-            party (e.g. embedded in their config).
+            issuer (prelaunch: DEMO-ROOT; production: C01-rooted),
+            supplied out-of-band by the relying party (e.g. embedded
+            in their config or in their pinned-issuer registry).
         now: Override for the current time, useful for golden-vector
             tests where ``not_after`` is fixed in the past.
 
     Returns:
         :class:`AgentIdentityValidationResult` with ``valid`` set true
-        only if all four checks pass:
+        only if all five checks pass:
 
         1. ``format`` matches :data:`CERT_FORMAT_VERSION`.
         2. ``issuer_key_fingerprint`` matches the supplied issuer key.
         3. The Ed25519 signature verifies over canonical JSON of the
            envelope minus its ``signature`` field.
         4. ``now`` falls within ``[issued_at, not_after)``.
+        5. ``principal`` block is present and well-formed
+           (``{id: str, public_key: 64-hex-char str}``).
     """
     now = now or datetime.now(timezone.utc)
 
@@ -135,9 +156,30 @@ def validate_agent_identity_certificate(
             valid=False, reason="certificate expired"
         )
 
+    principal = certificate.get("principal")
+    if not isinstance(principal, dict):
+        return AgentIdentityValidationResult(
+            valid=False, reason="missing or malformed principal block"
+        )
+    principal_id = principal.get("id")
+    principal_pk = principal.get("public_key")
+    if not isinstance(principal_id, str) or not principal_id:
+        return AgentIdentityValidationResult(
+            valid=False, reason="principal.id missing or empty"
+        )
+    if (
+        not isinstance(principal_pk, str)
+        or len(principal_pk) != 64
+        or any(c not in "0123456789abcdefABCDEF" for c in principal_pk)
+    ):
+        return AgentIdentityValidationResult(
+            valid=False, reason="principal.public_key must be 64 hex chars"
+        )
+
     return AgentIdentityValidationResult(
         valid=True,
         subject=certificate.get("subject"),
+        principal={"id": principal_id, "public_key": principal_pk},
         issuer_key_fingerprint=expected_fp,
     )
 

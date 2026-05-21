@@ -39,22 +39,26 @@ On each `records[]` entry, alongside `id`, `timestamp`, `model`, `decision`, `co
 
 ### 3.2 Envelope shape
 
-The `agent_identity` envelope is the demo-lane Specora cert format `specora-aid-cert-v1-demo`. Defined inline in [`docs/schemas/canonical-bundle-v1.1.json`](schemas/canonical-bundle-v1.1.json) under `$defs/agent_identity_envelope` and equivalent to the standalone schema [`docs/schemas/agent-identity-v1.json`] (Phase 1).
+The `agent_identity` envelope is the Specora cert format `specora-aid-cert-v1`. Defined inline in [`docs/schemas/canonical-bundle-v1.1.json`](schemas/canonical-bundle-v1.1.json) under `$defs/agent_identity_envelope` and equivalent to the standalone schema [`docs/schemas/agent-identity-v1.json`] (Phase 1).
 
 ```json
 {
-  "format": "specora-aid-cert-v1-demo",
+  "format": "specora-aid-cert-v1",
   "subject": {
     "identity_id": "<UUID>",
     "org_id": "<UUID>",
     "agent_id": "<vendor-supplied stable string>"
+  },
+  "principal": {
+    "id": "<owner identifier; today the org_id>",
+    "public_key": "<64-char hex Ed25519 pubkey of the OWNER>"
   },
   "issuer": {
     "common_name": "Specora Demo Root",
     "organizational_unit": "for-demo-only-not-production",
     "organization": "Specora"
   },
-  "public_key": "<64-char hex Ed25519 pubkey>",
+  "public_key": "<64-char hex Ed25519 pubkey of the AGENT>",
   "issuer_key_fingerprint": "<sha256 hex of issuer raw pubkey>",
   "issued_at": "2026-05-08T12:00:00Z",
   "not_after": "2026-06-07T12:00:00Z",
@@ -62,7 +66,9 @@ The `agent_identity` envelope is the demo-lane Specora cert format `specora-aid-
 }
 ```
 
-Every envelope MUST carry the `format = "specora-aid-cert-v1-demo"` discriminator. The trailing `-demo` is **load-bearing**: relying parties MUST refuse anything else. Production format will revise the suffix when the C01 ceremony root is operational.
+The envelope carries two distinct identity blocks. `subject` identifies the **agent** (within an org). `principal` identifies the **owner** that the agent acts on behalf of, including the owner's Ed25519 public key — used by runtime authorization networks (HonorNet) to verify owner-signed mandates per the three-part authorization presentation (HonorNet ADR-009 / Specora [ADR-PLATFORM-009](https://github.com/SpecoraAI/specora-platform/blob/staging/docs/platform/adr/ADR-PLATFORM-009-AGENT-IDENTITY-OWNER-PUBLIC-KEY.md)). Specora attests the principal public key; Specora does not custody it and never sees or evaluates mandates.
+
+Every envelope MUST carry the `format = "specora-aid-cert-v1"` discriminator. The wire identifier is the same in both the prelaunch (DEMO-ROOT) and the future production (C01-rooted) issuance lanes; lane separation is enforced by the pinned `issuer_key_fingerprint`, not by the format string. Relying parties pin the issuer key they trust and reject envelopes signed by any other.
 
 ### 3.3 Validation rules (verifier-side)
 
@@ -73,14 +79,15 @@ The v1.1 validator at [`specora_verify/wire_spec.py:validate_bundle_v1_1`](../sp
    - If `agent_identity` is present → call [`specora_verify.agent_identity.validate_agent_identity_certificate`](../specora_verify/agent_identity.py) with the out-of-band issuer pubkey.
 2. **Aggregate** per-record verdicts. The bundle is `valid` iff every record's verdict is `absent` or `valid`. A single `invalid` verdict flips the whole bundle to `valid=False`.
 
-The underlying cert validator (Phase 1) checks four things:
+The underlying cert validator (Phase 1) checks five things:
 
-1. `format == "specora-aid-cert-v1-demo"`.
+1. `format == "specora-aid-cert-v1"`.
 2. `issuer_key_fingerprint` matches the SHA-256 of the supplied issuer pubkey.
 3. The Ed25519 signature verifies over canonical JSON of the envelope minus its `signature` field.
 4. `now` is in `[issued_at, not_after)`.
+5. `principal` block is present and well-formed (`{id: non-empty string, public_key: 64-hex-char string}`).
 
-Tampering with any field flips the verdict to `invalid` (verified by `tests/test_wire_spec_v1_1.py::TestTampering`).
+Tampering with any field — including the `principal` block — flips the verdict to `invalid`. Because the signature covers canonical JSON of the full envelope, swapping the owner public key or owner id without re-signing produces a `signature does not verify` failure.
 
 ### 3.4 Out-of-band issuer key delivery
 
