@@ -1,10 +1,12 @@
-"""Tests for the AID-910 demo-lane agent identity validator.
+"""Tests for the AID-910 agent identity validator.
 
 Pairs with ``specora_verify/agent_identity.py``. Round-trips the three
 golden vectors under ``vectors/agent-identity/`` and exercises the
-tampering / format / expiry edge cases.
+tampering / format / expiry / principal-block edge cases.
 
-CSEA-SUPPRESS-2026-05-08-002 — investor-demo lane, archive 2026-06-05.
+The envelope shape is governed by ADR-PLATFORM-009 (Specora) and
+HonorNet ADR-009: ``subject`` is the AGENT block, ``principal`` is the
+OWNER block ({id, public_key}). Both are sealed in the cert signature.
 """
 
 from __future__ import annotations
@@ -52,6 +54,11 @@ class TestValidVector:
         assert result.valid, result.reason
         assert result.subject is not None
         assert result.subject["agent_id"] == "acme-demo-agent"
+        assert result.principal is not None
+        assert (
+            result.principal["id"] == "00000000-0000-0000-0000-0000000000aa"
+        )
+        assert len(result.principal["public_key"]) == 64
         assert result.issuer_key_fingerprint == public_key_fingerprint(
             issuer_pubkey_hex
         )
@@ -142,8 +149,60 @@ class TestTampering:
         assert result.reason == "unsupported certificate format"
 
 
+class TestPrincipalBlock:
+    """The principal block (ADR-PLATFORM-009) is sealed into the cert."""
+
+    def test_tampered_principal_id_fails_signature(
+        self, issuer_pubkey_hex, evaluate_at
+    ):
+        vec = _load("valid.json")
+        cert = dict(vec["certificate"])
+        cert["principal"] = {**cert["principal"], "id": "evil-org"}
+        result = validate_agent_identity_certificate(
+            cert, issuer_public_key_hex=issuer_pubkey_hex, now=evaluate_at
+        )
+        assert not result.valid
+        assert result.reason == "signature does not verify"
+
+    def test_tampered_principal_pubkey_fails_signature(
+        self, issuer_pubkey_hex, evaluate_at
+    ):
+        vec = _load("valid.json")
+        cert = dict(vec["certificate"])
+        cert["principal"] = {**cert["principal"], "public_key": "ff" * 32}
+        result = validate_agent_identity_certificate(
+            cert, issuer_public_key_hex=issuer_pubkey_hex, now=evaluate_at
+        )
+        assert not result.valid
+        assert result.reason == "signature does not verify"
+
+    def test_missing_principal_block_rejected(
+        self, issuer_pubkey_hex, evaluate_at
+    ):
+        # Strip principal AND re-sign would still fail because we don't
+        # have the private key; instead bypass-signature path: assert the
+        # cert without principal cannot validate, regardless of how it
+        # was produced. Using the live signed cert with principal stripped
+        # exercises the well-formed-check, not the signature check.
+        vec = _load("valid.json")
+        cert = dict(vec["certificate"])
+        cert.pop("principal", None)
+        result = validate_agent_identity_certificate(
+            cert, issuer_public_key_hex=issuer_pubkey_hex, now=evaluate_at
+        )
+        # Either rejected at signature-check (because the canonical bytes
+        # now differ) or at the well-formed check (which only fires after
+        # signature verification when principal isn't covered). The first
+        # one wins here.
+        assert not result.valid
+        assert result.reason in (
+            "signature does not verify",
+            "missing or malformed principal block",
+        )
+
+
 class TestVectorMetadata:
-    """All vectors must carry the demo-lane marker."""
+    """All vectors must carry the prelaunch marker."""
 
     @pytest.mark.parametrize(
         "name", ["valid.json", "expired.json", "revoked.json", "ISSUER.json"]

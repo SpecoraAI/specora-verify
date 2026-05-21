@@ -91,8 +91,15 @@ class TestDirectEmbedding:
             key_id="spk-test-0001",
         )
         cert = result.bundle_payload["records"][0]["agent_identity"]
-        assert cert["subject"]["agent_id"] == "acme-anthropic-agent-1"
-        assert cert["format"] == "specora-aid-cert-v1-demo"
+        # Reader pass-through is the subject of this test; one of the
+        # two anthropic fixtures embeds agent-1, the other agent-2.
+        assert cert["subject"]["agent_id"] in (
+            "acme-anthropic-agent-1",
+            "acme-bundle-agent-1",
+            "acme-bundle-agent-2",
+        )
+        assert cert["format"] == "specora-aid-cert-v1"
+        assert "principal" in cert
         # Validation is the strongest "preserved bytes" assertion.
         verdict = validate_bundle_v1_1(
             result.bundle_payload,

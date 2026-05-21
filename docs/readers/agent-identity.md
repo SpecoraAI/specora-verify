@@ -1,7 +1,7 @@
-# Reader-side agent identity pass-through (AID-940 demo lane)
+# Reader-side agent identity pass-through (AID-940)
 
-**Status:** Investor-demo lane. Authorized via [`docs/strategy/freeze-exceptions/2026-05-08-aid-investor-demo-build.md`](https://github.com/SpecoraAI/specora-platform) in the platform repo. CSEA-SUPPRESS-2026-05-08-002. Archive 2026-06-05.
 **Wire Spec:** [v1.1](../wire-spec-v1.1.md) (the additive revision that introduced the optional `agent_identity` field on each record).
+**Envelope format:** `specora-aid-cert-v1`. The envelope carries two identity blocks — `subject` (the AGENT) and `principal` (the OWNER, with the owner's Ed25519 public key sealed in). The principal block is what runtime authorization networks (HonorNet) use to verify owner-signed mandates per the three-part authorization presentation (HonorNet ADR-009 / Specora ADR-PLATFORM-009).
 
 This page is the integration guide for **provider audit-log readers** that need to preserve a Specora-issued agent-identity certificate as the bundle is normalized. It is the closure for the Phase 1 CSEA Stage 4 pairing on [`specora_verify/agent_identity.py`](../../specora_verify/agent_identity.py) — the verifier-side cert validator now ships with a working reader-side companion.
 
@@ -41,10 +41,11 @@ Used when the agent's runtime is SDK-instrumented (the AID-930 path) and the SDK
   "model": "claude-opus-4-6",
   "decision": "approved",
   "agent_identity": {
-    "format": "specora-aid-cert-v1-demo",
+    "format": "specora-aid-cert-v1",
     "subject": { "identity_id": "...", "org_id": "...", "agent_id": "acme-agent-7" },
+    "principal": { "id": "<owner id>", "public_key": "<64-char hex OWNER pubkey>" },
     "issuer": { "common_name": "Specora Demo Root", "organizational_unit": "for-demo-only-not-production", "organization": "Specora" },
-    "public_key": "...",
+    "public_key": "<64-char hex AGENT pubkey>",
     "issuer_key_fingerprint": "...",
     "issued_at": "2026-05-08T12:00:00Z",
     "not_after": "2026-06-07T12:00:00Z",
@@ -63,10 +64,11 @@ Used when the agent prefers to keep the request body untouched (some Anthropic c
   "timestamp": "2026-06-10T14:22:04Z",
   "request_metadata": {
     "x-specora-agent-identity": {
-      "format": "specora-aid-cert-v1-demo",
+      "format": "specora-aid-cert-v1",
       "subject": { "identity_id": "...", "org_id": "...", "agent_id": "acme-agent-9" },
+      "principal": { "id": "<owner id>", "public_key": "<64-char hex OWNER pubkey>" },
       "issuer": { "common_name": "Specora Demo Root", "organizational_unit": "for-demo-only-not-production", "organization": "Specora" },
-      "public_key": "...",
+      "public_key": "<64-char hex AGENT pubkey>",
       "issuer_key_fingerprint": "...",
       "issued_at": "2026-05-08T12:00:00Z",
       "not_after": "2026-06-07T12:00:00Z",

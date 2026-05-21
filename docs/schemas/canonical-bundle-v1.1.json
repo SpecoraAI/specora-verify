@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/SpecoraAI/specora-verify/docs/schemas/canonical-bundle-v1.1.json",
   "title": "Specora Canonical Evidence Bundle v1.1 (additive over v1.0)",
-  "description": "Wire Spec v1.1 — additive extension of v1.0 that introduces an OPTIONAL agent_identity claim on each records[] entry. v1.0 bundles validate cleanly under v1.1 (adoption is opt-in). The agent_identity envelope shape is the demo-lane Specora cert format documented at specora-aid-cert-v1-demo. Investor-demo lane only (CSEA-SUPPRESS-2026-05-08-002 in the platform repo); production format will rev to a non -demo suffix when the C01 ceremony root + Big 4 engagement land.",
+  "description": "Wire Spec v1.1 — additive extension of v1.0 that introduces an OPTIONAL agent_identity claim on each records[] entry. v1.0 bundles validate cleanly under v1.1 (adoption is opt-in). The agent_identity envelope shape is the Specora cert format documented at specora-aid-cert-v1. The envelope carries two identity blocks: 'subject' (AGENT) and 'principal' (OWNER with sealed public key, per ADR-PLATFORM-009 / HonorNet ADR-009). The wire identifier is the same in both prelaunch (DEMO-ROOT) and production (C01-rooted) lanes; lane separation is enforced by the pinned issuer_key_fingerprint.",
   "type": "object",
   "additionalProperties": false,
   "required": ["metadata", "records"],
@@ -144,6 +144,7 @@
       "required": [
         "format",
         "subject",
+        "principal",
         "issuer",
         "public_key",
         "issuer_key_fingerprint",
@@ -155,8 +156,8 @@
       "properties": {
         "format": {
           "type": "string",
-          "const": "specora-aid-cert-v1-demo",
-          "description": "Wire identifier. The '-demo' suffix is load-bearing. Production format carries a different suffix; relying parties MUST refuse anything else."
+          "const": "specora-aid-cert-v1",
+          "description": "Wire identifier. Same string in both prelaunch (DEMO-ROOT) and production (C01-rooted) lanes; lane separation is enforced by the pinned issuer_key_fingerprint, not by the format string. See ADR-PLATFORM-009."
         },
         "subject": {
           "type": "object",
@@ -166,7 +167,22 @@
             "identity_id": { "type": "string", "minLength": 1 },
             "org_id": { "type": "string", "minLength": 1 },
             "agent_id": { "type": "string", "minLength": 1 }
-          }
+          },
+          "description": "The AGENT block — who the agent is, within which org."
+        },
+        "principal": {
+          "type": "object",
+          "required": ["id", "public_key"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "public_key": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "description": "Hex-encoded Ed25519 public key of the OWNER (principal). Used by runtime authorization networks (HonorNet) to verify owner-signed mandates per ADR-PLATFORM-009 / HonorNet ADR-009."
+            }
+          },
+          "description": "The OWNER block — who the agent acts on behalf of, with the owner's sealed public key. Specora attests the key; it does not custody it."
         },
         "issuer": {
           "type": "object",

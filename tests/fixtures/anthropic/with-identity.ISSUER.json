@@ -1,7 +1,12 @@
 {
   "_metadata": {
     "kind": "demo-vector-issuer",
-    "marker": "for-demo-only-not-production"
+    "marker": "for-demo-only-not-production",
+    "subject": {
+      "common_name": "Specora Demo Root",
+      "organization": "Specora",
+      "organizational_unit": "for-demo-only-not-production"
+    }
   },
-  "issuer_public_key_hex": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737"
+  "issuer_public_key_hex": "e566d46a8eabc87056bc23af81308b30bf4fe38553a000b00e213ce148892a2f"
 }
