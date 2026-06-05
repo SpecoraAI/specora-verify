@@ -46,6 +46,9 @@ if TYPE_CHECKING:
         MirrorVerificationResult,
     )
     from specora_verify.validators.registry import (
+        ChainVerificationResult as RegistryChainVerificationResult,
+    )
+    from specora_verify.validators.registry import (
         RegistrySnapshot,
         SnapshotVerificationResult,
     )
@@ -1334,14 +1337,14 @@ def format_registry_snapshot_result(
 
 
 def format_registry_chain_result(
-    result: ChainVerificationResult,
+    result: RegistryChainVerificationResult,
     *,
     output_format: str = "text",
 ) -> str:
     """Format registry chain verification result.
 
     Args:
-        result: ChainVerificationResult object
+        result: RegistryChainVerificationResult object
         output_format: "text" or "json"
 
     Returns:

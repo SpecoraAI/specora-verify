@@ -2677,21 +2677,21 @@ def cmd_mirror_verify_anchors(args: argparse.Namespace) -> int:
         return EXIT_ERROR
 
     # Verify anchor chain
-    result = verify_anchor_chain(
+    chain_result = verify_anchor_chain(
         anchors_by_source,
         quorum_required=quorum,
         verify_linkage=True,
     )
 
     # Format and output
-    print(format_anchor_chain_result(result, output_format=args.format))
+    print(format_anchor_chain_result(chain_result, output_format=args.format))
 
     # Emit receipt if requested
     if hasattr(args, "emit_receipt") and args.emit_receipt:
         from specora_verify import __version__
 
         receipt = create_anchor_chain_receipt(
-            result,
+            chain_result,
             verifier_version=__version__,
         )
         try:
@@ -2708,7 +2708,7 @@ def cmd_mirror_verify_anchors(args: argparse.Namespace) -> int:
                 file=sys.stderr,
             )
 
-    return status_to_exit_code(result.status)
+    return status_to_exit_code(chain_result.status)
 
 
 # =============================================================================
