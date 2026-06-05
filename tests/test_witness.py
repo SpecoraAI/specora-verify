@@ -9,18 +9,15 @@ import pytest
 
 from specora_verify.errors import VerificationError
 from specora_verify.fetchers.witness import (
-    WitnessStatementFetchResult,
     load_local_witness_statement,
     load_local_witness_statements_dir,
 )
 from specora_verify.validators.witness import (
-    ERR_REGISTRY_SCHEMA,
     WitnessEntry,
     WitnessQuorumResult,
     WitnessRegistry,
     WitnessStatementResult,
     WitnessStatus,
-    WitnessVerificationReceipt,
     WitnessVerificationStatus,
     create_witness_receipt,
     derive_witness_key_id,
@@ -400,9 +397,7 @@ class TestStatementRevokedWitness:
         assert any("INV-ANCHOR-016" in e for e in result.errors)
         assert result.witness_status == WitnessStatus.REVOKED
 
-    def test_witness_not_in_registry(
-        self, valid_statement: dict, valid_registry: WitnessRegistry
-    ):
+    def test_witness_not_in_registry(self, valid_statement: dict, valid_registry: WitnessRegistry):
         """Statement from unknown witness fails."""
         statement = {
             **valid_statement,
@@ -536,9 +531,7 @@ class TestQuorumVerification:
         alpha_statement = json.loads(
             (FIXTURES_DIR / "statements" / "witness-alpha.json").read_text()
         )
-        beta_statement = json.loads(
-            (FIXTURES_DIR / "statements" / "witness-beta.json").read_text()
-        )
+        beta_statement = json.loads((FIXTURES_DIR / "statements" / "witness-beta.json").read_text())
         # Submit alpha twice and beta once = 3 statements, but 2 distinct orgs
         statements = [alpha_statement, alpha_statement, beta_statement]
 

@@ -28,7 +28,7 @@ CSEA-SUPPRESS-2026-05-08-002 / archive 2026-06-05.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -41,21 +41,17 @@ FIXTURE_DIR = Path(__file__).resolve().parents[1] / "fixtures" / "anthropic"
 
 @pytest.fixture
 def issuer_pubkey_hex() -> str:
-    payload = json.loads(
-        (FIXTURE_DIR / "with-identity.ISSUER.json").read_text()
-    )
+    payload = json.loads((FIXTURE_DIR / "with-identity.ISSUER.json").read_text())
     return payload["issuer_public_key_hex"]
 
 
 @pytest.fixture
 def evaluate_at() -> datetime:
-    return datetime(2026, 5, 15, 12, 0, 0, tzinfo=timezone.utc)
+    return datetime(2026, 5, 15, 12, 0, 0, tzinfo=UTC)
 
 
 class TestDirectEmbedding:
-    def test_reader_lifts_direct_agent_identity(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_reader_lifts_direct_agent_identity(self, issuer_pubkey_hex, evaluate_at):
         result = AnthropicReader().read(
             FIXTURE_DIR / "with-identity-direct.jsonl",
             key_id="spk-test-0001",
@@ -78,9 +74,7 @@ class TestDirectEmbedding:
         statuses = [v.status for v in verdict.record_verdicts]
         assert statuses == ["valid", "valid", "absent"]
 
-    def test_reader_preserves_subject_bytes(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_reader_preserves_subject_bytes(self, issuer_pubkey_hex, evaluate_at):
         """Reader must not touch the embedded envelope at all.
 
         If the reader normalizes/re-canonicalizes the cert, the
@@ -110,9 +104,7 @@ class TestDirectEmbedding:
 
 
 class TestHeaderPropagation:
-    def test_reader_lifts_header_agent_identity(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_reader_lifts_header_agent_identity(self, issuer_pubkey_hex, evaluate_at):
         result = AnthropicReader().read(
             FIXTURE_DIR / "with-identity-header.jsonl",
             key_id="spk-test-0001",
@@ -147,18 +139,16 @@ class TestNoFabrication:
 
 
 class TestTamperingFlipsBundle:
-    def test_tampering_with_lifted_cert_flips_bundle(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_tampering_with_lifted_cert_flips_bundle(self, issuer_pubkey_hex, evaluate_at):
         result = AnthropicReader().read(
             FIXTURE_DIR / "with-identity-direct.jsonl",
             key_id="spk-test-0001",
         )
         # Tamper after read — simulates a bad actor between reader
         # and verifier.
-        result.bundle_payload["records"][0]["agent_identity"][
-            "subject"
-        ]["agent_id"] = "evil-impersonator"
+        result.bundle_payload["records"][0]["agent_identity"]["subject"]["agent_id"] = (
+            "evil-impersonator"
+        )
         verdict = validate_bundle_v1_1(
             result.bundle_payload,
             issuer_public_key_hex=issuer_pubkey_hex,
@@ -166,6 +156,4 @@ class TestTamperingFlipsBundle:
         )
         assert not verdict.valid
         assert verdict.record_verdicts[0].status == "invalid"
-        assert (
-            verdict.record_verdicts[0].reason == "signature does not verify"
-        )
+        assert verdict.record_verdicts[0].reason == "signature does not verify"

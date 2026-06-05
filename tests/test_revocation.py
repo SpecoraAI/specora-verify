@@ -21,7 +21,6 @@ from specora_verify.revocation import (
     KEY_STATUS_RETIRED,
     KEY_STATUS_REVOKED,
     KEY_STATUS_UNKNOWN,
-    KeyEntry,
     RevocationList,
     check_key_trust,
     load_revocation_list,
@@ -135,9 +134,7 @@ class TestRevocationListParsing:
     def test_key_id_fingerprint_mismatch_fails(self, sample_revocation_list_data: dict):
         """Key ID not matching fingerprint raises error."""
         # Change fingerprint but not key_id
-        sample_revocation_list_data["keys"][0]["fingerprint_sha256"] = (
-            "0000000000000000" + "0" * 48
-        )
+        sample_revocation_list_data["keys"][0]["fingerprint_sha256"] = "0000000000000000" + "0" * 48
 
         with pytest.raises(VerificationError) as exc:
             parse_revocation_list(sample_revocation_list_data)

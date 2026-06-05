@@ -90,7 +90,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -101,9 +101,7 @@ from specora_verify.readers import ReadResult, reader
 
 _PROVIDER = "openai"
 _SUPPORTED_VERSIONS: tuple[str, ...] = ("openai-compliance-v1-preview",)
-_VALID_WIRE_DECISIONS = frozenset(
-    {"approved", "rejected", "deferred", "escalated"}
-)
+_VALID_WIRE_DECISIONS = frozenset({"approved", "rejected", "deferred", "escalated"})
 _REQUIRED_EVENT_FIELDS: tuple[str, ...] = (
     "id",
     "type",
@@ -114,9 +112,7 @@ _REQUIRED_EVENT_FIELDS: tuple[str, ...] = (
 )
 # OpenAI uses model IDs like "gpt-4o-2024-08-06" or "gpt-4o-mini-2024-07-18".
 # Split the trailing "-YYYY-MM-DD" (or "-YYYY-MM") into the version field.
-_MODEL_ID_DATE_RE = re.compile(
-    r"^(?P<name>.+?)-(?P<version>\d{4}-\d{2}(?:-\d{2})?)$"
-)
+_MODEL_ID_DATE_RE = re.compile(r"^(?P<name>.+?)-(?P<version>\d{4}-\d{2}(?:-\d{2})?)$")
 
 
 @dataclass
@@ -159,9 +155,7 @@ def _map_outcome(raw: Any) -> str:
 def _split_model_id(model_id: str) -> tuple[str, str]:
     """Split an OpenAI model ID into (name, version)."""
     if not isinstance(model_id, str) or not model_id:
-        raise ReaderSchemaError(
-            _PROVIDER, f"model must be a non-empty string (got {model_id!r})"
-        )
+        raise ReaderSchemaError(_PROVIDER, f"model must be a non-empty string (got {model_id!r})")
     match = _MODEL_ID_DATE_RE.match(model_id)
     if match:
         return match.group("name"), match.group("version")
@@ -172,7 +166,7 @@ def _split_model_id(model_id: str) -> tuple[str, str]:
 def _normalize_timestamp(value: Any) -> str:
     """Accept RFC 3339 ``Z`` / ``+00:00`` strings and unix seconds ints."""
     if isinstance(value, (int, float)):
-        dt = datetime.fromtimestamp(float(value), tz=timezone.utc)
+        dt = datetime.fromtimestamp(float(value), tz=UTC)
         return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     if isinstance(value, str):
         if value.endswith("Z"):
@@ -180,8 +174,7 @@ def _normalize_timestamp(value: Any) -> str:
             if "." in value:
                 raise ReaderSchemaError(
                     _PROVIDER,
-                    f"timestamp must not include fractional seconds "
-                    f"(got {value!r})",
+                    f"timestamp must not include fractional seconds (got {value!r})",
                 )
             return value
         if value.endswith("+00:00"):
@@ -189,14 +182,12 @@ def _normalize_timestamp(value: Any) -> str:
             if "." in stripped:
                 raise ReaderSchemaError(
                     _PROVIDER,
-                    f"timestamp must not include fractional seconds "
-                    f"(got {value!r})",
+                    f"timestamp must not include fractional seconds (got {value!r})",
                 )
             return stripped + "Z"
     raise ReaderSchemaError(
         _PROVIDER,
-        f"timestamp must be RFC 3339 UTC ('Z' or '+00:00') or unix seconds "
-        f"(got {value!r})",
+        f"timestamp must be RFC 3339 UTC ('Z' or '+00:00') or unix seconds (got {value!r})",
     )
 
 
@@ -285,9 +276,7 @@ class OpenAIComplianceReader:
         seen_ids: set[str] = set()
 
         for index, event in enumerate(events_in):
-            outcome = self._map_event(
-                event, index=index, strict=strict, seen_ids=seen_ids
-            )
+            outcome = self._map_event(event, index=index, strict=strict, seen_ids=seen_ids)
             if outcome.warning is not None:
                 warnings.append(outcome.warning)
             if outcome.mapped is not None:
@@ -342,9 +331,7 @@ class OpenAIComplianceReader:
         try:
             parsed = json.loads(stripped)
         except json.JSONDecodeError as exc:
-            raise ReaderSchemaError(
-                _PROVIDER, f"input is not valid JSON: {exc.msg}"
-            ) from exc
+            raise ReaderSchemaError(_PROVIDER, f"input is not valid JSON: {exc.msg}") from exc
         return self._extract_from_parsed(parsed)
 
     @staticmethod
@@ -355,16 +342,12 @@ class OpenAIComplianceReader:
             if "data" in parsed:
                 data = parsed["data"]
                 if not isinstance(data, list):
-                    raise ReaderSchemaError(
-                        _PROVIDER, "'data' must be a JSON array"
-                    )
+                    raise ReaderSchemaError(_PROVIDER, "'data' must be a JSON array")
                 return data
             if "events" in parsed:
                 events = parsed["events"]
                 if not isinstance(events, list):
-                    raise ReaderSchemaError(
-                        _PROVIDER, "'events' must be a JSON array"
-                    )
+                    raise ReaderSchemaError(_PROVIDER, "'events' must be a JSON array")
                 return events
             # A single bare event dict — treat as a one-element archive.
             if "id" in parsed and "type" in parsed:
@@ -413,30 +396,21 @@ class OpenAIComplianceReader:
             )
         if not isinstance(event, dict):
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, f"{location} is not a JSON object"
-                )
-            return _EventOutcome(
-                mapped=None, warning=f"{location}: not a JSON object"
-            )
+                raise ReaderSchemaError(_PROVIDER, f"{location} is not a JSON object")
+            return _EventOutcome(mapped=None, warning=f"{location}: not a JSON object")
 
         try:
             mapped = self._map_event_strict(event)
         except ReaderSchemaError as exc:
             if strict:
                 raise
-            return _EventOutcome(
-                mapped=None, warning=f"{location}: {exc.detail}"
-            )
+            return _EventOutcome(mapped=None, warning=f"{location}: {exc.detail}")
 
         record_id = mapped["id"]
         if record_id in seen_ids:
             return _EventOutcome(
                 mapped=None,
-                warning=(
-                    f"{location}: duplicate event id {record_id!r} "
-                    f"(first occurrence wins)"
-                ),
+                warning=(f"{location}: duplicate event id {record_id!r} (first occurrence wins)"),
             )
         seen_ids.add(record_id)
         return _EventOutcome(mapped=mapped, warning=None)
@@ -444,23 +418,15 @@ class OpenAIComplianceReader:
     def _map_event_strict(self, event: dict) -> dict:
         for field_name in _REQUIRED_EVENT_FIELDS:
             if field_name not in event:
-                raise ReaderSchemaError(
-                    _PROVIDER, f"missing required field {field_name!r}"
-                )
+                raise ReaderSchemaError(_PROVIDER, f"missing required field {field_name!r}")
         decision = event["decision"]
         if not isinstance(decision, dict):
-            raise ReaderSchemaError(
-                _PROVIDER, "decision must be a JSON object"
-            )
+            raise ReaderSchemaError(_PROVIDER, "decision must be a JSON object")
         if "outcome" not in decision:
-            raise ReaderSchemaError(
-                _PROVIDER, "decision.outcome missing"
-            )
+            raise ReaderSchemaError(_PROVIDER, "decision.outcome missing")
         policy_refs_raw = decision.get("policy_ids", decision.get("policy_refs", []))
         if not isinstance(policy_refs_raw, list):
-            raise ReaderSchemaError(
-                _PROVIDER, "decision.policy_ids must be a JSON array"
-            )
+            raise ReaderSchemaError(_PROVIDER, "decision.policy_ids must be a JSON array")
 
         outcome = _map_outcome(decision["outcome"])
 
@@ -528,9 +494,7 @@ class OpenAIComplianceReader:
         return normalized
 
     @staticmethod
-    def _build_bundle_payload(
-        *, records: list[dict], key_id: str, schema_version: str
-    ) -> dict:
+    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
         payload = {
             "metadata": {
                 "provider": _PROVIDER,

@@ -7,8 +7,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "witness"
 
 
@@ -336,7 +334,9 @@ class TestSkipSignatureCIBlocking:
             "--dangerously-skip-signature",
         )
         assert result.returncode == 3  # ERROR
-        assert "SKIP_SIGNATURE_IN_CI" in result.stderr or "cannot be used with --ci" in result.stderr
+        assert (
+            "SKIP_SIGNATURE_IN_CI" in result.stderr or "cannot be used with --ci" in result.stderr
+        )
 
     def test_skip_signature_blocked_in_ci_mode_verify_network(self, tmp_path: Path):
         """--dangerously-skip-signature + --ci returns error for verify-network."""
@@ -360,7 +360,9 @@ class TestSkipSignatureCIBlocking:
             "--dangerously-skip-signature",
         )
         assert result.returncode == 3  # ERROR
-        assert "SKIP_SIGNATURE_IN_CI" in result.stderr or "cannot be used with --ci" in result.stderr
+        assert (
+            "SKIP_SIGNATURE_IN_CI" in result.stderr or "cannot be used with --ci" in result.stderr
+        )
 
     def test_skip_signature_allowed_without_ci_mode(self):
         """--dangerously-skip-signature works without --ci."""

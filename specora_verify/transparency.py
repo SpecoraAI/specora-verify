@@ -102,9 +102,7 @@ class InclusionProof:
             "seq": self.seq,
             "leaf_hash": self.leaf_hash,
             "merkle_root_hash": self.merkle_root_hash,
-            "audit_path": [
-                {"sibling": s, "position": p} for s, p in self.audit_path
-            ],
+            "audit_path": [{"sibling": s, "position": p} for s, p in self.audit_path],
         }
 
 
@@ -114,15 +112,11 @@ class InclusionProof:
 
 
 def _leaf_hash(entry_without_leaf_hash: dict[str, Any]) -> str:
-    return hashlib.sha256(
-        canonical_json_bytes(entry_without_leaf_hash)
-    ).hexdigest()
+    return hashlib.sha256(canonical_json_bytes(entry_without_leaf_hash)).hexdigest()
 
 
 def _internal_hash(left: str, right: str) -> str:
-    return hashlib.sha256(
-        bytes.fromhex(left) + bytes.fromhex(right)
-    ).hexdigest()
+    return hashlib.sha256(bytes.fromhex(left) + bytes.fromhex(right)).hexdigest()
 
 
 def merkle_root(leaf_hashes: list[str]) -> str:
@@ -145,9 +139,7 @@ def merkle_root(leaf_hashes: list[str]) -> str:
     return layer[0]
 
 
-def compute_inclusion_proof(
-    *, leaf_index: int, leaf_hashes: list[str]
-) -> list[tuple[str, str]]:
+def compute_inclusion_proof(*, leaf_index: int, leaf_hashes: list[str]) -> list[tuple[str, str]]:
     """Build the audit path for ``leaf_index`` over ``leaf_hashes``."""
     if leaf_index < 0 or leaf_index >= len(leaf_hashes):
         raise IndexError("leaf_index out of range")
@@ -270,16 +262,12 @@ class TransparencyLog:
         }
         root_path = self.root_dir / epoch_id / "root.json"
         tmp_path = root_path.with_suffix(root_path.suffix + ".tmp")
-        tmp_path.write_text(
-            json.dumps(root_payload, indent=2, sort_keys=True) + "\n"
-        )
+        tmp_path.write_text(json.dumps(root_payload, indent=2, sort_keys=True) + "\n")
         os.replace(tmp_path, root_path)
 
     # ---- Read / proof path ------------------------------------------
 
-    def get_entry(
-        self, *, epoch_id: str, seq: int
-    ) -> TransparencyLogEntry | None:
+    def get_entry(self, *, epoch_id: str, seq: int) -> TransparencyLogEntry | None:
         entries = self._read_entries(epoch_id)
         if 0 <= seq < len(entries):
             e = entries[seq]
@@ -299,16 +287,12 @@ class TransparencyLog:
         path = self.root_dir / epoch_id / "root.json"
         return json.loads(path.read_text())
 
-    def inclusion_proof(
-        self, *, epoch_id: str, seq: int
-    ) -> InclusionProof:
+    def inclusion_proof(self, *, epoch_id: str, seq: int) -> InclusionProof:
         entries = self._read_entries(epoch_id)
         if seq < 0 or seq >= len(entries):
             raise IndexError(f"seq {seq} out of range for {epoch_id}")
         leaf_hashes = [e["leaf_hash"] for e in entries]
-        path = compute_inclusion_proof(
-            leaf_index=seq, leaf_hashes=leaf_hashes
-        )
+        path = compute_inclusion_proof(leaf_index=seq, leaf_hashes=leaf_hashes)
         return InclusionProof(
             epoch_id=epoch_id,
             seq=seq,
@@ -324,7 +308,7 @@ class TransparencyLog:
         if not path.exists():
             return []
         out: list[dict[str, Any]] = []
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:
@@ -349,8 +333,7 @@ def assert_monotonic_no_gaps(log: TransparencyLog, epoch_id: str) -> None:
     for expected, e in enumerate(entries):
         if e["seq"] != expected:
             raise AssertionError(
-                f"transparency log gap in epoch {epoch_id}: "
-                f"expected seq {expected}, got {e['seq']}"
+                f"transparency log gap in epoch {epoch_id}: expected seq {expected}, got {e['seq']}"
             )
         if e["format"] != LOG_FORMAT_VERSION:
             raise AssertionError(

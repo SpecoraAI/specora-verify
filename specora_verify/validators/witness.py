@@ -61,7 +61,7 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -273,9 +273,7 @@ class WitnessQuorumResult:
             "consensus_anchor_index": self.consensus_anchor_index,
             "hash_mismatch_detected": self.hash_mismatch_detected,
             "mismatched_witnesses": self.mismatched_witnesses,
-            "statement_results": {
-                k: v.to_dict() for k, v in self.statement_results.items()
-            },
+            "statement_results": {k: v.to_dict() for k, v in self.statement_results.items()},
             "errors": self.errors,
             "warnings": self.warnings,
         }
@@ -642,9 +640,7 @@ def validate_witness_statement(
     # Validate witness_statement_id format
     statement_id = statement.get("witness_statement_id", "")
     if not STATEMENT_ID_PATTERN.match(statement_id):
-        errors.append(
-            f"Invalid witness_statement_id format: {statement_id} (expected: ws-<uuid>)"
-        )
+        errors.append(f"Invalid witness_statement_id format: {statement_id} (expected: ws-<uuid>)")
 
     # Validate timestamps
     for field_name in ["timestamp", "verification_timestamp"]:
@@ -654,9 +650,7 @@ def validate_witness_statement(
 
     # Validate anchor_hash
     if not anchor_hash or not HEX64_PATTERN.match(anchor_hash):
-        errors.append(
-            f"Invalid anchor_hash: must be 64 lowercase hex chars, got: {anchor_hash}"
-        )
+        errors.append(f"Invalid anchor_hash: must be 64 lowercase hex chars, got: {anchor_hash}")
 
     # Validate anchor_index
     if not isinstance(anchor_index, int) or anchor_index < 0:
@@ -682,8 +676,7 @@ def validate_witness_statement(
     public_key_id = statement.get("witness_public_key_id", "")
     if not WITNESS_KEY_ID_PATTERN.match(public_key_id):
         errors.append(
-            f"Invalid witness_public_key_id format: {public_key_id} "
-            "(expected wpk-<16 hex chars>)"
+            f"Invalid witness_public_key_id format: {public_key_id} (expected wpk-<16 hex chars>)"
         )
 
     # Check anchor hash mismatch (INV-ANCHOR-014)
@@ -722,9 +715,7 @@ def validate_witness_statement(
         # Check witness status (INV-ANCHOR-016)
         if witness_entry.status == WitnessStatus.REVOKED:
             reason = witness_entry.revocation_reason or "unknown"
-            errors.append(
-                f"Witness revoked (INV-ANCHOR-016): {witness_org_id} - {reason}"
-            )
+            errors.append(f"Witness revoked (INV-ANCHOR-016): {witness_org_id} - {reason}")
             result.errors = errors
             result.warnings = warnings
             return result
@@ -939,7 +930,7 @@ def create_witness_receipt(
     return WitnessVerificationReceipt(
         schema_version="1.0.0",
         verifier_version=verifier_version,
-        verification_timestamp=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        verification_timestamp=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         witness_result=result,
         registry_fingerprint=registry_fingerprint,
     )

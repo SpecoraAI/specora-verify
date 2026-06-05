@@ -204,9 +204,7 @@ def main() -> int:
         {
             "_metadata": {
                 "evaluate_at": "2026-05-15T12:00:00Z",
-                "expectation": (
-                    "validate to FAIL with reason 'certificate expired'"
-                ),
+                "expectation": ("validate to FAIL with reason 'certificate expired'"),
                 "issuer_public_key_hex": issuer_pk_hex,
                 "kind": "demo-vector",
                 "marker": "for-demo-only-not-production",
@@ -251,9 +249,7 @@ def main() -> int:
     )
 
     # -------- vectors/canonical-bundle/with-agent-identity/ -------------
-    bundle_dir = (
-        REPO_ROOT / "vectors" / "canonical-bundle" / "with-agent-identity"
-    )
+    bundle_dir = REPO_ROOT / "vectors" / "canonical-bundle" / "with-agent-identity"
     write_json(
         bundle_dir / "ISSUER.json",
         {
@@ -329,15 +325,14 @@ def main() -> int:
                 def _patch_obj(o: Any) -> None:
                     if isinstance(o, dict):
                         if (
-                            o.get("format") in (
+                            o.get("format")
+                            in (
                                 "specora-aid-cert-v1-demo",
                                 CERT_FORMAT_VERSION,
                             )
                             and "subject" in o
                         ):
-                            agent_id = o["subject"].get(
-                                "agent_id", "acme-bundle-agent-1"
-                            )
+                            agent_id = o["subject"].get("agent_id", "acme-bundle-agent-1")
                             replacement = (
                                 bundle_cert_2
                                 if agent_id == "acme-bundle-agent-2"
@@ -354,9 +349,7 @@ def main() -> int:
 
                 _patch_obj(obj)
                 lines.append(json.dumps(obj, sort_keys=True))
-            jsonl_path.write_text(
-                "\n".join(lines) + "\n", encoding="utf-8"
-            )
+            jsonl_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
             print(f"wrote {jsonl_path.relative_to(REPO_ROOT)}")
 
     print("\nIssuer public key:", issuer_pk_hex)

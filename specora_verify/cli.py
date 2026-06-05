@@ -86,17 +86,18 @@ from specora_verify.output import (
     format_receipt_result,
     format_receipt_vectors_result,
     format_signature_result,
-    format_stp_init_result,
     format_stp_certification_attestation_result,
     format_stp_certification_check_result,
     format_stp_certification_scaffold_result,
     format_stp_certification_vectors_result,
+    format_stp_init_result,
     format_stp_inspect_result,
     format_stp_simulate_result,
     format_stp_vectors_result,
     format_stp_verify_result,
     format_vectors_result,
 )
+from specora_verify.stp_contracts import STP_RUNTIME_TYPES
 from specora_verify.validators.anchor import validate_anchor_payload, verify_anchor_vectors
 from specora_verify.validators.bundle import verify_bundle
 from specora_verify.validators.certification import (
@@ -121,7 +122,6 @@ from specora_verify.validators.stp_certification import (
     validate_stp_certification_attestation,
     verify_stp_certification_vectors,
 )
-from specora_verify.stp_contracts import STP_RUNTIME_TYPES
 from specora_verify.validators.vectors import verify_vectors
 
 
@@ -1187,9 +1187,7 @@ def build_parser() -> argparse.ArgumentParser:
         "vectors",
         help="STP certification vector operations",
     )
-    stp_certify_vectors_sub = stp_certify_vectors.add_subparsers(
-        dest="stp_certify_vectors_command"
-    )
+    stp_certify_vectors_sub = stp_certify_vectors.add_subparsers(dest="stp_certify_vectors_command")
     stp_certify_vectors_verify = stp_certify_vectors_sub.add_parser(
         "verify",
         help="Verify STP certification golden test vectors",
@@ -1381,8 +1379,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--schema-version",
         default=None,
         help=(
-            "Override the reader-side OpenAI schema version "
-            "(default: openai-compliance-v1-preview)"
+            "Override the reader-side OpenAI schema version (default: openai-compliance-v1-preview)"
         ),
     )
     read_openai.add_argument(
@@ -1406,8 +1403,7 @@ def build_parser() -> argparse.ArgumentParser:
         required=True,
         type=Path,
         help=(
-            "Path to a LangSmith Fleet trace export "
-            "({'runs': [...]}, a bare JSON array, or JSONL)"
+            "Path to a LangSmith Fleet trace export ({'runs': [...]}, a bare JSON array, or JSONL)"
         ),
     )
     read_langsmith.add_argument(
@@ -1428,10 +1424,7 @@ def build_parser() -> argparse.ArgumentParser:
     read_langsmith.add_argument(
         "--schema-version",
         default=None,
-        help=(
-            "Override the reader-side LangSmith schema version "
-            "(default: langsmith-fleet-v1)"
-        ),
+        help=("Override the reader-side LangSmith schema version (default: langsmith-fleet-v1)"),
     )
     read_langsmith.add_argument(
         "--non-strict",
@@ -1521,9 +1514,9 @@ def _check_skip_signature_in_ci(args: argparse.Namespace) -> int | None:
     if getattr(args, "ci", False) and getattr(args, "skip_signature", False):
         print(
             format_error(
-                f"--dangerously-skip-signature cannot be used with --ci mode. "
-                f"CI pipelines must verify cryptographic signatures for institutional trust. "
-                f"If you need to skip signatures during development, run without --ci.",
+                "--dangerously-skip-signature cannot be used with --ci mode. "
+                "CI pipelines must verify cryptographic signatures for institutional trust. "
+                "If you need to skip signatures during development, run without --ci.",
                 output_format=getattr(args, "format", "text"),
                 code="SKIP_SIGNATURE_IN_CI",
             ),
@@ -1537,7 +1530,9 @@ def _load_json_file(path: Path, output_format: str) -> dict | None:
     """Load and parse a JSON file, printing errors as needed."""
     if not path.exists():
         print(
-            format_error(f"File not found: {path}", output_format=output_format, code="FILE_NOT_FOUND"),
+            format_error(
+                f"File not found: {path}", output_format=output_format, code="FILE_NOT_FOUND"
+            ),
             file=sys.stderr,
         )
         return None
@@ -1546,7 +1541,9 @@ def _load_json_file(path: Path, output_format: str) -> dict | None:
         return json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
         print(
-            format_error(f"Failed to parse {path}: {e}", output_format=output_format, code="PARSE_ERROR"),
+            format_error(
+                f"Failed to parse {path}: {e}", output_format=output_format, code="PARSE_ERROR"
+            ),
             file=sys.stderr,
         )
         return None
@@ -1889,7 +1886,9 @@ def cmd_verify_signature(args: argparse.Namespace) -> int:
     # Load public key
     if not args.public_key.exists():
         print(
-            format_error(f"Public key file not found: {args.public_key}", output_format=args.format),
+            format_error(
+                f"Public key file not found: {args.public_key}", output_format=args.format
+            ),
             file=sys.stderr,
         )
         return EXIT_ERROR
@@ -2030,7 +2029,9 @@ def cmd_key_info(args: argparse.Namespace) -> int:
     # Load public key
     if not args.public_key.exists():
         print(
-            format_error(f"Public key file not found: {args.public_key}", output_format=args.format),
+            format_error(
+                f"Public key file not found: {args.public_key}", output_format=args.format
+            ),
             file=sys.stderr,
         )
         return EXIT_ERROR
@@ -2076,7 +2077,9 @@ def cmd_emit_receipt(args: argparse.Namespace) -> int:
     if args.signature:
         if not args.signature.exists():
             print(
-                format_error(f"Signature file not found: {args.signature}", output_format=args.format),
+                format_error(
+                    f"Signature file not found: {args.signature}", output_format=args.format
+                ),
                 file=sys.stderr,
             )
             return EXIT_ERROR
@@ -2087,7 +2090,9 @@ def cmd_emit_receipt(args: argparse.Namespace) -> int:
     if args.public_key:
         if not args.public_key.exists():
             print(
-                format_error(f"Public key file not found: {args.public_key}", output_format=args.format),
+                format_error(
+                    f"Public key file not found: {args.public_key}", output_format=args.format
+                ),
                 file=sys.stderr,
             )
             return EXIT_ERROR
@@ -2195,9 +2200,11 @@ def cmd_certify_scaffold(args: argparse.Namespace) -> int:
                     print(f"  - {w}")
                 print("")
             print("Next steps:")
-            print(f"  1. Update manifest files with your actual data")
-            print(f"  2. Run: specora-verify vectors verify")
-            print(f"  3. Run: specora-verify certify check --tier {result.tier} --bundle {result.output_dir}")
+            print("  1. Update manifest files with your actual data")
+            print("  2. Run: specora-verify vectors verify")
+            print(
+                f"  3. Run: specora-verify certify check --tier {result.tier} --bundle {result.output_dir}"
+            )
             print(f"  4. See {result.output_dir}/INSTRUCTIONS.md for details")
             print("============================================================")
         else:
@@ -2292,7 +2299,11 @@ def cmd_certify_verify(args: argparse.Namespace) -> int:
         return EXIT_ERROR
 
     result = validate_attestation(payload, expected_hash=args.expected)
-    print(format_certification_attestation_result(result, output_format=args.format, file_path=str(args.file)))
+    print(
+        format_certification_attestation_result(
+            result, output_format=args.format, file_path=str(args.file)
+        )
+    )
     return EXIT_PASS if result.valid else EXIT_FAIL
 
 
@@ -2337,7 +2348,9 @@ def cmd_verify_external_anchor(args: argparse.Namespace) -> int:
     )
 
     # Output result
-    print(format_external_anchor_result(result, output_format=args.format, file_path=str(args.file)))
+    print(
+        format_external_anchor_result(result, output_format=args.format, file_path=str(args.file))
+    )
 
     return EXIT_PASS if result.valid else EXIT_FAIL
 
@@ -2394,7 +2407,11 @@ def cmd_verify_external_anchor_chain(args: argparse.Namespace) -> int:
     )
 
     # Output result
-    print(format_external_anchor_chain_result(result, output_format=args.format, directory_path=str(args.directory)))
+    print(
+        format_external_anchor_chain_result(
+            result, output_format=args.format, directory_path=str(args.directory)
+        )
+    )
 
     return EXIT_PASS if result.valid else EXIT_FAIL
 
@@ -2409,15 +2426,14 @@ def cmd_mirror_verify_latest(args: argparse.Namespace) -> int:
 
     Verifies the latest external anchor across multiple surfaces.
     """
+    from specora_verify.output import format_mirror_result
     from specora_verify.validators.mirror import (
         MirrorSource,
-        MirrorStatus,
         SourceResult,
         create_mirror_receipt,
         status_to_exit_code,
         verify_mirror_consistency,
     )
-    from specora_verify.output import format_mirror_result
 
     source_results: dict[str, SourceResult] = {}
 
@@ -2506,6 +2522,7 @@ def cmd_mirror_verify_anchors(args: argparse.Namespace) -> int:
     Supports both online (fetching from sources) and offline (local directory) modes.
     """
     from datetime import datetime
+
     from specora_verify.output import format_anchor_chain_result
     from specora_verify.validators.mirror import (
         MirrorSource,
@@ -2700,10 +2717,8 @@ def cmd_witness_verify(args: argparse.Namespace) -> int:
     from specora_verify.fetchers.witness import load_local_witness_statement
     from specora_verify.output import format_witness_statement_result
     from specora_verify.validators.witness import (
-        WitnessVerificationStatus,
         load_witness_registry,
         validate_witness_statement,
-        witness_status_to_exit_code,
     )
 
     # Load witness statement
@@ -2904,7 +2919,6 @@ def cmd_registry_verify(args: argparse.Namespace) -> int:
     from specora_verify.output import format_registry_snapshot_result
     from specora_verify.validators.registry import (
         create_registry_receipt,
-        get_exit_code,
         load_registry_snapshot,
         validate_registry_snapshot,
     )
@@ -3260,9 +3274,11 @@ def cmd_stp_certify_attest(args: argparse.Namespace) -> int:
 
     # Validate the generated attestation
     result = validate_stp_certification_attestation(attestation)
-    print(format_stp_certification_attestation_result(
-        result, output_format=args.format, file_path=str(args.out)
-    ))
+    print(
+        format_stp_certification_attestation_result(
+            result, output_format=args.format, file_path=str(args.out)
+        )
+    )
     return EXIT_PASS if result.valid else EXIT_FAIL
 
 
@@ -3279,9 +3295,11 @@ def cmd_stp_certify_verify(args: argparse.Namespace) -> int:
         payload,
         expected_hash=getattr(args, "expected", None),
     )
-    print(format_stp_certification_attestation_result(
-        result, output_format=args.format, file_path=str(args.file)
-    ))
+    print(
+        format_stp_certification_attestation_result(
+            result, output_format=args.format, file_path=str(args.file)
+        )
+    )
     return EXIT_PASS if result.valid else EXIT_FAIL
 
 
@@ -3375,7 +3393,10 @@ def main(argv: list[str] | None = None) -> NoReturn:
             parser.print_help()
     elif args.command == "receipt":
         if args.receipt_command == "vectors":
-            if hasattr(args, "receipt_vectors_command") and args.receipt_vectors_command == "verify":
+            if (
+                hasattr(args, "receipt_vectors_command")
+                and args.receipt_vectors_command == "verify"
+            ):
                 exit_code = cmd_receipt_vectors_verify(args)
             else:
                 parser.print_help()
@@ -3393,7 +3414,10 @@ def main(argv: list[str] | None = None) -> NoReturn:
         elif args.certify_command == "attest":
             exit_code = cmd_certify_attest(args)
         elif args.certify_command == "vectors":
-            if hasattr(args, "certify_vectors_command") and args.certify_vectors_command == "verify":
+            if (
+                hasattr(args, "certify_vectors_command")
+                and args.certify_vectors_command == "verify"
+            ):
                 exit_code = cmd_certify_vectors_verify(args)
             else:
                 parser.print_help()
@@ -3473,7 +3497,10 @@ def main(argv: list[str] | None = None) -> NoReturn:
             elif args.stp_certify_command == "verify":
                 exit_code = cmd_stp_certify_verify(args)
             elif args.stp_certify_command == "vectors":
-                if hasattr(args, "stp_certify_vectors_command") and args.stp_certify_vectors_command == "verify":
+                if (
+                    hasattr(args, "stp_certify_vectors_command")
+                    and args.stp_certify_vectors_command == "verify"
+                ):
                     exit_code = cmd_stp_certify_vectors_verify(args)
                 else:
                     parser.print_help()

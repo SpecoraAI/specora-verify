@@ -39,7 +39,6 @@ from typing import Any
 from specora_verify.canonical import canonical_json_bytes
 from specora_verify.errors import (
     ReaderCryptoError,
-    ReaderError,
     ReaderIOError,
     ReaderSchemaError,
 )
@@ -207,9 +206,7 @@ class AnthropicReader:
 
         if not isinstance(record, dict):
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, "record is not a JSON object", line=lineno
-                )
+                raise ReaderSchemaError(_PROVIDER, "record is not a JSON object", line=lineno)
             return _RecordOutcome(
                 mapped=None, warning=f"line {lineno}: record is not a JSON object"
             )
@@ -226,8 +223,7 @@ class AnthropicReader:
             if strict:
                 raise ReaderSchemaError(
                     _PROVIDER,
-                    f"unsupported schema_version {version!r} "
-                    f"(supported: {_SUPPORTED_VERSIONS})",
+                    f"unsupported schema_version {version!r} (supported: {_SUPPORTED_VERSIONS})",
                     line=lineno,
                 )
             return _RecordOutcome(
@@ -254,12 +250,8 @@ class AnthropicReader:
         signature = record.get("signature")
         if signature is None:
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, "missing upstream signature", line=lineno
-                )
-            return _RecordOutcome(
-                mapped=None, warning=f"line {lineno}: missing upstream signature"
-            )
+                raise ReaderSchemaError(_PROVIDER, "missing upstream signature", line=lineno)
+            return _RecordOutcome(mapped=None, warning=f"line {lineno}: missing upstream signature")
 
         if public_key_bytes is not None:
             try:
@@ -267,9 +259,7 @@ class AnthropicReader:
             except ReaderCryptoError as exc:
                 if strict:
                     raise
-                return _RecordOutcome(
-                    mapped=None, warning=f"line {lineno}: {exc.detail}"
-                )
+                return _RecordOutcome(mapped=None, warning=f"line {lineno}: {exc.detail}")
 
         mapped["_schema_version"] = version
         return _RecordOutcome(mapped=mapped, warning=None)
@@ -281,9 +271,7 @@ class AnthropicReader:
                     _PROVIDER, f"missing required field {field_name!r}", line=lineno
                 )
         if not isinstance(record["policy_refs"], list):
-            raise ReaderSchemaError(
-                _PROVIDER, "policy_refs must be a JSON array", line=lineno
-            )
+            raise ReaderSchemaError(_PROVIDER, "policy_refs must be a JSON array", line=lineno)
 
     def _map_record(self, record: dict) -> dict:
         decision = record["decision"]
@@ -381,9 +369,7 @@ class AnthropicReader:
             return direct
         request_metadata = record.get("request_metadata")
         if isinstance(request_metadata, dict):
-            header_identity = request_metadata.get(
-                "x-specora-agent-identity"
-            )
+            header_identity = request_metadata.get("x-specora-agent-identity")
             if isinstance(header_identity, dict):
                 return header_identity
         return None
@@ -391,7 +377,9 @@ class AnthropicReader:
     @staticmethod
     def _normalize_timestamp(value: Any) -> str:
         if not isinstance(value, str):
-            raise ReaderSchemaError(_PROVIDER, f"timestamp must be a string (got {type(value).__name__})")
+            raise ReaderSchemaError(
+                _PROVIDER, f"timestamp must be a string (got {type(value).__name__})"
+            )
         if value.endswith("Z"):
             return value
         if value.endswith("+00:00"):
@@ -468,9 +456,7 @@ class AnthropicReader:
         return decoded
 
     @staticmethod
-    def _build_bundle_payload(
-        *, records: list[dict], key_id: str, schema_version: str
-    ) -> dict:
+    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
         """Assemble the canonical wire-spec bundle payload.
 
         The returned dict is round-tripped through canonical_json_bytes

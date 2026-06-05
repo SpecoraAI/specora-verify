@@ -13,7 +13,6 @@ from specora_verify.validators.anchor import (
     verify_single_anchor_vector,
 )
 
-
 # Path to anchor vectors
 ANCHOR_VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "anchor"
 

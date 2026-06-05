@@ -126,9 +126,7 @@ def test_empty_file_succeeds(tmp_path: Path) -> None:
 @given(
     seed=st.integers(min_value=0, max_value=2**32 - 1),
     key_id=st.text(
-        alphabet=st.characters(
-            whitelist_categories=("Ll", "Nd"), whitelist_characters="-_"
-        ),
+        alphabet=st.characters(whitelist_categories=("Ll", "Nd"), whitelist_characters="-_"),
         min_size=4,
         max_size=24,
     ),
@@ -144,9 +142,7 @@ def test_deterministic_output(openai_minimal: Path, seed: int, key_id: str) -> N
     reader = get_reader("openai")
     a = reader.read(input_path=openai_minimal, key_id=key_id, strict=True)
     b = reader.read(input_path=openai_minimal, key_id=key_id, strict=True)
-    assert canonical_json_bytes(a.bundle_payload) == canonical_json_bytes(
-        b.bundle_payload
-    )
+    assert canonical_json_bytes(a.bundle_payload) == canonical_json_bytes(b.bundle_payload)
     assert a.record_count == b.record_count == 2
 
 
@@ -171,11 +167,7 @@ def test_realistic_complex(openai_complex: Path) -> None:
     assert outcomes == {"approved", "rejected", "deferred", "escalated"}
 
     # 4 records carry upstream_moderation, 6 do not.
-    mod_count = sum(
-        1
-        for r in result.bundle_payload["records"]
-        if "upstream_moderation" in r
-    )
+    mod_count = sum(1 for r in result.bundle_payload["records"] if "upstream_moderation" in r)
     assert mod_count == 4
 
     for record in result.bundle_payload["records"]:
@@ -268,9 +260,7 @@ def test_single_bare_event_accepted(tmp_path: Path) -> None:
     assert result.bundle_payload["records"][0]["model"]["version"] == ""
 
 
-def test_public_key_passed_surfaces_ignore_warning(
-    openai_minimal: Path, tmp_path: Path
-) -> None:
+def test_public_key_passed_surfaces_ignore_warning(openai_minimal: Path, tmp_path: Path) -> None:
     fake_key = tmp_path / "unused.hex"
     fake_key.write_text("00" * 32 + "\n", encoding="utf-8")
     result = get_reader("openai").read(
@@ -304,9 +294,7 @@ def test_reader_is_stateless(openai_minimal: Path) -> None:
     r1 = reader.read(input_path=openai_minimal, key_id="k")
     r2 = reader.read(input_path=openai_minimal, key_id="k")
     assert r1.record_count == r2.record_count == 2
-    assert canonical_json_bytes(r1.bundle_payload) == canonical_json_bytes(
-        r2.bundle_payload
-    )
+    assert canonical_json_bytes(r1.bundle_payload) == canonical_json_bytes(r2.bundle_payload)
 
 
 # ---------------------------------------------------------------------------
@@ -323,9 +311,7 @@ def test_bundle_payload_matches_canonical_bundle_schema(
         strict=True,
     )
     validator = _canonical_bundle_validator()
-    errors = sorted(
-        validator.iter_errors(result.bundle_payload), key=lambda e: list(e.path)
-    )
+    errors = sorted(validator.iter_errors(result.bundle_payload), key=lambda e: list(e.path))
     assert errors == [], [f"{list(e.path)}: {e.message}" for e in errors]
 
 
@@ -338,7 +324,5 @@ def test_complex_bundle_matches_canonical_bundle_schema(
         strict=False,
     )
     validator = _canonical_bundle_validator()
-    errors = sorted(
-        validator.iter_errors(result.bundle_payload), key=lambda e: list(e.path)
-    )
+    errors = sorted(validator.iter_errors(result.bundle_payload), key=lambda e: list(e.path))
     assert errors == [], [f"{list(e.path)}: {e.message}" for e in errors]

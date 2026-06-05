@@ -8,8 +8,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from specora_verify.fetchers.local import load_local_anchor, load_local_dns_txt
 from specora_verify.validators.mirror import (
     MirrorSource,
@@ -19,7 +17,6 @@ from specora_verify.validators.mirror import (
     status_to_exit_code,
     verify_mirror_consistency,
 )
-
 
 # Path to mirror test fixtures
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "mirror"
@@ -42,7 +39,9 @@ class TestSourceResult:
 
         assert d["source"] == "github_release"
         assert d["reachable"] is True
-        assert d["anchor_hash"] == "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+        assert (
+            d["anchor_hash"] == "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+        )
         assert d["chain_head_index"] == 42
         assert d["fetch_latency_ms"] == 150
 
@@ -71,7 +70,9 @@ class TestLoadLocalAnchor:
         )
 
         assert result.reachable is True
-        assert result.anchor_hash == "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+        assert (
+            result.anchor_hash == "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+        )
         assert result.chain_head_index == 42
         assert result.error is None
         assert result.source == MirrorSource.GITHUB_RELEASE
@@ -84,7 +85,9 @@ class TestLoadLocalAnchor:
         )
 
         assert result.reachable is True
-        assert result.anchor_hash == "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+        assert (
+            result.anchor_hash == "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+        )
         assert result.source == MirrorSource.S3_VERSIONED
 
     def test_load_nonexistent_file(self) -> None:
@@ -356,9 +359,15 @@ class TestVerifyAnchorChain:
         # Load anchors from chain fixtures
         anchors_by_source = {
             "github_release": [
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE),
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000002.json", MirrorSource.GITHUB_RELEASE),
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000003.json", MirrorSource.GITHUB_RELEASE),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE
+                ),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000002.json", MirrorSource.GITHUB_RELEASE
+                ),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000003.json", MirrorSource.GITHUB_RELEASE
+                ),
             ],
         }
 
@@ -380,8 +389,12 @@ class TestVerifyAnchorChain:
 
         anchors_by_source = {
             "github_release": [
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE),
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000002.json", MirrorSource.GITHUB_RELEASE),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE
+                ),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000002.json", MirrorSource.GITHUB_RELEASE
+                ),
             ],
         }
 
@@ -403,10 +416,14 @@ class TestVerifyAnchorChain:
         # Same anchors from two sources
         anchors_by_source = {
             "github_release": [
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE
+                ),
             ],
             "s3_versioned": [
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.S3_VERSIONED),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.S3_VERSIONED
+                ),
             ],
         }
 
@@ -436,7 +453,9 @@ class TestAnchorChainVerificationResult:
 
         anchors_by_source = {
             "github_release": [
-                load_local_anchor(CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE),
+                load_local_anchor(
+                    CHAIN_FIXTURES_DIR / "anchor-00000001.json", MirrorSource.GITHUB_RELEASE
+                ),
             ],
         }
 

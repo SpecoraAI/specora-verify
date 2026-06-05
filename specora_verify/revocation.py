@@ -239,7 +239,9 @@ def parse_revocation_list(data: dict[str, Any]) -> RevocationList:
     # Validate authority
     authority = data["authority"]
     if not isinstance(authority, str) or not authority.strip():
-        raise VerificationError(ERR_REVOCATION_SCHEMA, "Invalid authority: must be non-empty string")
+        raise VerificationError(
+            ERR_REVOCATION_SCHEMA, "Invalid authority: must be non-empty string"
+        )
 
     # Validate keys array
     keys_data = data["keys"]

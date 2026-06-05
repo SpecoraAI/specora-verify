@@ -26,10 +26,9 @@ import sys
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from specora_verify import __version__
-
 
 # =============================================================================
 # Identity Pinning Constants (Critical for Security)
@@ -77,8 +76,8 @@ class ReleaseVerificationResult:
     verified: bool
     checksum_valid: bool
     signature_valid: bool
-    sigstore_log_index: Optional[int]
-    error: Optional[str]
+    sigstore_log_index: int | None
+    error: str | None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -147,7 +146,7 @@ def verify_file_checksum(file_path: Path, expected_hash: str) -> bool:
 def verify_sigstore_signature(
     file_path: Path,
     version: str,
-) -> tuple[bool, Optional[int], Optional[str]]:
+) -> tuple[bool, int | None, str | None]:
     """Verify Sigstore signature of a file with strict identity pinning.
 
     Security model:
@@ -166,6 +165,7 @@ def verify_sigstore_signature(
     try:
         # Check if sigstore is available
         import importlib.util
+
         if importlib.util.find_spec("sigstore") is None:
             return False, None, "sigstore library not installed (pip install sigstore)"
 
@@ -185,6 +185,7 @@ def verify_sigstore_signature(
             return False, None, f"Signature bundle not found: {sig_bundle_path}"
 
         from sigstore.models import Bundle
+
         bundle = Bundle.from_json(sig_bundle_path.read_text())
 
         # Read file content
@@ -213,6 +214,7 @@ def verify_sigstore_signature(
             # Extract repository from certificate extensions if available
             try:
                 from cryptography.x509.oid import ObjectIdentifier
+
                 # GitHub Actions OIDC includes repository in certificate
                 # OID 1.3.6.1.4.1.57264.1.5 = repository
                 repo_oid = ObjectIdentifier("1.3.6.1.4.1.57264.1.5")
@@ -220,9 +222,13 @@ def verify_sigstore_signature(
                     if ext.oid == repo_oid:
                         repo_value = ext.value.value.decode("utf-8")
                         if repo_value != SIGSTORE_EXPECTED_REPOSITORY:
-                            return False, None, (
-                                f"Repository mismatch: expected {SIGSTORE_EXPECTED_REPOSITORY}, "
-                                f"got {repo_value}"
+                            return (
+                                False,
+                                None,
+                                (
+                                    f"Repository mismatch: expected {SIGSTORE_EXPECTED_REPOSITORY}, "
+                                    f"got {repo_value}"
+                                ),
                             )
             except Exception:
                 # If we can't extract repository, rely on identity check above
@@ -243,7 +249,7 @@ def verify_sigstore_signature(
 
 def verify_release(
     version: str,
-    artifact_path: Optional[Path] = None,
+    artifact_path: Path | None = None,
 ) -> ReleaseVerificationResult:
     """Verify a specora-verify release.
 
@@ -274,14 +280,10 @@ def verify_release(
     if artifact_path and artifact_path.exists():
         filename = artifact_path.name
         if filename in checksums:
-            result.checksum_valid = verify_file_checksum(
-                artifact_path, checksums[filename]
-            )
+            result.checksum_valid = verify_file_checksum(artifact_path, checksums[filename])
 
             if result.checksum_valid:
-                sig_valid, log_index, sig_error = verify_sigstore_signature(
-                    artifact_path, version
-                )
+                sig_valid, log_index, sig_error = verify_sigstore_signature(artifact_path, version)
                 result.signature_valid = sig_valid
                 result.sigstore_log_index = log_index
                 if sig_error and not sig_valid:

@@ -40,7 +40,10 @@ class TestAnchorPayloadValidation:
         assert result.valid
         assert result.schema_version == "1.0.0"
         assert result.root_type == "daily"
-        assert result.manifest_hash == "4e4cd3656219d8d8b52e75c94f20ce03f2ee592e71d8d6f49c17facfdbf960af"
+        assert (
+            result.manifest_hash
+            == "4e4cd3656219d8d8b52e75c94f20ce03f2ee592e71d8d6f49c17facfdbf960af"
+        )
         assert result.computed_hash is not None
         assert len(result.computed_hash) == 64
 

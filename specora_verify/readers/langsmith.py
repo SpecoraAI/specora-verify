@@ -81,7 +81,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -92,9 +92,7 @@ from specora_verify.readers import ReadResult, reader
 
 _PROVIDER = "langsmith"
 _SUPPORTED_VERSIONS: tuple[str, ...] = ("langsmith-fleet-v1",)
-_VALID_WIRE_DECISIONS = frozenset(
-    {"approved", "rejected", "deferred", "escalated"}
-)
+_VALID_WIRE_DECISIONS = frozenset({"approved", "rejected", "deferred", "escalated"})
 _REQUIRED_RUN_FIELDS: tuple[str, ...] = (
     "id",
     "run_type",
@@ -108,9 +106,7 @@ _RUN_TYPE_ALLOWLIST = frozenset(
 )
 # LangSmith model names may carry a date suffix like "claude-3-5-sonnet-20241022"
 # or "gpt-4o-2024-08-06". Split it off as version.
-_MODEL_NAME_DATE_RE = re.compile(
-    r"^(?P<name>.+?)-(?P<version>\d{4}(?:-?\d{2}){1,2}(?:-.*)?)$"
-)
+_MODEL_NAME_DATE_RE = re.compile(r"^(?P<name>.+?)-(?P<version>\d{4}(?:-?\d{2}){1,2}(?:-.*)?)$")
 
 
 @dataclass
@@ -161,15 +157,14 @@ def _split_model_name(model_name: str) -> tuple[str, str]:
 def _normalize_timestamp(value: Any) -> str:
     """Accept RFC 3339 Z / +00:00 strings and ISO strings."""
     if isinstance(value, (int, float)):
-        dt = datetime.fromtimestamp(float(value), tz=timezone.utc)
+        dt = datetime.fromtimestamp(float(value), tz=UTC)
         return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     if isinstance(value, str):
         if value.endswith("Z"):
             if "." in value:
                 raise ReaderSchemaError(
                     _PROVIDER,
-                    f"timestamp must not include fractional seconds "
-                    f"(got {value!r})",
+                    f"timestamp must not include fractional seconds (got {value!r})",
                 )
             return value
         if value.endswith("+00:00"):
@@ -177,14 +172,12 @@ def _normalize_timestamp(value: Any) -> str:
             if "." in stripped:
                 raise ReaderSchemaError(
                     _PROVIDER,
-                    f"timestamp must not include fractional seconds "
-                    f"(got {value!r})",
+                    f"timestamp must not include fractional seconds (got {value!r})",
                 )
             return stripped + "Z"
     raise ReaderSchemaError(
         _PROVIDER,
-        f"timestamp must be RFC 3339 UTC ('Z' or '+00:00') or unix seconds "
-        f"(got {value!r})",
+        f"timestamp must be RFC 3339 UTC ('Z' or '+00:00') or unix seconds (got {value!r})",
     )
 
 
@@ -270,9 +263,7 @@ class LangSmithReader:
         seen_ids: set[str] = set()
 
         for index, run in enumerate(runs_in):
-            outcome = self._map_run(
-                run, index=index, strict=strict, seen_ids=seen_ids
-            )
+            outcome = self._map_run(run, index=index, strict=strict, seen_ids=seen_ids)
             if outcome.warning is not None:
                 warnings.append(outcome.warning)
             if outcome.mapped is not None:
@@ -322,9 +313,7 @@ class LangSmithReader:
         try:
             parsed = json.loads(stripped)
         except json.JSONDecodeError as exc:
-            raise ReaderSchemaError(
-                _PROVIDER, f"input is not valid JSON: {exc.msg}"
-            ) from exc
+            raise ReaderSchemaError(_PROVIDER, f"input is not valid JSON: {exc.msg}") from exc
         return self._extract_from_parsed(parsed)
 
     @staticmethod
@@ -335,16 +324,12 @@ class LangSmithReader:
             if "runs" in parsed:
                 runs = parsed["runs"]
                 if not isinstance(runs, list):
-                    raise ReaderSchemaError(
-                        _PROVIDER, "'runs' must be a JSON array"
-                    )
+                    raise ReaderSchemaError(_PROVIDER, "'runs' must be a JSON array")
                 return runs
             if "data" in parsed:
                 data = parsed["data"]
                 if not isinstance(data, list):
-                    raise ReaderSchemaError(
-                        _PROVIDER, "'data' must be a JSON array"
-                    )
+                    raise ReaderSchemaError(_PROVIDER, "'data' must be a JSON array")
                 return data
             # A single bare run object.
             if "id" in parsed and "run_type" in parsed:
@@ -391,30 +376,21 @@ class LangSmithReader:
             )
         if not isinstance(run, dict):
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, f"{location} is not a JSON object"
-                )
-            return _RunOutcome(
-                mapped=None, warning=f"{location}: not a JSON object"
-            )
+                raise ReaderSchemaError(_PROVIDER, f"{location} is not a JSON object")
+            return _RunOutcome(mapped=None, warning=f"{location}: not a JSON object")
 
         try:
             mapped = self._map_run_strict(run)
         except ReaderSchemaError as exc:
             if strict:
                 raise
-            return _RunOutcome(
-                mapped=None, warning=f"{location}: {exc.detail}"
-            )
+            return _RunOutcome(mapped=None, warning=f"{location}: {exc.detail}")
 
         record_id = mapped["id"]
         if record_id in seen_ids:
             return _RunOutcome(
                 mapped=None,
-                warning=(
-                    f"{location}: duplicate run id {record_id!r} "
-                    f"(first occurrence wins)"
-                ),
+                warning=(f"{location}: duplicate run id {record_id!r} (first occurrence wins)"),
             )
         seen_ids.add(record_id)
         return _RunOutcome(mapped=mapped, warning=None)
@@ -422,26 +398,16 @@ class LangSmithReader:
     def _map_run_strict(self, run: dict) -> dict:
         for field_name in _REQUIRED_RUN_FIELDS:
             if field_name not in run:
-                raise ReaderSchemaError(
-                    _PROVIDER, f"missing required field {field_name!r}"
-                )
+                raise ReaderSchemaError(_PROVIDER, f"missing required field {field_name!r}")
 
         evaluation = run["evaluation"]
         if not isinstance(evaluation, dict):
-            raise ReaderSchemaError(
-                _PROVIDER, "evaluation must be a JSON object"
-            )
+            raise ReaderSchemaError(_PROVIDER, "evaluation must be a JSON object")
         if "outcome" not in evaluation:
-            raise ReaderSchemaError(
-                _PROVIDER, "evaluation.outcome missing"
-            )
-        policy_refs_raw = evaluation.get(
-            "rule_ids", evaluation.get("policy_refs", [])
-        )
+            raise ReaderSchemaError(_PROVIDER, "evaluation.outcome missing")
+        policy_refs_raw = evaluation.get("rule_ids", evaluation.get("policy_refs", []))
         if not isinstance(policy_refs_raw, list):
-            raise ReaderSchemaError(
-                _PROVIDER, "evaluation.rule_ids must be a JSON array"
-            )
+            raise ReaderSchemaError(_PROVIDER, "evaluation.rule_ids must be a JSON array")
 
         outcome = _map_outcome(evaluation["outcome"])
 
@@ -468,8 +434,7 @@ class LangSmithReader:
         if not isinstance(run_type, str) or run_type not in _RUN_TYPE_ALLOWLIST:
             raise ReaderSchemaError(
                 _PROVIDER,
-                f"run_type must be one of {sorted(_RUN_TYPE_ALLOWLIST)} "
-                f"(got {run_type!r})",
+                f"run_type must be one of {sorted(_RUN_TYPE_ALLOWLIST)} (got {run_type!r})",
             )
 
         # Model identification: explicit field or nested in extra.
@@ -483,9 +448,11 @@ class LangSmithReader:
                     if not model_name_raw:
                         model_name_raw = invocation_params.get("model", "")
         if not model_name_raw:
-            model_name_raw = run.get("serialized", {}).get("kwargs", {}).get(
-                "model_name", ""
-            ) if isinstance(run.get("serialized"), dict) else ""
+            model_name_raw = (
+                run.get("serialized", {}).get("kwargs", {}).get("model_name", "")
+                if isinstance(run.get("serialized"), dict)
+                else ""
+            )
         if not isinstance(model_name_raw, str):
             model_name_raw = str(model_name_raw) if model_name_raw else ""
 
@@ -530,9 +497,7 @@ class LangSmithReader:
         # Token usage.
         token_usage = run.get("token_usage")
         if isinstance(token_usage, dict) and token_usage:
-            mapped["upstream_token_usage"] = {
-                k: v for k, v in sorted(token_usage.items())
-            }
+            mapped["upstream_token_usage"] = {k: v for k, v in sorted(token_usage.items())}
 
         # Cost.
         total_cost = run.get("total_cost")
@@ -553,15 +518,11 @@ class LangSmithReader:
                 item[key] = entry[key]
             normalized.append(item)
         # Sort by (key, score) for deterministic ordering.
-        normalized.sort(
-            key=lambda e: (e.get("key", ""), e.get("score", 0))
-        )
+        normalized.sort(key=lambda e: (e.get("key", ""), e.get("score", 0)))
         return normalized
 
     @staticmethod
-    def _build_bundle_payload(
-        *, records: list[dict], key_id: str, schema_version: str
-    ) -> dict:
+    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
         payload = {
             "metadata": {
                 "provider": _PROVIDER,

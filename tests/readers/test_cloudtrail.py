@@ -30,7 +30,6 @@ from specora_verify.errors import ReaderError, ReaderSchemaError
 from specora_verify.readers import READERS, ReadResult, available_readers, get_reader
 from specora_verify.readers.cloudtrail import CloudTrailReader, _split_model_id
 
-
 # Inline JSON Schema for the reader bundle payload shape. Mirrors what
 # every reader produces today. Kept in the test module (not in
 # ``docs/schemas/``) because the eight canonical schemas there are the
@@ -207,9 +206,7 @@ def test_minimal_roundtrip(cloudtrail_minimal: Path) -> None:
     assert first["decision"]["policy_refs"] == ["arp-abc123"]
     assert first["context"]["hash"].startswith("sha256:")
     assert first["upstream_signature"]["absent_per_record"] is True
-    assert first["upstream_signature"]["integrity_mechanism"] == (
-        "cloudtrail-log-file-validation"
-    )
+    assert first["upstream_signature"]["integrity_mechanism"] == ("cloudtrail-log-file-validation")
     assert first["aws_region"] == "us-east-1"
     assert first["upstream_event_name"] == "InvokeModelWithAutomatedReasoning"
 
@@ -449,9 +446,7 @@ def test_bundle_payload_matches_reader_bundle_schema(cloudtrail_complex: Path) -
     )
     validator = jsonschema.Draft202012Validator(_READER_BUNDLE_SCHEMA)
     errors = sorted(validator.iter_errors(result.bundle_payload), key=lambda e: e.path)
-    assert errors == [], [
-        f"{list(e.path)}: {e.message}" for e in errors
-    ]
+    assert errors == [], [f"{list(e.path)}: {e.message}" for e in errors]
 
 
 # ---------------------------------------------------------------------------
@@ -472,9 +467,7 @@ def test_bundle_payload_matches_reader_bundle_schema(cloudtrail_complex: Path) -
         ("simple-model", "simple-model", ""),
     ],
 )
-def test_split_model_id(
-    model_id: str, expected_name: str, expected_version: str
-) -> None:
+def test_split_model_id(model_id: str, expected_name: str, expected_version: str) -> None:
     name, version = _split_model_id(model_id)
     assert name == expected_name
     assert version == expected_version

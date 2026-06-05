@@ -156,9 +156,7 @@ def test_realistic_complex(azure_cl_complex: Path) -> None:
 
     # 12 records with TEE quotes, 6 without. A cross-collection warning
     # is emitted once the second collection ID is seen.
-    tee_count = sum(
-        1 for r in result.bundle_payload["records"] if "tee_attestation" in r
-    )
+    tee_count = sum(1 for r in result.bundle_payload["records"] if "tee_attestation" in r)
     assert tee_count == 12
     for record in result.bundle_payload["records"]:
         assert record["upstream_inclusion_proof"]["signature"]
@@ -273,9 +271,7 @@ def test_unsupported_schema_version_strict_fails(azure_cl_minimal: Path) -> None
         )
 
 
-def test_public_key_passed_surfaces_ignore_warning(
-    azure_cl_minimal: Path, tmp_path: Path
-) -> None:
+def test_public_key_passed_surfaces_ignore_warning(azure_cl_minimal: Path, tmp_path: Path) -> None:
     """Azure CL ignores --public-key and must surface that loudly.
 
     Same pattern as the CloudTrail session-1 advisory-finding fix.
@@ -298,9 +294,7 @@ def test_reader_is_stateless(azure_cl_minimal: Path) -> None:
     r1 = reader.read(input_path=azure_cl_minimal, key_id="k")
     r2 = reader.read(input_path=azure_cl_minimal, key_id="k")
     assert r1.record_count == r2.record_count == 2
-    assert canonical_json_bytes(r1.bundle_payload) == canonical_json_bytes(
-        r2.bundle_payload
-    )
+    assert canonical_json_bytes(r1.bundle_payload) == canonical_json_bytes(r2.bundle_payload)
 
 
 # ---------------------------------------------------------------------------
@@ -324,6 +318,4 @@ def test_bundle_payload_matches_canonical_bundle_schema(
     )
     validator = _canonical_bundle_validator()
     errors = sorted(validator.iter_errors(result.bundle_payload), key=lambda e: list(e.path))
-    assert errors == [], [
-        f"{list(e.path)}: {e.message}" for e in errors
-    ]
+    assert errors == [], [f"{list(e.path)}: {e.message}" for e in errors]

@@ -44,7 +44,6 @@ from specora_verify.agent_identity import (
     validate_agent_identity_certificate,
 )
 
-
 WIRE_SPEC_VERSION_V1_0 = "1.0"
 WIRE_SPEC_VERSION_V1_1 = "1.1"
 
@@ -95,9 +94,7 @@ def has_any_agent_identity(bundle: dict[str, Any]) -> bool:
     records = bundle.get("records")
     if not isinstance(records, list):
         return False
-    return any(
-        isinstance(r, dict) and "agent_identity" in r for r in records
-    )
+    return any(isinstance(r, dict) and "agent_identity" in r for r in records)
 
 
 def validate_bundle_v1_1(
@@ -161,9 +158,7 @@ def validate_bundle_v1_1(
 
         identity = record.get("agent_identity")
         if identity is None:
-            verdicts.append(
-                RecordIdentityVerdict(record_index=idx, status="absent")
-            )
+            verdicts.append(RecordIdentityVerdict(record_index=idx, status="absent"))
             continue
 
         if issuer_public_key_hex is None:
@@ -174,24 +169,17 @@ def validate_bundle_v1_1(
                     reason="issuer pubkey not supplied",
                 )
             )
-            reasons.append(
-                f"record {idx}: agent_identity present but no issuer "
-                "pubkey supplied"
-            )
+            reasons.append(f"record {idx}: agent_identity present but no issuer pubkey supplied")
             valid = False
             continue
 
-        result: AgentIdentityValidationResult = (
-            validate_agent_identity_certificate(
-                identity,
-                issuer_public_key_hex=issuer_public_key_hex,
-                now=now,
-            )
+        result: AgentIdentityValidationResult = validate_agent_identity_certificate(
+            identity,
+            issuer_public_key_hex=issuer_public_key_hex,
+            now=now,
         )
         if result.valid:
-            verdicts.append(
-                RecordIdentityVerdict(record_index=idx, status="valid")
-            )
+            verdicts.append(RecordIdentityVerdict(record_index=idx, status="valid"))
         else:
             verdicts.append(
                 RecordIdentityVerdict(
@@ -200,9 +188,7 @@ def validate_bundle_v1_1(
                     reason=result.reason,
                 )
             )
-            reasons.append(
-                f"record {idx}: agent_identity invalid — {result.reason}"
-            )
+            reasons.append(f"record {idx}: agent_identity invalid — {result.reason}")
             valid = False
 
     return BundleV1_1ValidationResult(

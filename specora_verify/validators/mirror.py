@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -94,9 +94,7 @@ class MirrorVerificationResult:
             "consensus_chain_index": self.consensus_chain_index,
             "hash_mismatch_detected": self.hash_mismatch_detected,
             "mismatched_sources": self.mismatched_sources,
-            "sources": {
-                name: result.to_dict() for name, result in self.source_results.items()
-            },
+            "sources": {name: result.to_dict() for name, result in self.source_results.items()},
             "errors": self.errors,
             "warnings": self.warnings,
         }
@@ -152,9 +150,7 @@ def verify_mirror_consistency(
     """
     # Filter to reachable sources with anchor hashes
     reachable_sources = {
-        name: r
-        for name, r in source_results.items()
-        if r.reachable and r.anchor_hash
+        name: r for name, r in source_results.items() if r.reachable and r.anchor_hash
     }
 
     sources_checked = len(source_results)
@@ -165,9 +161,7 @@ def verify_mirror_consistency(
     # Check if we can even reach quorum
     if sources_reachable < quorum_required:
         unreachable = [n for n, r in source_results.items() if not r.reachable]
-        errors.append(
-            f"Insufficient reachable sources: {sources_reachable} < {quorum_required}"
-        )
+        errors.append(f"Insufficient reachable sources: {sources_reachable} < {quorum_required}")
         if unreachable:
             errors.append(f"Unreachable sources: {', '.join(unreachable)}")
 
@@ -258,9 +252,7 @@ def verify_mirror_consistency(
             status = MirrorStatus.PASS
     else:
         status = MirrorStatus.ERROR
-        errors.append(
-            f"Quorum not achieved: {quorum_achieved} < {quorum_required}"
-        )
+        errors.append(f"Quorum not achieved: {quorum_achieved} < {quorum_required}")
 
     return MirrorVerificationResult(
         status=status,
@@ -296,9 +288,7 @@ def create_mirror_receipt(
     return MirrorVerificationReceipt(
         schema_version="1.0.0",
         verifier_version=verifier_version,
-        verification_timestamp=datetime.now(timezone.utc).isoformat().replace(
-            "+00:00", "Z"
-        ),
+        verification_timestamp=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         result=result,
         public_key_fingerprint=public_key_fingerprint,
     )
@@ -617,9 +607,7 @@ def create_anchor_chain_receipt(
     return AnchorChainVerificationReceipt(
         schema_version="1.0.0",
         verifier_version=verifier_version,
-        verification_timestamp=datetime.now(timezone.utc).isoformat().replace(
-            "+00:00", "Z"
-        ),
+        verification_timestamp=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         result=result,
         public_key_fingerprint=public_key_fingerprint,
     )

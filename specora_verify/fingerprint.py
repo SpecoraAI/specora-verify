@@ -86,7 +86,7 @@ def compute_key_fingerprint_and_id(public_key_bytes: bytes) -> tuple[str, str]:
     return fingerprint, derived_id
 
 
-def fingerprint_from_public_key(public_key: "Ed25519PublicKey") -> str:
+def fingerprint_from_public_key(public_key: Ed25519PublicKey) -> str:
     """Compute fingerprint from Ed25519PublicKey object.
 
     Requires cryptography library.
@@ -103,7 +103,7 @@ def fingerprint_from_public_key(public_key: "Ed25519PublicKey") -> str:
     return compute_key_fingerprint(raw_bytes)
 
 
-def derived_key_id_from_public_key(public_key: "Ed25519PublicKey") -> str:
+def derived_key_id_from_public_key(public_key: Ed25519PublicKey) -> str:
     """Derive key ID from Ed25519PublicKey object.
 
     Requires cryptography library.

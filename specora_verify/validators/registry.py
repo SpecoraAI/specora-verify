@@ -22,7 +22,7 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -232,9 +232,7 @@ class ChainVerificationResult:
             "latest_version": self.latest_version,
             "latest_hash": self.latest_hash,
             "revocation_violations": self.revocation_violations,
-            "snapshot_results": {
-                str(v): r.to_dict() for v, r in self.snapshot_results.items()
-            },
+            "snapshot_results": {str(v): r.to_dict() for v, r in self.snapshot_results.items()},
             "errors": self.errors,
             "warnings": self.warnings,
         }
@@ -299,8 +297,7 @@ def compute_registry_hash(snapshot: dict) -> str:
         SHA-256 hash as lowercase hex string
     """
     to_hash = {
-        k: v for k, v in snapshot.items()
-        if k not in ("registry_hash", "registry_signature")
+        k: v for k, v in snapshot.items() if k not in ("registry_hash", "registry_signature")
     }
     canonical_bytes = canonical_json_bytes(to_hash)
     return hashlib.sha256(canonical_bytes).hexdigest()
@@ -471,7 +468,14 @@ def _parse_registry_witness(data: dict, index: int) -> RegistryWitness:
             f"witnesses[{index}] must be an object",
         )
 
-    required_fields = ["witness_org_id", "org_name", "trust_level", "status", "registered_at", "keys"]
+    required_fields = [
+        "witness_org_id",
+        "org_name",
+        "trust_level",
+        "status",
+        "registered_at",
+        "keys",
+    ]
     for field_name in required_fields:
         if field_name not in data:
             raise VerificationError(
@@ -787,9 +791,7 @@ def enforce_revocation_monotonicity(
     violations: list[str] = []
 
     # Build lookup for previous state
-    prev_witnesses: dict[str, RegistryWitness] = {
-        w.witness_org_id: w for w in previous.witnesses
-    }
+    prev_witnesses: dict[str, RegistryWitness] = {w.witness_org_id: w for w in previous.witnesses}
 
     for witness in current.witnesses:
         prev_w = prev_witnesses.get(witness.witness_org_id)
@@ -810,8 +812,7 @@ def enforce_revocation_monotonicity(
             prev_k = prev_keys.get(key.public_key_id)
             if prev_k and prev_k.status == "revoked" and key.status != "revoked":
                 violations.append(
-                    f"Key {key.public_key_id} was revoked, "
-                    f"cannot become {key.status} (INV-REG-003)"
+                    f"Key {key.public_key_id} was revoked, cannot become {key.status} (INV-REG-003)"
                 )
 
     return violations
@@ -995,6 +996,6 @@ def create_registry_receipt(
     return RegistryVerificationReceipt(
         schema_version="1.0.0",
         verifier_version=verifier_version,
-        verification_timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        verification_timestamp=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         result=result,
     )

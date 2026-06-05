@@ -32,7 +32,6 @@ from pathlib import Path
 from typing import Any
 
 from specora_verify.canonical import canonical_json_bytes
-from specora_verify.errors import VerificationError
 from specora_verify.hash import sha256_hex
 
 # Error codes for external anchor verification
@@ -220,8 +219,8 @@ def verify_external_anchor(
     # Verify signature if requested and key provided
     if verify_signature and public_key_bytes is not None:
         try:
-            from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
             from cryptography.exceptions import InvalidSignature
+            from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
             public_key = Ed25519PublicKey.from_public_bytes(public_key_bytes)
             signature_bytes = base64.b64decode(anchor["anchor_signature"])

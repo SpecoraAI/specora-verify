@@ -160,9 +160,7 @@ class AzureConfidentialLedgerReader:
         try:
             parsed = json.loads(raw) if raw.strip() else {"entries": []}
         except json.JSONDecodeError as exc:
-            raise ReaderSchemaError(
-                _PROVIDER, f"input is not valid JSON: {exc.msg}"
-            ) from exc
+            raise ReaderSchemaError(_PROVIDER, f"input is not valid JSON: {exc.msg}") from exc
 
         entries_in = self._extract_entries(parsed)
 
@@ -227,16 +225,10 @@ class AzureConfidentialLedgerReader:
         if isinstance(parsed, dict) and "entries" in parsed:
             entries = parsed["entries"]
             if not isinstance(entries, list):
-                raise ReaderSchemaError(
-                    _PROVIDER, "'entries' must be a JSON array"
-                )
+                raise ReaderSchemaError(_PROVIDER, "'entries' must be a JSON array")
             return entries
         # Bare single-entry shape — treat as a one-element archive.
-        if (
-            isinstance(parsed, dict)
-            and "contents" in parsed
-            and "receipt" in parsed
-        ):
+        if isinstance(parsed, dict) and "contents" in parsed and "receipt" in parsed:
             return [parsed]
         raise ReaderSchemaError(
             _PROVIDER,
@@ -256,12 +248,8 @@ class AzureConfidentialLedgerReader:
         location = f"record[{index}]"
         if not isinstance(entry, dict):
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, f"{location} is not a JSON object"
-                )
-            return _EntryOutcome(
-                mapped=None, warning=f"{location}: not a JSON object"
-            )
+                raise ReaderSchemaError(_PROVIDER, f"{location} is not a JSON object")
+            return _EntryOutcome(mapped=None, warning=f"{location}: not a JSON object")
 
         try:
             mapped = self._map_entry_strict(entry)
@@ -274,10 +262,7 @@ class AzureConfidentialLedgerReader:
         if record_id in seen_ids:
             return _EntryOutcome(
                 mapped=None,
-                warning=(
-                    f"{location}: duplicate record_id {record_id!r} "
-                    f"(first occurrence wins)"
-                ),
+                warning=(f"{location}: duplicate record_id {record_id!r} (first occurrence wins)"),
             )
         seen_ids.add(record_id)
         return _EntryOutcome(mapped=mapped, warning=None)
@@ -285,20 +270,14 @@ class AzureConfidentialLedgerReader:
     def _map_entry_strict(self, entry: dict) -> dict:
         tx_id = entry.get("transactionId")
         if not isinstance(tx_id, str) or not tx_id:
-            raise ReaderSchemaError(
-                _PROVIDER, "transactionId must be a non-empty string"
-            )
+            raise ReaderSchemaError(_PROVIDER, "transactionId must be a non-empty string")
 
         contents = entry.get("contents")
         if not isinstance(contents, dict):
-            raise ReaderSchemaError(
-                _PROVIDER, "contents must be a JSON object"
-            )
+            raise ReaderSchemaError(_PROVIDER, "contents must be a JSON object")
         record = contents.get("record")
         if not isinstance(record, dict):
-            raise ReaderSchemaError(
-                _PROVIDER, "contents.record must be a JSON object"
-            )
+            raise ReaderSchemaError(_PROVIDER, "contents.record must be a JSON object")
 
         for field_name in _REQUIRED_RECORD_FIELDS:
             if field_name not in record:
@@ -307,9 +286,7 @@ class AzureConfidentialLedgerReader:
                     f"contents.record missing required field {field_name!r}",
                 )
         if not isinstance(record["policy_refs"], list):
-            raise ReaderSchemaError(
-                _PROVIDER, "contents.record.policy_refs must be a JSON array"
-            )
+            raise ReaderSchemaError(_PROVIDER, "contents.record.policy_refs must be a JSON array")
 
         decision = record["decision"]
         if decision not in _VALID_DECISIONS:
@@ -320,13 +297,10 @@ class AzureConfidentialLedgerReader:
             )
 
         context_hash = record["context_hash"]
-        if not isinstance(context_hash, str) or not context_hash.startswith(
-            "sha256:"
-        ):
+        if not isinstance(context_hash, str) or not context_hash.startswith("sha256:"):
             raise ReaderSchemaError(
                 _PROVIDER,
-                f"contents.record.context_hash must start with 'sha256:' "
-                f"(got {context_hash!r})",
+                f"contents.record.context_hash must start with 'sha256:' (got {context_hash!r})",
             )
 
         timestamp = self._normalize_timestamp(record["timestamp"])
@@ -346,13 +320,9 @@ class AzureConfidentialLedgerReader:
                     f"receipt missing required field {field_name!r}",
                 )
         if not isinstance(receipt["nodeCerts"], list):
-            raise ReaderSchemaError(
-                _PROVIDER, "receipt.nodeCerts must be a JSON array"
-            )
+            raise ReaderSchemaError(_PROVIDER, "receipt.nodeCerts must be a JSON array")
         if not isinstance(receipt["proof"], list):
-            raise ReaderSchemaError(
-                _PROVIDER, "receipt.proof must be a JSON array"
-            )
+            raise ReaderSchemaError(_PROVIDER, "receipt.proof must be a JSON array")
 
         inclusion_proof: dict[str, Any] = {
             "leafComponents": receipt["leafComponents"],
@@ -369,8 +339,7 @@ class AzureConfidentialLedgerReader:
             if not isinstance(quote, str) or not quote:
                 raise ReaderSchemaError(
                     _PROVIDER,
-                    "receipt.enclaveQuote must be a non-empty string "
-                    "(base64 SGX/TDX quote)",
+                    "receipt.enclaveQuote must be a non-empty string (base64 SGX/TDX quote)",
                 )
             tee_attestation = {"enclaveQuote": quote}
             for optional_field in ("mrenclave", "mrsigner", "reportData"):
@@ -421,14 +390,11 @@ class AzureConfidentialLedgerReader:
             return value[: -len("+00:00")] + "Z"
         raise ReaderSchemaError(
             _PROVIDER,
-            f"timestamp must be RFC 3339 UTC with 'Z' or '+00:00' suffix "
-            f"(got {value!r})",
+            f"timestamp must be RFC 3339 UTC with 'Z' or '+00:00' suffix (got {value!r})",
         )
 
     @staticmethod
-    def _build_bundle_payload(
-        *, records: list[dict], key_id: str, schema_version: str
-    ) -> dict:
+    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
         payload = {
             "metadata": {
                 "provider": _PROVIDER,
