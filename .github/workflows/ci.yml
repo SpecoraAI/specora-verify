@@ -144,7 +144,7 @@ jobs:
           verbose: true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           draft: false
           prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') }}
@@ -185,7 +185,7 @@ jobs:
           python -m sigstore sign \
             --bundle specora-verify-darwin-universal.sigstore \
             specora-verify-darwin-universal
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             specora-verify-darwin-universal
@@ -215,7 +215,7 @@ jobs:
           python -m sigstore sign `
             --bundle specora-verify-windows-x86_64.exe.sigstore `
             specora-verify-windows-x86_64.exe
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             specora-verify-windows-x86_64.exe
