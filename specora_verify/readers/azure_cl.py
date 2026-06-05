@@ -88,7 +88,7 @@ _REQUIRED_RECEIPT_FIELDS = ("leafComponents", "nodeCerts", "proof", "signature")
 
 @dataclass
 class _EntryOutcome:
-    mapped: dict | None
+    mapped: dict[str, Any] | None
     warning: str | None
 
 
@@ -172,7 +172,7 @@ class AzureConfidentialLedgerReader:
                 f"(supported: {_SUPPORTED_VERSIONS})",
             )
 
-        mapped_records: list[dict] = []
+        mapped_records: list[dict[str, Any]] = []
         warnings: list[str] = []
         seen_ids: set[str] = set()
         first_collection_id: str | None = None
@@ -221,7 +221,7 @@ class AzureConfidentialLedgerReader:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _extract_entries(parsed: Any) -> list:
+    def _extract_entries(parsed: Any) -> list[dict[str, Any]]:
         if isinstance(parsed, dict) and "entries" in parsed:
             entries = parsed["entries"]
             if not isinstance(entries, list):
@@ -267,7 +267,7 @@ class AzureConfidentialLedgerReader:
         seen_ids.add(record_id)
         return _EntryOutcome(mapped=mapped, warning=None)
 
-    def _map_entry_strict(self, entry: dict) -> dict:
+    def _map_entry_strict(self, entry: dict[str, Any]) -> dict[str, Any]:
         tx_id = entry.get("transactionId")
         if not isinstance(tx_id, str) or not tx_id:
             raise ReaderSchemaError(_PROVIDER, "transactionId must be a non-empty string")
@@ -394,7 +394,9 @@ class AzureConfidentialLedgerReader:
         )
 
     @staticmethod
-    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
+    def _build_bundle_payload(
+        *, records: list[dict[str, Any]], key_id: str, schema_version: str
+    ) -> dict[str, Any]:
         payload = {
             "metadata": {
                 "provider": _PROVIDER,

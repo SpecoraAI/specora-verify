@@ -28,7 +28,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 __all__ = [
     "READERS",
@@ -58,7 +58,7 @@ class ReadResult:
     provider: str
     schema_version: str
     record_count: int
-    bundle_payload: dict
+    bundle_payload: dict[str, Any]
     upstream_key_id: str | None = None
     warnings: tuple[str, ...] = field(default_factory=tuple)
 

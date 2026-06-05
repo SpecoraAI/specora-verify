@@ -111,7 +111,7 @@ _MODEL_NAME_DATE_RE = re.compile(r"^(?P<name>.+?)-(?P<version>\d{4}(?:-?\d{2}){1
 
 @dataclass
 class _RunOutcome:
-    mapped: dict | None
+    mapped: dict[str, Any] | None
     warning: str | None
 
 
@@ -258,7 +258,7 @@ class LangSmithReader:
 
         runs_in = self._extract_runs(raw, strict=strict)
 
-        mapped_records: list[dict] = []
+        mapped_records: list[dict[str, Any]] = []
         warnings: list[str] = []
         seen_ids: set[str] = set()
 
@@ -291,7 +291,7 @@ class LangSmithReader:
     # Internals
     # ------------------------------------------------------------------
 
-    def _extract_runs(self, raw: str, *, strict: bool) -> list:
+    def _extract_runs(self, raw: str, *, strict: bool) -> list[dict[str, Any]]:
         stripped = raw.strip()
         if not stripped:
             return []
@@ -317,7 +317,7 @@ class LangSmithReader:
         return self._extract_from_parsed(parsed)
 
     @staticmethod
-    def _extract_from_parsed(parsed: Any) -> list:
+    def _extract_from_parsed(parsed: Any) -> list[dict[str, Any]]:
         if isinstance(parsed, list):
             return parsed
         if isinstance(parsed, dict):
@@ -342,8 +342,8 @@ class LangSmithReader:
             "and 'run_type' fields",
         )
 
-    def _parse_jsonl(self, raw: str, *, strict: bool) -> list:
-        runs: list = []
+    def _parse_jsonl(self, raw: str, *, strict: bool) -> list[dict[str, Any]]:
+        runs: list[dict[str, Any]] = []
         for lineno, line in enumerate(raw.splitlines(), start=1):
             if not line.strip():
                 continue
@@ -395,7 +395,7 @@ class LangSmithReader:
         seen_ids.add(record_id)
         return _RunOutcome(mapped=mapped, warning=None)
 
-    def _map_run_strict(self, run: dict) -> dict:
+    def _map_run_strict(self, run: dict[str, Any]) -> dict[str, Any]:
         for field_name in _REQUIRED_RUN_FIELDS:
             if field_name not in run:
                 raise ReaderSchemaError(_PROVIDER, f"missing required field {field_name!r}")
@@ -507,7 +507,7 @@ class LangSmithReader:
         return mapped
 
     @staticmethod
-    def _normalize_feedback(feedback: list) -> list:
+    def _normalize_feedback(feedback: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Preserve LangSmith feedback entries, sorted for determinism."""
         normalized: list[dict[str, Any]] = []
         for entry in feedback:
@@ -522,7 +522,9 @@ class LangSmithReader:
         return normalized
 
     @staticmethod
-    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
+    def _build_bundle_payload(
+        *, records: list[dict[str, Any]], key_id: str, schema_version: str
+    ) -> dict[str, Any]:
         payload = {
             "metadata": {
                 "provider": _PROVIDER,

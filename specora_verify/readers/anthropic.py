@@ -70,7 +70,7 @@ class _RecordOutcome:
     diagnostic for non-strict dropped records, or None on success.
     """
 
-    mapped: dict | None
+    mapped: dict[str, Any] | None
     warning: str | None
 
 
@@ -131,7 +131,7 @@ class AnthropicReader:
 
         public_key_bytes = self._load_public_key(public_key_path) if public_key_path else None
 
-        mapped_records: list[dict] = []
+        mapped_records: list[dict[str, Any]] = []
         warnings: list[str] = []
         seen_ids: set[str] = set()
         upstream_key_id: str | None = None
@@ -264,7 +264,7 @@ class AnthropicReader:
         mapped["_schema_version"] = version
         return _RecordOutcome(mapped=mapped, warning=None)
 
-    def _validate_record_shape(self, record: dict, *, lineno: int) -> None:
+    def _validate_record_shape(self, record: dict[str, Any], *, lineno: int) -> None:
         for field_name in _REQUIRED_RECORD_FIELDS:
             if field_name not in record:
                 raise ReaderSchemaError(
@@ -273,7 +273,7 @@ class AnthropicReader:
         if not isinstance(record["policy_refs"], list):
             raise ReaderSchemaError(_PROVIDER, "policy_refs must be a JSON array", line=lineno)
 
-    def _map_record(self, record: dict) -> dict:
+    def _map_record(self, record: dict[str, Any]) -> dict[str, Any]:
         decision = record["decision"]
         if decision not in _VALID_DECISIONS:
             raise ReaderSchemaError(
@@ -345,7 +345,7 @@ class AnthropicReader:
         return mapped
 
     @staticmethod
-    def _extract_agent_identity(record: dict) -> dict | None:
+    def _extract_agent_identity(record: dict[str, Any]) -> dict[str, Any] | None:
         """Lift any embedded Specora agent_identity envelope.
 
         Two sources are accepted, in priority order:
@@ -390,7 +390,7 @@ class AnthropicReader:
         )
 
     def _verify_upstream_signature(
-        self, record: dict, signature: dict, public_key_bytes: bytes
+        self, record: dict[str, Any], signature: dict[str, Any], public_key_bytes: bytes
     ) -> None:
         """Best-effort upstream Ed25519 signature check.
 
@@ -456,7 +456,9 @@ class AnthropicReader:
         return decoded
 
     @staticmethod
-    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
+    def _build_bundle_payload(
+        *, records: list[dict[str, Any]], key_id: str, schema_version: str
+    ) -> dict[str, Any]:
         """Assemble the canonical wire-spec bundle payload.
 
         The returned dict is round-tripped through canonical_json_bytes

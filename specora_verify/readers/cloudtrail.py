@@ -133,7 +133,7 @@ def _split_model_id(model_id: str) -> tuple[str, str]:
 
 @dataclass
 class _RecordOutcome:
-    mapped: dict | None
+    mapped: dict[str, Any] | None
     warning: str | None
     skipped: bool = False
 
@@ -221,7 +221,7 @@ class CloudTrailReader:
         if not isinstance(records_in, list):
             raise ReaderSchemaError(_PROVIDER, "'Records' must be a JSON array")
 
-        mapped_records: list[dict] = []
+        mapped_records: list[dict[str, Any]] = []
         warnings: list[str] = []
         seen_ids: set[str] = set()
         observed_schema_version: str | None = None
@@ -330,7 +330,7 @@ class CloudTrailReader:
         seen_ids.add(record_id)
         return _RecordOutcome(mapped=mapped, warning=None)
 
-    def _map_ar_event(self, event: dict, *, event_version: str) -> dict:
+    def _map_ar_event(self, event: dict[str, Any], *, event_version: str) -> dict[str, Any]:
         for required in (
             "eventID",
             "eventTime",
@@ -452,7 +452,9 @@ class CloudTrailReader:
         )
 
     @staticmethod
-    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
+    def _build_bundle_payload(
+        *, records: list[dict[str, Any]], key_id: str, schema_version: str
+    ) -> dict[str, Any]:
         payload = {
             "metadata": {
                 "provider": _PROVIDER,

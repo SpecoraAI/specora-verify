@@ -25,7 +25,7 @@ class SnapshotFetchResult:
     success: bool
     registry_version: int | None = None
     snapshot: RegistrySnapshot | None = None
-    raw_data: dict | None = None
+    raw_data: dict[str, Any] | None = None
     file_path: str | None = None
     error: str | None = None
     fetch_latency_ms: int = 0

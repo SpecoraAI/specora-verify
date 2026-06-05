@@ -284,7 +284,7 @@ def derive_witness_key_id(public_key_bytes: bytes) -> str:
 # =============================================================================
 
 
-def compute_registry_hash(snapshot: dict) -> str:
+def compute_registry_hash(snapshot: dict[str, Any]) -> str:
     """Compute SHA-256 hash of registry snapshot content.
 
     The hash is computed over the canonical JSON of the snapshot
@@ -303,7 +303,7 @@ def compute_registry_hash(snapshot: dict) -> str:
     return hashlib.sha256(canonical_bytes).hexdigest()
 
 
-def compute_snapshot_signing_bytes(snapshot: dict) -> bytes:
+def compute_snapshot_signing_bytes(snapshot: dict[str, Any]) -> bytes:
     """Compute bytes to sign for registry snapshot.
 
     Consistent with existing signing convention: sign the SHA-256 hash
@@ -324,7 +324,7 @@ def compute_snapshot_signing_bytes(snapshot: dict) -> bytes:
 # =============================================================================
 
 
-def parse_registry_snapshot(data: dict) -> RegistrySnapshot:
+def parse_registry_snapshot(data: dict[str, Any]) -> RegistrySnapshot:
     """Parse and validate a registry snapshot from a dictionary.
 
     Args:
@@ -460,7 +460,7 @@ def parse_registry_snapshot(data: dict) -> RegistrySnapshot:
     )
 
 
-def _parse_registry_witness(data: dict, index: int) -> RegistryWitness:
+def _parse_registry_witness(data: dict[str, Any], index: int) -> RegistryWitness:
     """Parse a witness entry from snapshot."""
     if not isinstance(data, dict):
         raise VerificationError(
@@ -554,7 +554,7 @@ def _parse_registry_witness(data: dict, index: int) -> RegistryWitness:
     )
 
 
-def _parse_registry_key(data: dict, witness_index: int, key_index: int) -> RegistryKey:
+def _parse_registry_key(data: dict[str, Any], witness_index: int, key_index: int) -> RegistryKey:
     """Parse a key entry from witness."""
     prefix = f"witnesses[{witness_index}].keys[{key_index}]"
 
@@ -671,7 +671,7 @@ def load_registry_snapshot(path: Path | str) -> RegistrySnapshot:
 
 
 def validate_registry_snapshot(
-    snapshot: dict | RegistrySnapshot,
+    snapshot: dict[str, Any] | RegistrySnapshot,
     public_key: str | None = None,
     key_format: str = "pem",
     skip_signature: bool = False,
@@ -824,7 +824,7 @@ def enforce_revocation_monotonicity(
 
 
 def verify_registry_chain(
-    snapshots: list[RegistrySnapshot] | list[dict],
+    snapshots: list[RegistrySnapshot] | list[dict[str, Any]],
     public_key: str | None = None,
     key_format: str = "pem",
     skip_signature: bool = False,

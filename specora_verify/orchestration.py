@@ -176,7 +176,7 @@ def _read_provider(
         raise OrchestrationError(f"Reader '{provider}' failed: {exc}") from exc
 
 
-def _sign_payload(payload: dict, signing_key: Any) -> tuple[str, str, str]:
+def _sign_payload(payload: dict[str, Any], signing_key: Any) -> tuple[str, str, str]:
     """Sign a canonical bundle payload.
 
     Returns a 3-tuple ``(payload_sha256, signature_b64, public_key_hex)``.

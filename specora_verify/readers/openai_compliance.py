@@ -117,7 +117,7 @@ _MODEL_ID_DATE_RE = re.compile(r"^(?P<name>.+?)-(?P<version>\d{4}-\d{2}(?:-\d{2}
 
 @dataclass
 class _EventOutcome:
-    mapped: dict | None
+    mapped: dict[str, Any] | None
     warning: str | None
 
 
@@ -271,7 +271,7 @@ class OpenAIComplianceReader:
 
         events_in = self._extract_events(raw, strict=strict)
 
-        mapped_records: list[dict] = []
+        mapped_records: list[dict[str, Any]] = []
         warnings: list[str] = []
         seen_ids: set[str] = set()
 
@@ -304,7 +304,7 @@ class OpenAIComplianceReader:
     # Internals
     # ------------------------------------------------------------------
 
-    def _extract_events(self, raw: str, *, strict: bool) -> list:
+    def _extract_events(self, raw: str, *, strict: bool) -> list[dict[str, Any]]:
         stripped = raw.strip()
         if not stripped:
             return []
@@ -335,7 +335,7 @@ class OpenAIComplianceReader:
         return self._extract_from_parsed(parsed)
 
     @staticmethod
-    def _extract_from_parsed(parsed: Any) -> list:
+    def _extract_from_parsed(parsed: Any) -> list[dict[str, Any]]:
         if isinstance(parsed, list):
             return parsed
         if isinstance(parsed, dict):
@@ -360,8 +360,8 @@ class OpenAIComplianceReader:
             "and 'type' fields",
         )
 
-    def _parse_jsonl(self, raw: str, *, strict: bool) -> list:
-        events: list = []
+    def _parse_jsonl(self, raw: str, *, strict: bool) -> list[dict[str, Any]]:
+        events: list[dict[str, Any]] = []
         for lineno, line in enumerate(raw.splitlines(), start=1):
             if not line.strip():
                 continue
@@ -415,7 +415,7 @@ class OpenAIComplianceReader:
         seen_ids.add(record_id)
         return _EventOutcome(mapped=mapped, warning=None)
 
-    def _map_event_strict(self, event: dict) -> dict:
+    def _map_event_strict(self, event: dict[str, Any]) -> dict[str, Any]:
         for field_name in _REQUIRED_EVENT_FIELDS:
             if field_name not in event:
                 raise ReaderSchemaError(_PROVIDER, f"missing required field {field_name!r}")
@@ -481,7 +481,7 @@ class OpenAIComplianceReader:
         return mapped
 
     @staticmethod
-    def _normalize_moderation(moderation: dict) -> dict:
+    def _normalize_moderation(moderation: dict[str, Any]) -> dict[str, Any]:
         """Preserve the OpenAI moderation block verbatim, sorted keys only.
 
         Canonicalization is handled by canonical_json_bytes at bundle
@@ -494,7 +494,9 @@ class OpenAIComplianceReader:
         return normalized
 
     @staticmethod
-    def _build_bundle_payload(*, records: list[dict], key_id: str, schema_version: str) -> dict:
+    def _build_bundle_payload(
+        *, records: list[dict[str, Any]], key_id: str, schema_version: str
+    ) -> dict[str, Any]:
         payload = {
             "metadata": {
                 "provider": _PROVIDER,

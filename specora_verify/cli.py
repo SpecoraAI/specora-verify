@@ -65,7 +65,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 from specora_verify import __version__
 from specora_verify.canonical import canonical_json_str
@@ -1538,7 +1538,7 @@ def _check_skip_signature_in_ci(args: argparse.Namespace) -> int | None:
     return None
 
 
-def _load_json_file(path: Path, output_format: str) -> dict | None:
+def _load_json_file(path: Path, output_format: str) -> dict[str, Any] | None:
     """Load and parse a JSON file, printing errors as needed."""
     if not path.exists():
         print(

@@ -566,7 +566,7 @@ def parse_witness_registry(data: dict[str, Any]) -> WitnessRegistry:
 # =============================================================================
 
 
-def compute_witness_statement_signing_bytes(statement: dict) -> bytes:
+def compute_witness_statement_signing_bytes(statement: dict[str, Any]) -> bytes:
     """Compute bytes to sign for witness statement.
 
     The signature is computed over the canonical JSON of the statement
@@ -583,7 +583,7 @@ def compute_witness_statement_signing_bytes(statement: dict) -> bytes:
 
 
 def validate_witness_statement(
-    statement: dict,
+    statement: dict[str, Any],
     registry: WitnessRegistry | None = None,
     expected_anchor_hash: str | None = None,
     skip_signature: bool = False,
@@ -776,7 +776,7 @@ def validate_witness_statement(
 
 
 def verify_witness_quorum(
-    statements: list[dict],
+    statements: list[dict[str, Any]],
     registry: WitnessRegistry,
     quorum_required: int = 2,
     expected_anchor_hash: str | None = None,
