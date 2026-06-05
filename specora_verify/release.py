@@ -34,9 +34,11 @@ from specora_verify import __version__
 # Identity Pinning Constants (Critical for Security)
 # =============================================================================
 
-# GitHub repository (MUST match exactly)
-GITHUB_OWNER = "specora"
-GITHUB_REPO = "software-automate"
+# GitHub repository (MUST match exactly). These must match the public repo
+# the release pipeline runs in — see tests/test_release.py, which asserts they
+# agree with pyproject's [project.urls] Repository so they can't drift again.
+GITHUB_OWNER = "SpecoraAI"
+GITHUB_REPO = "specora-verify"
 
 # GitHub release base URL
 GITHUB_RELEASES_URL = f"https://github.com/{GITHUB_OWNER}/{GITHUB_REPO}/releases/download"
@@ -45,13 +47,16 @@ GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/rel
 # Sigstore verification settings - strict identity pinning
 SIGSTORE_OIDC_ISSUER = "https://token.actions.githubusercontent.com"
 
-# Expected workflow file path (MUST match exactly)
-SIGSTORE_WORKFLOW_PATH = ".github/workflows/specora-verify-release.yml"
+# Expected workflow file path (MUST match exactly). The release job that signs
+# artifacts lives in ci.yml (job `release:`, gated on `v*` tags); the tag-ref
+# pinning below (@refs/tags/v{version}) is what makes the identity specific to
+# a release run, not to every ci.yml invocation.
+SIGSTORE_WORKFLOW_PATH = ".github/workflows/ci.yml"
 
 # Certificate identity pattern - pinned to specific workflow and tag
 SIGSTORE_CERT_IDENTITY_PATTERN = (
     f"https://github.com/{GITHUB_OWNER}/{GITHUB_REPO}/{SIGSTORE_WORKFLOW_PATH}"
-    "@refs/tags/specora-verify-v{version}"
+    "@refs/tags/v{version}"
 )
 
 # Expected repository in certificate
@@ -102,7 +107,7 @@ def fetch_release_checksums(version: str) -> dict[str, str]:
     Raises:
         ValueError: If checksums cannot be fetched
     """
-    tag = f"specora-verify-v{version}"
+    tag = f"v{version}"
     url = f"{GITHUB_RELEASES_URL}/{tag}/checksums.txt"
 
     try:

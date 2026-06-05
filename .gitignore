@@ -23,6 +23,11 @@ htmlcov/
 venv/
 env/
 
+# Local secrets / environment overrides (never commit)
+.env
+.env.*
+!.env.example
+
 # IDE
 .vscode/
 .idea/
