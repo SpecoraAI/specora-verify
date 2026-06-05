@@ -12,7 +12,7 @@ OWNER block ({id, public_key}). Both are sealed in the cert signature.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -39,7 +39,7 @@ def issuer_pubkey_hex() -> str:
 @pytest.fixture(scope="module")
 def evaluate_at() -> datetime:
     """Fixed evaluation time so vectors are stable as wall-clock advances."""
-    return datetime(2026, 5, 15, 12, 0, 0, tzinfo=timezone.utc)
+    return datetime(2026, 5, 15, 12, 0, 0, tzinfo=UTC)
 
 
 class TestValidVector:
@@ -55,13 +55,9 @@ class TestValidVector:
         assert result.subject is not None
         assert result.subject["agent_id"] == "acme-demo-agent"
         assert result.principal is not None
-        assert (
-            result.principal["id"] == "00000000-0000-0000-0000-0000000000aa"
-        )
+        assert result.principal["id"] == "00000000-0000-0000-0000-0000000000aa"
         assert len(result.principal["public_key"]) == 64
-        assert result.issuer_key_fingerprint == public_key_fingerprint(
-            issuer_pubkey_hex
-        )
+        assert result.issuer_key_fingerprint == public_key_fingerprint(issuer_pubkey_hex)
 
     def test_valid_cert_format_marker(self):
         vec = _load("valid.json")
@@ -91,9 +87,7 @@ class TestRevokedVector:
     the revocation marker out-of-band — same pattern as Web PKI's CRL.
     """
 
-    def test_cert_validates_cryptographically(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_cert_validates_cryptographically(self, issuer_pubkey_hex, evaluate_at):
         vec = _load("revoked.json")
         result = validate_agent_identity_certificate(
             vec["certificate"],
@@ -152,9 +146,7 @@ class TestTampering:
 class TestPrincipalBlock:
     """The principal block (ADR-PLATFORM-009) is sealed into the cert."""
 
-    def test_tampered_principal_id_fails_signature(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_tampered_principal_id_fails_signature(self, issuer_pubkey_hex, evaluate_at):
         vec = _load("valid.json")
         cert = dict(vec["certificate"])
         cert["principal"] = {**cert["principal"], "id": "evil-org"}
@@ -164,9 +156,7 @@ class TestPrincipalBlock:
         assert not result.valid
         assert result.reason == "signature does not verify"
 
-    def test_tampered_principal_pubkey_fails_signature(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_tampered_principal_pubkey_fails_signature(self, issuer_pubkey_hex, evaluate_at):
         vec = _load("valid.json")
         cert = dict(vec["certificate"])
         cert["principal"] = {**cert["principal"], "public_key": "ff" * 32}
@@ -176,9 +166,7 @@ class TestPrincipalBlock:
         assert not result.valid
         assert result.reason == "signature does not verify"
 
-    def test_missing_principal_block_rejected(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_missing_principal_block_rejected(self, issuer_pubkey_hex, evaluate_at):
         # Strip principal AND re-sign would still fail because we don't
         # have the private key; instead bypass-signature path: assert the
         # cert without principal cannot validate, regardless of how it
@@ -204,9 +192,7 @@ class TestPrincipalBlock:
 class TestVectorMetadata:
     """All vectors must carry the prelaunch marker."""
 
-    @pytest.mark.parametrize(
-        "name", ["valid.json", "expired.json", "revoked.json", "ISSUER.json"]
-    )
+    @pytest.mark.parametrize("name", ["valid.json", "expired.json", "revoked.json", "ISSUER.json"])
     def test_marker_present(self, name):
         vec = _load(name)
         assert vec["_metadata"]["marker"] == "for-demo-only-not-production"
@@ -217,9 +203,7 @@ class TestPrincipalPubkeyCasing:
     ^[0-9a-f]{64}$. The validator must NOT be more permissive than its own
     schema by accepting uppercase hex."""
 
-    def test_uppercase_principal_pubkey_rejected(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_uppercase_principal_pubkey_rejected(self, issuer_pubkey_hex, evaluate_at):
         vec = _load("valid.json")
         cert = dict(vec["certificate"])
         cert["principal"] = {
@@ -253,9 +237,7 @@ class TestTimezoneNaiveTimestamps:
         cert["not_after"] = "2026-06-07T12:00:00"  # naive — no Z
         return cert
 
-    def test_naive_validity_window_rejected(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_naive_validity_window_rejected(self, issuer_pubkey_hex, evaluate_at):
         cert = self._mint_naive_cert(issuer_pubkey_hex)
         result = validate_agent_identity_certificate(
             cert, issuer_public_key_hex=issuer_pubkey_hex, now=evaluate_at
@@ -277,7 +259,7 @@ class TestTimezoneNaiveTimestamps:
         issuer = _load("ISSUER.json")["issuer_public_key_hex"]
         cert = dict(vec["certificate"])
         cert["not_after"] = "2026-06-07T12:00:00"  # naive boundary
-        now = datetime(2026, 6, 7, 9, 0, 0, tzinfo=timezone.utc)
+        now = datetime(2026, 6, 7, 9, 0, 0, tzinfo=UTC)
 
         verdicts = []
         for tz in ("Pacific/Honolulu", "Asia/Tokyo", "UTC"):
@@ -292,6 +274,4 @@ class TestTimezoneNaiveTimestamps:
                 ).valid
             )
         time.tzset()
-        assert len(set(verdicts)) == 1, (
-            f"verdict varied by host timezone: {verdicts}"
-        )
+        assert len(set(verdicts)) == 1, f"verdict varied by host timezone: {verdicts}"
