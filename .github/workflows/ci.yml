@@ -1,4 +1,4 @@
-# Draft GitHub Actions workflow — copy to `.github/workflows/ci.yml` in the public repo.
+# CI and release pipeline for specora-verify.
 #
 # Two jobs:
 #   1. `test` — runs on every push + PR. Runs the full pytest suite
