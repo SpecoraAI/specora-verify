@@ -18,6 +18,7 @@ L1 (the online distribution gate) is intentionally separate — run
 
 Exit 0 only if every available harness passes.
 """
+
 from __future__ import annotations
 
 import shutil
@@ -43,9 +44,7 @@ def main() -> int:
     rc["L3 adversarial"] = run(
         "L3 — adversarial forgery harness", [py, str(HERE / "l3_adversarial.py")]
     )
-    rc["L4 schema-fuzz"] = run(
-        "L4 — schema-rigor fuzzer", [py, str(HERE / "l4_schema_fuzz.py")]
-    )
+    rc["L4 schema-fuzz"] = run("L4 — schema-rigor fuzzer", [py, str(HERE / "l4_schema_fuzz.py")])
 
     if shutil.which("go"):
         rc["L2 byte-parity"] = run(
@@ -54,8 +53,10 @@ def main() -> int:
             cwd=HERE / "l2-go",
         )
     else:
-        print("\n[L2] 'go' not found on PATH — skipping the independent "
-              "byte-parity harness. Install Go to run it.")
+        print(
+            "\n[L2] 'go' not found on PATH — skipping the independent "
+            "byte-parity harness. Install Go to run it."
+        )
         rc["L2 byte-parity"] = None
 
     print("\n" + "=" * 78)

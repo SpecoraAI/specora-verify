@@ -18,6 +18,7 @@ It also flags hash fields whose pattern does not pin lowercase 64-hex
 
 Run: /tmp/specora-qa-venv/bin/python /tmp/specora_l4_schema_fuzz.py
 """
+
 from __future__ import annotations
 
 import copy
@@ -36,19 +37,31 @@ PAIRS = [
     ("proof-manifest-v1.0.json", "manifest/proof-manifest-1.0.0.canonical.json"),
     ("anchor-payload-v1.0.json", "anchor/anchor-payload-1.0.0.canonical.json"),
     ("anchor-receipt-v1.0.json", "anchor-receipts/anchor-receipt-1.0.0.canonical.json"),
-    ("certification-attestation-v1.0.json", "certification/certification-attestation-1.0.0.canonical.json"),
-    ("stp-certification-attestation-v1.0.json", "stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json"),
+    (
+        "certification-attestation-v1.0.json",
+        "certification/certification-attestation-1.0.0.canonical.json",
+    ),
+    (
+        "stp-certification-attestation-v1.0.json",
+        "stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json",
+    ),
     ("governance-attestation-v1.0.json", "signature/signed-artifact-001/artifact.canonical.json"),
     ("signed-artifact-envelope-v1.0.json", "signature/signed-artifact-001/metadata.json"),
-    ("canonical-bundle-v1.0.json", "canonical-bundle/canonical-bundle-anthropic-1.0.0.canonical.json"),
-    ("canonical-bundle-v1.1.json", "canonical-bundle/with-agent-identity/canonical-bundle-with-identity-1.0.0.canonical.json"),
+    (
+        "canonical-bundle-v1.0.json",
+        "canonical-bundle/canonical-bundle-anthropic-1.0.0.canonical.json",
+    ),
+    (
+        "canonical-bundle-v1.1.json",
+        "canonical-bundle/with-agent-identity/canonical-bundle-with-identity-1.0.0.canonical.json",
+    ),
 ]
 
-REJECTED = "rejected"   # schema correctly raised ValidationError (good)
-ACCEPTED = "ACCEPTED"   # schema let the violation through (finding)
+REJECTED = "rejected"  # schema correctly raised ValidationError (good)
+ACCEPTED = "ACCEPTED"  # schema let the violation through (finding)
 
-results = []   # (schema, path, mutation, outcome, note)
-flags = []     # (schema, path, note)
+results = []  # (schema, path, mutation, outcome, note)
+flags = []  # (schema, path, note)
 
 
 def rejects(schema, instance) -> bool:
@@ -128,21 +141,30 @@ def walk(schema_node, inst, path, sname, root_schema, root_inst):
             # hash-field rigor: is it pinned to lowercase 64-hex? (§5.2)
             looks_hashish = any(t in key for t in ("hash", "root", "fingerprint"))
             if looks_hashish:
-                lc64 = pat.replace(" ", "")
-                pins = ("64" in pat or "{64}" in pat)
-                lowers = ("A-F" not in pat and "a-fA-F" not in pat and "A-Fa-f" not in pat)
+                pins = "64" in pat or "{64}" in pat
                 # try uppercase variant of the real value
-                mutU = copy.deepcopy(root_inst)
+                mut_u = copy.deepcopy(root_inst)
                 val = inst[key]
                 if isinstance(val, str) and re.fullmatch(r"[0-9a-f]+", val):
-                    set_at(mutU, p, val.upper())
-                    up_rejected = rejects(root_schema, mutU)
+                    set_at(mut_u, p, val.upper())
+                    up_rejected = rejects(root_schema, mut_u)
                     if not up_rejected:
-                        flags.append((sname, "/".join(map(str, p)),
-                                      f"hash field accepts UPPERCASE hex (pattern={pat}); §5.2 mandates lowercase"))
+                        flags.append(
+                            (
+                                sname,
+                                "/".join(map(str, p)),
+                                f"hash field accepts UPPERCASE hex (pattern={pat}); "
+                                "§5.2 mandates lowercase",
+                            )
+                        )
                 if not pins:
-                    flags.append((sname, "/".join(map(str, p)),
-                                  f"hash field pattern does not pin 64-char length (pattern={pat})"))
+                    flags.append(
+                        (
+                            sname,
+                            "/".join(map(str, p)),
+                            f"hash field pattern does not pin 64-char length (pattern={pat})",
+                        )
+                    )
         # enum violation
         if "enum" in subschema:
             mut = copy.deepcopy(root_inst)
@@ -164,7 +186,9 @@ def main():
         inst = json.loads((VECTORS / vrel).read_bytes())
         # baseline: the golden vector must validate
         if rejects(schema, inst):
-            results.append((sname, ".", "BASELINE-should-accept", ACCEPTED, "golden vector rejected!"))
+            results.append(
+                (sname, ".", "BASELINE-should-accept", ACCEPTED, "golden vector rejected!")
+            )
             continue
         walk(schema, inst, [], sname, schema, inst)
 
@@ -186,8 +210,10 @@ def main():
             if outcome == ACCEPTED:
                 print(f"    ACCEPTED  {path:<32} {mut}")
     print("\n" + "-" * width)
-    print(f"total mutations: {len(results)}   rejected(good): "
-          f"{sum(1 for r in results if r[3]==REJECTED)}   ACCEPTED(finding): {len(accepted)}")
+    print(
+        f"total mutations: {len(results)}   rejected(good): "
+        f"{sum(1 for r in results if r[3] == REJECTED)}   ACCEPTED(finding): {len(accepted)}"
+    )
 
     if flags:
         print("\n" + "=" * width)
