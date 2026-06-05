@@ -1,4 +1,4 @@
-# Draft GitHub Actions workflow — copy to `.github/workflows/ci.yml` in the public repo.
+# CI and release pipeline for specora-verify.
 #
 # Two jobs:
 #   1. `test` — runs on every push + PR. Runs the full pytest suite
@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -95,7 +95,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -171,7 +171,7 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
       - run: pip install pyinstaller sigstore -e ".[all]"
@@ -200,7 +200,7 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
       - run: |
