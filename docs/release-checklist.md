@@ -21,6 +21,15 @@ These are fully verifiable from the repo with no network and no publish step.
 - [ ] `mypy --strict specora_verify`
 - [ ] `python tools/qa/run_all.py` — the independent QA harnesses (L2 byte-parity,
       L3 adversarial, L4 schema-rigor) all pass. See [tools/qa/README.md](../tools/qa/README.md).
+- [x] **Release-pipeline identity wiring** — `specora_verify/release.py`'s
+      Sigstore identity constants (`GITHUB_OWNER`/`GITHUB_REPO`,
+      `SIGSTORE_WORKFLOW_PATH`, tag scheme) describe *this* repo and *this*
+      repo's release job, so published signed artifacts verify. Guarded by
+      `tests/test_release_identity.py` (asserts constants match pyproject's
+      Repository URL, the pinned workflow exists, and the tag scheme is
+      consistent). Tag scheme is `v{version}`; the release job lives in
+      `ci.yml` (gated on `v*` tags), and identity is pinned via the
+      `@refs/tags/v{version}` ref.
 
 ## L1 — Distribution & verification anchors (the cold-install gate)
 
