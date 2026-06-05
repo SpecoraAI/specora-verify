@@ -29,9 +29,7 @@ FIXTURE_DIR = Path(__file__).resolve().parent
 KEYS_DIR = FIXTURE_DIR / "keys"
 
 # Fixed 32-byte seed — NEVER use this pattern for anything outside tests.
-_SYNTHETIC_SEED = bytes.fromhex(
-    "a03b01" + "00" * (32 - 3)
-)
+_SYNTHETIC_SEED = bytes.fromhex("a03b01" + "00" * (32 - 3))
 
 
 def _make_signing_key() -> SigningKey:
@@ -60,8 +58,7 @@ def _base_record(i: int, *, model: str, decision: str, policy_refs: list[str]) -
         "output_token_count": 200 + i,
         "decision": decision,
         "policy_refs": list(policy_refs),
-        "context_hash": f"sha256:{(i * 0x01010101) & 0xFFFFFFFFFFFFFFFF:016x}"
-        + "0" * 48,
+        "context_hash": f"sha256:{(i * 0x01010101) & 0xFFFFFFFFFFFFFFFF:016x}" + "0" * 48,
         "tool_invocations": [],
         "schema_version": "1.0",
     }
@@ -124,7 +121,9 @@ def main() -> None:
     # Layout: [ok, ok, ok, broken-json, missing-field]
     good_records = [
         _sign_record(
-            _base_record(100 + i, model="claude-opus-4-6", decision="approved", policy_refs=["p-1"]),
+            _base_record(
+                100 + i, model="claude-opus-4-6", decision="approved", policy_refs=["p-1"]
+            ),
             signing_key,
             key_id,
         )

@@ -79,7 +79,9 @@ class TestMirrorVerifyLatestOffline:
         )
 
         # Exit code 2 = FAIL
-        assert result.returncode == 2, f"Expected exit 2, got {result.returncode}\nstdout: {result.stdout}"
+        assert result.returncode == 2, (
+            f"Expected exit 2, got {result.returncode}\nstdout: {result.stdout}"
+        )
         assert "FAIL" in result.stdout or "mismatch" in result.stdout.lower()
 
     def test_error_quorum_failure(self) -> None:
@@ -95,7 +97,9 @@ class TestMirrorVerifyLatestOffline:
         )
 
         # Exit code 3 = ERROR
-        assert result.returncode == 3, f"Expected exit 3, got {result.returncode}\nstdout: {result.stdout}"
+        assert result.returncode == 3, (
+            f"Expected exit 3, got {result.returncode}\nstdout: {result.stdout}"
+        )
 
     def test_error_no_sources(self) -> None:
         """ERROR when no sources specified."""

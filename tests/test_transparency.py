@@ -76,9 +76,7 @@ class TestAppend:
             timestamp="2026-05-08T12:00:00Z",
         )
         # The on-disk file carries the load-bearing -demo suffix.
-        path = (
-            log.root_dir / "2026-05-08" / "entries.ndjson"
-        ).read_text()
+        path = (log.root_dir / "2026-05-08" / "entries.ndjson").read_text()
         assert LOG_FORMAT_VERSION in path
         assert "specora-aid-tlog-v1-demo" in path
         assert e.leaf_hash
@@ -93,12 +91,9 @@ class TestMonotonicity:
         _seed(log, 3)
         # Synthesize a corrupted entries file with a gap at seq=1.
         path = tmp_path / "2026-05-08" / "entries.ndjson"
-        lines = [json.loads(l) for l in path.read_text().splitlines()]
+        lines = [json.loads(ln) for ln in path.read_text().splitlines()]
         lines[1]["seq"] = 5  # corrupt
-        path.write_text(
-            "\n".join(json.dumps(l, separators=(",", ":")) for l in lines)
-            + "\n"
-        )
+        path.write_text("\n".join(json.dumps(ln, separators=(",", ":")) for ln in lines) + "\n")
         with pytest.raises(AssertionError, match="gap"):
             assert_monotonic_no_gaps(log, "2026-05-08")
 
@@ -107,10 +102,7 @@ class TestMerkleRoot:
     def test_root_recomputes_to_stored(self, log):
         _seed(log, 4)
         stored = log.epoch_root("2026-05-08")
-        leaf_hashes = [
-            e["leaf_hash"]
-            for e in log._read_entries("2026-05-08")
-        ]
+        leaf_hashes = [e["leaf_hash"] for e in log._read_entries("2026-05-08")]
         recomputed = merkle_root(leaf_hashes)
         assert stored["merkle_root_hash"] == recomputed
         assert stored["entry_count"] == 4
@@ -128,18 +120,13 @@ class TestInclusionProof:
         _seed(log, 7)  # odd count exercises the right-edge path
         for seq in range(7):
             proof = log.inclusion_proof(epoch_id="2026-05-08", seq=seq)
-            assert verify_inclusion_proof(proof), (
-                f"inclusion proof failed at seq={seq}"
-            )
+            assert verify_inclusion_proof(proof), f"inclusion proof failed at seq={seq}"
 
     def test_tampered_leaf_breaks_proof(self, log):
         _seed(log, 4)
         proof = log.inclusion_proof(epoch_id="2026-05-08", seq=2)
         # Mutate the proof by flipping a hex char on the leaf hash.
-        bad_leaf = (
-            ("0" if proof.leaf_hash[0] != "0" else "1")
-            + proof.leaf_hash[1:]
-        )
+        bad_leaf = ("0" if proof.leaf_hash[0] != "0" else "1") + proof.leaf_hash[1:]
         from dataclasses import replace
 
         bad = replace(proof, leaf_hash=bad_leaf)

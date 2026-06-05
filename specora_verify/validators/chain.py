@@ -93,7 +93,9 @@ class ChainVerificationResult:
             "first_entry_hash": self.first_entry_hash,
             "last_entry_hash": self.last_entry_hash,
             "errors": self.errors,
-            "entry_results": [e.to_dict() for e in self.entry_results] if self.entry_results else [],
+            "entry_results": [e.to_dict() for e in self.entry_results]
+            if self.entry_results
+            else [],
         }
 
 
@@ -241,9 +243,9 @@ def _validate_entry_schema(entry: dict[str, Any], index: int) -> list[str]:
         "created_at",
     ]
 
-    for field in required_fields:
-        if field not in entry:
-            errors.append(f"Entry {index}: missing required field '{field}'")
+    for field_name in required_fields:
+        if field_name not in entry:
+            errors.append(f"Entry {index}: missing required field '{field_name}'")
 
     # Validate hash lengths
     if "entry_hash" in entry and len(entry["entry_hash"]) != 64:
@@ -333,7 +335,8 @@ def verify_chain(
             if previous_entry_hash and entry.get("previous_entry_hash") != previous_entry_hash:
                 entry_errors.append(
                     f"Entry {entry_index}: previous_entry_hash mismatch "
-                    f"(expected {previous_entry_hash[:16]}..., got {entry.get('previous_entry_hash', '')[:16]}...)"
+                    f"(expected {previous_entry_hash[:16]}..., "
+                    f"got {entry.get('previous_entry_hash', '')[:16]}...)"
                 )
                 link_valid = False
                 result.valid = False
@@ -344,7 +347,8 @@ def verify_chain(
             if computed_hash != entry.get("entry_hash"):
                 entry_errors.append(
                     f"Entry {entry_index}: entry_hash mismatch "
-                    f"(computed {computed_hash[:16]}..., stored {entry.get('entry_hash', '')[:16]}...)"
+                    f"(computed {computed_hash[:16]}..., "
+                    f"stored {entry.get('entry_hash', '')[:16]}...)"
                 )
                 hash_valid = False
                 result.valid = False
@@ -357,7 +361,9 @@ def verify_chain(
                 public_key=public_key,
             )
             if not sig_valid:
-                entry_errors.append(f"Entry {entry_index}: signature verification failed: {sig_error}")
+                entry_errors.append(
+                    f"Entry {entry_index}: signature verification failed: {sig_error}"
+                )
                 signature_valid = False
                 result.valid = False
 

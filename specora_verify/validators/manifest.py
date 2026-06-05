@@ -79,7 +79,10 @@ def _validate_field_type(
         if not isinstance(value, str):
             return f"'{field_name}' must be a string (timestamp), got {type(value).__name__}"
         if not TIMESTAMP_PATTERN.match(value):
-            return f"'{field_name}' must be ISO8601 UTC with Z suffix (YYYY-MM-DDTHH:MM:SSZ), got '{value}'"
+            return (
+                f"'{field_name}' must be ISO8601 UTC with Z suffix "
+                f"(YYYY-MM-DDTHH:MM:SSZ), got '{value}'"
+            )
         return None
 
     if expected_type == "integer":

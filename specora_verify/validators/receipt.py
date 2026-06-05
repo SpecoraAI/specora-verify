@@ -11,10 +11,8 @@ from pathlib import Path
 from typing import Any
 
 from specora_verify.canonical import canonical_json_bytes
-from specora_verify.contracts.registry import get_contract
 from specora_verify.hash import sha256_hex
 from specora_verify.validators.manifest import validate_manifest
-
 
 # Default receipt vectors directory (relative to repo root)
 DEFAULT_RECEIPT_VECTORS_DIR = Path(__file__).parent.parent.parent / "vectors" / "anchor-receipts"

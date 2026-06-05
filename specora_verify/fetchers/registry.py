@@ -7,15 +7,15 @@ and directories. Follows offline-first design for auditor workflows.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from specora_verify.errors import VerificationError
 from specora_verify.validators.registry import (
     RegistrySnapshot,
     parse_registry_snapshot,
 )
-from specora_verify.errors import VerificationError
 
 
 @dataclass
@@ -25,7 +25,7 @@ class SnapshotFetchResult:
     success: bool
     registry_version: int | None = None
     snapshot: RegistrySnapshot | None = None
-    raw_data: dict | None = None
+    raw_data: dict[str, Any] | None = None
     file_path: str | None = None
     error: str | None = None
     fetch_latency_ms: int = 0

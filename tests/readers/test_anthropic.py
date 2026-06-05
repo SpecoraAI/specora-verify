@@ -22,7 +22,6 @@ from specora_verify.errors import ReaderError, ReaderSchemaError
 from specora_verify.readers import READERS, ReadResult, available_readers, get_reader
 from specora_verify.readers.anthropic import AnthropicReader
 
-
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
@@ -104,7 +103,9 @@ def test_minimal_with_upstream_key_verification(
         max_size=24,
     ),
 )
-@settings(max_examples=25, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@settings(
+    max_examples=25, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture]
+)
 def test_deterministic_output(anthropic_minimal: Path, seed: int, key_id: str) -> None:
     """Same input → byte-identical canonical bundle across repeated reads.
 

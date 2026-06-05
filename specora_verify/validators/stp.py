@@ -8,18 +8,16 @@ from __future__ import annotations
 import json
 import shutil
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 from specora_verify.canonical import canonical_json_bytes
 from specora_verify.hash import sha256_hex
 from specora_verify.stp_contracts import (
     STP_ACTION_TYPES,
-    STP_BACKEND_TYPES,
     STP_CAPABILITIES,
-    STP_DECISIONS,
     STP_EXECUTION_STATUSES,
     STP_MESSAGE_TYPES,
     STP_PAYLOAD_REQUIRED_FIELDS,
@@ -29,7 +27,6 @@ from specora_verify.stp_contracts import (
     STP_RESULT_REQUIRED_FIELDS,
     STP_RUNTIME_TYPES,
 )
-
 
 # =============================================================================
 # Default vectors directory
@@ -50,11 +47,11 @@ class STPInitResult:
     success: bool
     output_dir: str
     runtime: str
-    files_created: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    files_created: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "success": self.success,
             "output_dir": self.output_dir,
@@ -70,16 +67,16 @@ class STPVerifyResult:
     """Result of STP message verification."""
 
     valid: bool
-    message_type: Optional[str] = None
-    protocol_version: Optional[str] = None
+    message_type: str | None = None
+    protocol_version: str | None = None
     schema_valid: bool = False
-    seal_valid: Optional[bool] = None
-    computed_seal: Optional[str] = None
-    expected_seal: Optional[str] = None
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    seal_valid: bool | None = None
+    computed_seal: str | None = None
+    expected_seal: str | None = None
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "valid": self.valid,
             "message_type": self.message_type,
@@ -101,10 +98,10 @@ class STPSimulateResult:
     policy_hash: str
     policy_path: str
     trust_score: float
-    reasons: List[str] = field(default_factory=list)
-    restrictions: Optional[Dict[str, Any]] = None
+    reasons: list[str] = field(default_factory=list)
+    restrictions: dict[str, Any] | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "decision": self.decision,
             "policy_hash": self.policy_hash,
@@ -120,15 +117,15 @@ class STPInspectResult:
     """Result of STP artifact inspection."""
 
     artifact_type: str
-    message_type: Optional[str] = None
+    message_type: str | None = None
     protocol_version: str = ""
-    timestamp: Optional[str] = None
-    computed_seal: Optional[str] = None
-    chain_position: Optional[int] = None
-    canonical_json: Optional[str] = None
-    fields: Dict[str, Any] = field(default_factory=dict)
+    timestamp: str | None = None
+    computed_seal: str | None = None
+    chain_position: int | None = None
+    canonical_json: str | None = None
+    fields: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "artifact_type": self.artifact_type,
             "message_type": self.message_type,
@@ -151,13 +148,13 @@ class STPVectorResult:
     hash_match: bool
     computed_hash: str
     expected_hash: str
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     @property
     def valid(self) -> bool:
         return self.bytes_match and self.hash_match
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "spec_id": self.spec_id,
             "version": self.version,
@@ -179,10 +176,10 @@ class STPVectorsResult:
     total: int
     passed: int
     failed: int
-    results: List[STPVectorResult] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
+    results: list[STPVectorResult] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "valid": self.valid,
             "vectors_dir": self.vectors_dir,
@@ -202,7 +199,7 @@ class STPVectorsResult:
 def generate_stp_scaffold(
     output_dir: Path,
     runtime: str = "custom",
-    org_id: Optional[str] = None,
+    org_id: str | None = None,
     force: bool = False,
 ) -> STPInitResult:
     """Generate STP integration scaffold.
@@ -253,7 +250,7 @@ def generate_stp_scaffold(
         org_id = str(uuid4())
         result.warnings.append(f"Generated placeholder org_id: {org_id}")
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # Generate config.json
     config = {
@@ -398,12 +395,12 @@ Then use the sample messages against `http://localhost:8765/api/v1/stp/`.
 
 
 def validate_stp_message(
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     *,
-    message_type: Optional[str] = None,
+    message_type: str | None = None,
     strict: bool = False,
     check_seal: bool = False,
-    expected_seal: Optional[str] = None,
+    expected_seal: str | None = None,
 ) -> STPVerifyResult:
     """Validate an STP message against the protocol schema.
 
@@ -418,17 +415,15 @@ def validate_stp_message(
         STPVerifyResult with validation details
     """
     result = STPVerifyResult(valid=True)
-    errors: List[str] = []
-    warnings: List[str] = []
+    errors: list[str] = []
+    warnings: list[str] = []
 
     # Detect message type
     detected_type = payload.get("message_type")
     result.message_type = detected_type
 
     if message_type and detected_type != message_type:
-        errors.append(
-            f"Message type mismatch: expected '{message_type}', got '{detected_type}'"
-        )
+        errors.append(f"Message type mismatch: expected '{message_type}', got '{detected_type}'")
 
     # Validate message type is known
     all_types = STP_MESSAGE_TYPES + STP_RESPONSE_TYPES
@@ -440,7 +435,10 @@ def validate_stp_message(
     result.protocol_version = protocol_version
 
     if protocol_version != STP_PROTOCOL_VERSION:
-        msg = f"Protocol version mismatch: expected '{STP_PROTOCOL_VERSION}', got '{protocol_version}'"
+        msg = (
+            f"Protocol version mismatch: expected '{STP_PROTOCOL_VERSION}', "
+            f"got '{protocol_version}'"
+        )
         if strict:
             errors.append(msg)
         else:
@@ -481,9 +479,7 @@ def validate_stp_message(
             result.expected_seal = expected_seal
             result.seal_valid = computed_seal == expected_seal
             if not result.seal_valid:
-                errors.append(
-                    f"Seal mismatch: computed {computed_seal}, expected {expected_seal}"
-                )
+                errors.append(f"Seal mismatch: computed {computed_seal}, expected {expected_seal}")
         else:
             result.seal_valid = True
 
@@ -497,9 +493,9 @@ def validate_stp_message(
 
 def _validate_payload_values(
     message_type: str,
-    payload: Dict[str, Any],
-    errors: List[str],
-    warnings: List[str],
+    payload: dict[str, Any],
+    errors: list[str],
+    warnings: list[str],
 ) -> None:
     """Validate payload field values against STP contracts."""
     if message_type == "agent.identity":
@@ -537,10 +533,10 @@ def _validate_payload_values(
 
 
 def simulate_stp_decision(
-    request: Dict[str, Any],
+    request: dict[str, Any],
     *,
-    policy_path: Optional[Path] = None,
-    policy_data: Optional[Dict[str, Any]] = None,
+    policy_path: Path | None = None,
+    policy_data: dict[str, Any] | None = None,
     trust_score: float = 50.0,
 ) -> STPSimulateResult:
     """Simulate a governance decision for an STP authorization request.
@@ -555,7 +551,7 @@ def simulate_stp_decision(
         STPSimulateResult with simulated decision
     """
     # Load policy
-    policy: Dict[str, Any] = {}
+    policy: dict[str, Any] = {}
     policy_path_str = "default"
 
     if policy_path:
@@ -585,9 +581,9 @@ def simulate_stp_decision(
     rules = policy.get("rules", [])
     default_decision = policy.get("default_decision", "block")
 
-    reasons: List[str] = []
+    reasons: list[str] = []
     decision = default_decision
-    restrictions: Optional[Dict[str, Any]] = None
+    restrictions: dict[str, Any] | None = None
 
     for rule in rules:
         if rule.get("action_type") == action_type:
@@ -598,9 +594,7 @@ def simulate_stp_decision(
 
             if current_tier >= required_tier:
                 decision = rule.get("decision", "allow")
-                reasons.append(
-                    f"Matched rule for action_type={action_type}: decision={decision}"
-                )
+                reasons.append(f"Matched rule for action_type={action_type}: decision={decision}")
                 restrictions = rule.get("restrictions")
             else:
                 decision = "block"
@@ -609,7 +603,9 @@ def simulate_stp_decision(
                 )
             break
     else:
-        reasons.append(f"No matching rule for action_type={action_type}, using default: {default_decision}")
+        reasons.append(
+            f"No matching rule for action_type={action_type}, using default: {default_decision}"
+        )
 
     return STPSimulateResult(
         decision=decision,
@@ -627,7 +623,7 @@ def simulate_stp_decision(
 
 
 def inspect_stp_artifact(
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     *,
     show_seal: bool = False,
     show_chain: bool = False,
@@ -714,9 +710,9 @@ def _load_stp_vector_files(
     vectors_dir: Path,
     spec_id: str,
     version: str,
-) -> tuple[Dict[str, Any] | None, bytes | None, str | None, List[str]]:
+) -> tuple[dict[str, Any] | None, bytes | None, str | None, list[str]]:
     """Load the three vector files for an STP spec."""
-    errors: List[str] = []
+    errors: list[str] = []
 
     json_file = vectors_dir / f"{spec_id}-{version}.json"
     canonical_file = vectors_dir / f"{spec_id}-{version}.canonical.json"
@@ -773,7 +769,7 @@ def verify_single_stp_vector(
     bytes_match = computed_bytes == expected_bytes
     hash_match = computed_hash == expected_hash
 
-    errors: List[str] = []
+    errors: list[str] = []
     if not bytes_match:
         errors.append(
             f"Canonical bytes mismatch for {spec_id} v{version}. "
@@ -797,7 +793,7 @@ def verify_single_stp_vector(
 
 
 def verify_stp_vectors(
-    vectors_dir: Optional[Path | str] = None,
+    vectors_dir: Path | str | None = None,
 ) -> STPVectorsResult:
     """Verify all STP golden vectors.
 

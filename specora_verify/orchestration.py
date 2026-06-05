@@ -134,9 +134,7 @@ def load_signing_key(path: Path) -> Any:
         except Exception as exc:
             raise OrchestrationError(f"Failed to load PEM private key: {exc}") from exc
         if not isinstance(key, Ed25519PrivateKey):
-            raise OrchestrationError(
-                f"Expected Ed25519 private key, got {type(key).__name__}"
-            )
+            raise OrchestrationError(f"Expected Ed25519 private key, got {type(key).__name__}")
         return key
 
     hex_candidate = text.replace("\n", "").replace(" ", "")
@@ -162,9 +160,7 @@ def _read_provider(
     strict: bool,
 ) -> ReadResult:
     if provider not in available_readers():
-        raise OrchestrationError(
-            f"Unknown provider '{provider}'. Available: {available_readers()}"
-        )
+        raise OrchestrationError(f"Unknown provider '{provider}'. Available: {available_readers()}")
     try:
         reader_impl = get_reader(provider)
         return reader_impl.read(
@@ -180,7 +176,7 @@ def _read_provider(
         raise OrchestrationError(f"Reader '{provider}' failed: {exc}") from exc
 
 
-def _sign_payload(payload: dict, signing_key: Any) -> tuple[str, str, str]:
+def _sign_payload(payload: dict[str, Any], signing_key: Any) -> tuple[str, str, str]:
     """Sign a canonical bundle payload.
 
     Returns a 3-tuple ``(payload_sha256, signature_b64, public_key_hex)``.

@@ -9,7 +9,6 @@ DNS TXT Format:
 from __future__ import annotations
 
 import time
-from typing import Any
 
 from specora_verify.validators.mirror import MirrorSource, SourceResult
 
@@ -153,6 +152,4 @@ async def fetch_dns_txt_anchor_async(
     import asyncio
 
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(
-        None, fetch_dns_txt_anchor, fqdn, timeout
-    )
+    return await loop.run_in_executor(None, fetch_dns_txt_anchor, fqdn, timeout)

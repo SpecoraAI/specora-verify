@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 import json
-import subprocess
-import sys
 from pathlib import Path
 
 import pytest
 
 from specora_verify.cli import main
 from specora_verify.errors import EXIT_ERROR, EXIT_FAIL, EXIT_PASS
-
 
 # Path to golden vectors
 VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "manifest"

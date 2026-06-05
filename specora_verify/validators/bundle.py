@@ -102,13 +102,9 @@ def _verify_artifact(
 
     errors: list[str] = []
     if computed_hash != declared_hash:
-        errors.append(
-            f"Hash mismatch: computed {computed_hash}, declared {declared_hash}"
-        )
+        errors.append(f"Hash mismatch: computed {computed_hash}, declared {declared_hash}")
     if declared_size and actual_size != declared_size:
-        errors.append(
-            f"Size mismatch: actual {actual_size}, declared {declared_size}"
-        )
+        errors.append(f"Size mismatch: actual {actual_size}, declared {declared_size}")
 
     return ArtifactVerification(
         name=name,

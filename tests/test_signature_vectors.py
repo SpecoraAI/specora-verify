@@ -21,7 +21,7 @@ import pytest
 pytest.importorskip("cryptography")
 
 from specora_verify.canonical import canonical_json_bytes
-from specora_verify.fingerprint import compute_key_fingerprint, derive_key_id
+from specora_verify.fingerprint import derive_key_id
 from specora_verify.hash import sha256_hex
 from specora_verify.signature import get_key_info, verify_signature
 
@@ -57,9 +57,7 @@ class TestSignatureGoldenVectors:
         computed = canonical_json_bytes(vector["artifact"])
 
         assert computed == vector["canonical"], (
-            f"Canonical bytes mismatch.\n"
-            f"Computed: {computed!r}\n"
-            f"Expected: {vector['canonical']!r}"
+            f"Canonical bytes mismatch.\nComputed: {computed!r}\nExpected: {vector['canonical']!r}"
         )
 
     def test_signed_artifact_001_hash_matches(self):
@@ -69,9 +67,7 @@ class TestSignatureGoldenVectors:
         computed = sha256_hex(canonical_json_bytes(vector["artifact"]))
 
         assert computed == vector["hash"], (
-            f"Hash mismatch.\n"
-            f"Computed: {computed}\n"
-            f"Expected: {vector['hash']}"
+            f"Hash mismatch.\nComputed: {computed}\nExpected: {vector['hash']}"
         )
 
     def test_signed_artifact_001_signature_verifies(self):

@@ -78,9 +78,7 @@ _PROVIDER_MATRIX = [
 
 
 @pytest.mark.parametrize("provider,subdir,filename", _PROVIDER_MATRIX)
-def test_run_then_verify_passes(
-    tmp_path: Path, provider: str, subdir: str, filename: str
-) -> None:
+def test_run_then_verify_passes(tmp_path: Path, provider: str, subdir: str, filename: str) -> None:
     """`run` against a fixture produces a bundle `verify` accepts."""
     fixture = FIXTURE_ROOT / subdir / filename
     assert fixture.exists(), f"missing committed fixture: {fixture}"

@@ -5,9 +5,7 @@ Fetches external anchors from S3 versioned buckets via public URLs.
 
 from __future__ import annotations
 
-import json
 import time
-from typing import Any
 
 from specora_verify.validators.mirror import MirrorSource, SourceResult
 

@@ -39,7 +39,6 @@ from typing import Any
 from specora_verify.canonical import canonical_json_bytes
 from specora_verify.errors import (
     ReaderCryptoError,
-    ReaderError,
     ReaderIOError,
     ReaderSchemaError,
 )
@@ -71,7 +70,7 @@ class _RecordOutcome:
     diagnostic for non-strict dropped records, or None on success.
     """
 
-    mapped: dict | None
+    mapped: dict[str, Any] | None
     warning: str | None
 
 
@@ -132,7 +131,7 @@ class AnthropicReader:
 
         public_key_bytes = self._load_public_key(public_key_path) if public_key_path else None
 
-        mapped_records: list[dict] = []
+        mapped_records: list[dict[str, Any]] = []
         warnings: list[str] = []
         seen_ids: set[str] = set()
         upstream_key_id: str | None = None
@@ -207,9 +206,7 @@ class AnthropicReader:
 
         if not isinstance(record, dict):
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, "record is not a JSON object", line=lineno
-                )
+                raise ReaderSchemaError(_PROVIDER, "record is not a JSON object", line=lineno)
             return _RecordOutcome(
                 mapped=None, warning=f"line {lineno}: record is not a JSON object"
             )
@@ -226,8 +223,7 @@ class AnthropicReader:
             if strict:
                 raise ReaderSchemaError(
                     _PROVIDER,
-                    f"unsupported schema_version {version!r} "
-                    f"(supported: {_SUPPORTED_VERSIONS})",
+                    f"unsupported schema_version {version!r} (supported: {_SUPPORTED_VERSIONS})",
                     line=lineno,
                 )
             return _RecordOutcome(
@@ -254,12 +250,8 @@ class AnthropicReader:
         signature = record.get("signature")
         if signature is None:
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, "missing upstream signature", line=lineno
-                )
-            return _RecordOutcome(
-                mapped=None, warning=f"line {lineno}: missing upstream signature"
-            )
+                raise ReaderSchemaError(_PROVIDER, "missing upstream signature", line=lineno)
+            return _RecordOutcome(mapped=None, warning=f"line {lineno}: missing upstream signature")
 
         if public_key_bytes is not None:
             try:
@@ -267,25 +259,21 @@ class AnthropicReader:
             except ReaderCryptoError as exc:
                 if strict:
                     raise
-                return _RecordOutcome(
-                    mapped=None, warning=f"line {lineno}: {exc.detail}"
-                )
+                return _RecordOutcome(mapped=None, warning=f"line {lineno}: {exc.detail}")
 
         mapped["_schema_version"] = version
         return _RecordOutcome(mapped=mapped, warning=None)
 
-    def _validate_record_shape(self, record: dict, *, lineno: int) -> None:
+    def _validate_record_shape(self, record: dict[str, Any], *, lineno: int) -> None:
         for field_name in _REQUIRED_RECORD_FIELDS:
             if field_name not in record:
                 raise ReaderSchemaError(
                     _PROVIDER, f"missing required field {field_name!r}", line=lineno
                 )
         if not isinstance(record["policy_refs"], list):
-            raise ReaderSchemaError(
-                _PROVIDER, "policy_refs must be a JSON array", line=lineno
-            )
+            raise ReaderSchemaError(_PROVIDER, "policy_refs must be a JSON array", line=lineno)
 
-    def _map_record(self, record: dict) -> dict:
+    def _map_record(self, record: dict[str, Any]) -> dict[str, Any]:
         decision = record["decision"]
         if decision not in _VALID_DECISIONS:
             raise ReaderSchemaError(
@@ -357,7 +345,7 @@ class AnthropicReader:
         return mapped
 
     @staticmethod
-    def _extract_agent_identity(record: dict) -> dict | None:
+    def _extract_agent_identity(record: dict[str, Any]) -> dict[str, Any] | None:
         """Lift any embedded Specora agent_identity envelope.
 
         Two sources are accepted, in priority order:
@@ -381,9 +369,7 @@ class AnthropicReader:
             return direct
         request_metadata = record.get("request_metadata")
         if isinstance(request_metadata, dict):
-            header_identity = request_metadata.get(
-                "x-specora-agent-identity"
-            )
+            header_identity = request_metadata.get("x-specora-agent-identity")
             if isinstance(header_identity, dict):
                 return header_identity
         return None
@@ -391,7 +377,9 @@ class AnthropicReader:
     @staticmethod
     def _normalize_timestamp(value: Any) -> str:
         if not isinstance(value, str):
-            raise ReaderSchemaError(_PROVIDER, f"timestamp must be a string (got {type(value).__name__})")
+            raise ReaderSchemaError(
+                _PROVIDER, f"timestamp must be a string (got {type(value).__name__})"
+            )
         if value.endswith("Z"):
             return value
         if value.endswith("+00:00"):
@@ -402,7 +390,7 @@ class AnthropicReader:
         )
 
     def _verify_upstream_signature(
-        self, record: dict, signature: dict, public_key_bytes: bytes
+        self, record: dict[str, Any], signature: dict[str, Any], public_key_bytes: bytes
     ) -> None:
         """Best-effort upstream Ed25519 signature check.
 
@@ -469,15 +457,15 @@ class AnthropicReader:
 
     @staticmethod
     def _build_bundle_payload(
-        *, records: list[dict], key_id: str, schema_version: str
-    ) -> dict:
+        *, records: list[dict[str, Any]], key_id: str, schema_version: str
+    ) -> dict[str, Any]:
         """Assemble the canonical wire-spec bundle payload.
 
         The returned dict is round-tripped through canonical_json_bytes
         below to compute a stable content hash; that hash is the anchor
         the outer signature covers.
         """
-        payload = {
+        payload: dict[str, Any] = {
             "metadata": {
                 "provider": _PROVIDER,
                 "reader": "specora_verify.readers.anthropic",

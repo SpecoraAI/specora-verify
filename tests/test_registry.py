@@ -7,11 +7,15 @@ from pathlib import Path
 
 import pytest
 
+from specora_verify.fetchers.registry import (
+    load_local_registry_chain,
+    load_local_registry_snapshot,
+    load_registry_snapshots_sorted,
+)
 from specora_verify.validators.registry import (
-    ChainVerificationResult,
     GENESIS_HASH,
+    ChainVerificationResult,
     RegistryKey,
-    RegistrySnapshot,
     RegistryVerificationStatus,
     RegistryWitness,
     SnapshotVerificationResult,
@@ -25,12 +29,6 @@ from specora_verify.validators.registry import (
     parse_registry_snapshot,
     validate_registry_snapshot,
     verify_registry_chain,
-)
-from specora_verify.fetchers.registry import (
-    SnapshotFetchResult,
-    load_local_registry_snapshot,
-    load_local_registry_chain,
-    load_registry_snapshots_sorted,
 )
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "registry"

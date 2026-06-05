@@ -14,9 +14,10 @@ from typing import Any
 from specora_verify.canonical import canonical_json_bytes
 from specora_verify.hash import sha256_hex
 
-
 # Default certification vectors directory (relative to repo root)
-DEFAULT_CERTIFICATION_VECTORS_DIR = Path(__file__).parent.parent.parent / "vectors" / "certification"
+DEFAULT_CERTIFICATION_VECTORS_DIR = (
+    Path(__file__).parent.parent.parent / "vectors" / "certification"
+)
 
 # Tier requirement definitions
 TIER_REQUIREMENTS: dict[str, list[str]] = {
@@ -40,29 +41,62 @@ TIER_REQUIREMENTS: dict[str, list[str]] = {
     ],
     "enterprise": [
         # All basic requirements
-        "RCP-66", "RCP-79", "RCP-86", "RCP-87", "RCP-88",
-        "RCP-94", "RCP-95", "RCP-96", "RCP-101", "RCP-103",
-        "RCP-108", "RCP-109", "RCP-110", "RCP-111", "RCP-112", "RCP-113",
+        "RCP-66",
+        "RCP-79",
+        "RCP-86",
+        "RCP-87",
+        "RCP-88",
+        "RCP-94",
+        "RCP-95",
+        "RCP-96",
+        "RCP-101",
+        "RCP-103",
+        "RCP-108",
+        "RCP-109",
+        "RCP-110",
+        "RCP-111",
+        "RCP-112",
+        "RCP-113",
         # Enterprise additions
-        "RCP-97",   # Anchor Payload Spec Availability
-        "RCP-98",   # Anchor Payload Hash Determinism
-        "RCP-99",   # Anchor/Manifest Binding
+        "RCP-97",  # Anchor Payload Spec Availability
+        "RCP-98",  # Anchor Payload Hash Determinism
+        "RCP-99",  # Anchor/Manifest Binding
         "RCP-100",  # Anchor Vector Parity
         "RCP-104",  # Anchor Receipt Spec Availability
         "RCP-105",  # Receipt Hash Determinism
         "RCP-106",  # Payload/Receipt Binding
         "RCP-107",  # Receipt Vector Parity
-        "RCP-24",   # Routing Determinism
-        "RCP-48",   # Replay Availability
+        "RCP-24",  # Routing Determinism
+        "RCP-48",  # Replay Availability
     ],
     "regulated": [
         # All enterprise requirements
-        "RCP-66", "RCP-79", "RCP-86", "RCP-87", "RCP-88",
-        "RCP-94", "RCP-95", "RCP-96", "RCP-101", "RCP-103",
-        "RCP-108", "RCP-109", "RCP-110", "RCP-111", "RCP-112", "RCP-113",
-        "RCP-97", "RCP-98", "RCP-99", "RCP-100",
-        "RCP-104", "RCP-105", "RCP-106", "RCP-107",
-        "RCP-24", "RCP-48",
+        "RCP-66",
+        "RCP-79",
+        "RCP-86",
+        "RCP-87",
+        "RCP-88",
+        "RCP-94",
+        "RCP-95",
+        "RCP-96",
+        "RCP-101",
+        "RCP-103",
+        "RCP-108",
+        "RCP-109",
+        "RCP-110",
+        "RCP-111",
+        "RCP-112",
+        "RCP-113",
+        "RCP-97",
+        "RCP-98",
+        "RCP-99",
+        "RCP-100",
+        "RCP-104",
+        "RCP-105",
+        "RCP-106",
+        "RCP-107",
+        "RCP-24",
+        "RCP-48",
         # Regulated additions
         "RCP-68",  # TLA+ Model Availability
         "RCP-69",  # TLA+ CI Enforcement
@@ -332,7 +366,9 @@ def generate_attestation(
     attestation_manifest_path = bundle_path / "proofs" / "attestation-manifest.json"
     if attestation_manifest_path.exists():
         attestation_manifest = json.loads(attestation_manifest_path.read_text(encoding="utf-8"))
-        evidence_hashes["attestation_manifest"] = sha256_hex(canonical_json_bytes(attestation_manifest))
+        evidence_hashes["attestation_manifest"] = sha256_hex(
+            canonical_json_bytes(attestation_manifest)
+        )
 
     if tier in ("enterprise", "regulated"):
         anchor_payload_path = bundle_path / "proofs" / "anchor-payload.json"
@@ -421,9 +457,17 @@ def validate_attestation(
 
     # Check required fields
     required_fields = [
-        "spec_id", "schema_version", "issued_at", "tier", "integration",
-        "evidence_hashes", "proof_surface_url", "ci_badges", "verified_by",
-        "requirements_met", "requirements_missing",
+        "spec_id",
+        "schema_version",
+        "issued_at",
+        "tier",
+        "integration",
+        "evidence_hashes",
+        "proof_surface_url",
+        "ci_badges",
+        "verified_by",
+        "requirements_met",
+        "requirements_missing",
     ]
     for field_name in required_fields:
         if field_name not in payload:

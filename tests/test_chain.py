@@ -3,12 +3,8 @@
 Tests the offline chain verification module and CLI command.
 """
 
-import base64
 import hashlib
 import json
-import tempfile
-from datetime import datetime, timezone
-from pathlib import Path
 
 import pytest
 
@@ -337,8 +333,9 @@ class TestCLIIntegration:
 
     def test_cli_verify_valid_chain(self, tmp_path):
         """CLI verify-log with valid chain returns PASS."""
-        from specora_verify.cli import cmd_verify_log
         import argparse
+
+        from specora_verify.cli import cmd_verify_log
 
         entries = build_valid_chain(3)
         file_path = tmp_path / "chain.json"
@@ -357,8 +354,9 @@ class TestCLIIntegration:
 
     def test_cli_verify_invalid_chain(self, tmp_path):
         """CLI verify-log with invalid chain returns FAIL."""
-        from specora_verify.cli import cmd_verify_log
         import argparse
+
+        from specora_verify.cli import cmd_verify_log
 
         entries = build_valid_chain(3)
         entries[1]["entry_hash"] = "f" * 64  # Tampered
@@ -378,8 +376,9 @@ class TestCLIIntegration:
 
     def test_cli_verify_missing_file(self, tmp_path):
         """CLI verify-log with missing file returns ERROR."""
-        from specora_verify.cli import cmd_verify_log
         import argparse
+
+        from specora_verify.cli import cmd_verify_log
 
         args = argparse.Namespace(
             log=tmp_path / "nonexistent.json",

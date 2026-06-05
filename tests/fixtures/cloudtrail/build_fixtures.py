@@ -147,9 +147,7 @@ def main() -> None:
             escalation=False,
         ),
     ]
-    (FIXTURE_DIR / "minimal-valid.json").write_text(
-        _pretty_records(minimal), encoding="utf-8"
-    )
+    (FIXTURE_DIR / "minimal-valid.json").write_text(_pretty_records(minimal), encoding="utf-8")
 
     # ------------------------------------------------------------------
     # realistic-complex.json — 24 AR events, 3 regions, 2 models,

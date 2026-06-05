@@ -36,13 +36,9 @@ if TYPE_CHECKING:
 # Flag to track if cryptography is available
 _CRYPTO_AVAILABLE = False
 try:
+    # Imported only to detect availability; verify_signature/load_public_key
+    # re-import the specific primitives they need locally.
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-    from cryptography.hazmat.primitives.serialization import (
-        Encoding,
-        PublicFormat,
-        load_pem_public_key,
-    )
-    from cryptography.exceptions import InvalidSignature
 
     _CRYPTO_AVAILABLE = True
 except ImportError:
@@ -120,7 +116,7 @@ def _compute_key_fingerprint(public_key_bytes: bytes) -> str:
 def load_public_key(
     key_data: str | bytes,
     key_format: str = "auto",
-) -> "Ed25519PublicKey":
+) -> Ed25519PublicKey:
     """Load Ed25519 public key from various formats.
 
     Supported formats:
@@ -252,7 +248,7 @@ def get_key_info(key_data: str | bytes, key_format: str = "auto") -> KeyInfo:
 def verify_signature(
     manifest_hash: str,
     signature_b64: str,
-    public_key: "Ed25519PublicKey | str | bytes",
+    public_key: Ed25519PublicKey | str | bytes,
     key_format: str = "auto",
 ) -> SignatureVerificationResult:
     """Verify Ed25519 signature over manifest hash.
@@ -273,9 +269,8 @@ def verify_signature(
     """
     require_crypto()
 
-    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-    from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
     from cryptography.exceptions import InvalidSignature
+    from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
     result = SignatureVerificationResult(
         valid=False,
@@ -286,7 +281,8 @@ def verify_signature(
     # Validate manifest hash format
     if not manifest_hash or len(manifest_hash) != 64:
         result.errors.append(
-            f"Invalid manifest hash length: expected 64 chars, got {len(manifest_hash) if manifest_hash else 0}"
+            f"Invalid manifest hash length: expected 64 chars, "
+            f"got {len(manifest_hash) if manifest_hash else 0}"
         )
         return result
 

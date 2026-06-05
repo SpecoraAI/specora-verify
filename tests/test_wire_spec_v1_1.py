@@ -10,7 +10,7 @@ CSEA-SUPPRESS-2026-05-08-002 — investor-demo lane, archive 2026-06-05.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -22,9 +22,7 @@ from specora_verify.wire_spec import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-V11_VECTORS_DIR = (
-    REPO_ROOT / "vectors" / "canonical-bundle" / "with-agent-identity"
-)
+V11_VECTORS_DIR = REPO_ROOT / "vectors" / "canonical-bundle" / "with-agent-identity"
 V10_VECTORS_DIR = REPO_ROOT / "vectors" / "canonical-bundle"
 
 
@@ -40,7 +38,7 @@ def issuer_pubkey_hex() -> str:
 @pytest.fixture(scope="module")
 def evaluate_at() -> datetime:
     """Fixed evaluation time so vectors are stable as wall-clock advances."""
-    return datetime(2026, 5, 15, 12, 0, 0, tzinfo=timezone.utc)
+    return datetime(2026, 5, 15, 12, 0, 0, tzinfo=UTC)
 
 
 class TestForwardCompat:
@@ -53,9 +51,7 @@ class TestForwardCompat:
             "canonical-bundle-cloudtrail-1.0.0.canonical.json",
         ],
     )
-    def test_v1_0_bundle_validates_under_v1_1(
-        self, filename, issuer_pubkey_hex, evaluate_at
-    ):
+    def test_v1_0_bundle_validates_under_v1_1(self, filename, issuer_pubkey_hex, evaluate_at):
         bundle = _load(V10_VECTORS_DIR / filename)
         result = validate_bundle_v1_1(
             bundle,
@@ -70,14 +66,9 @@ class TestForwardCompat:
         assert not has_any_agent_identity(bundle)
 
 
-class TestV1_1Vectors:
-    def test_single_record_with_identity(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
-        bundle = _load(
-            V11_VECTORS_DIR
-            / "canonical-bundle-with-identity-1.0.0.canonical.json"
-        )
+class TestV1_1Vectors:  # noqa: N801  — versioned name (Wire Spec v1.1)
+    def test_single_record_with_identity(self, issuer_pubkey_hex, evaluate_at):
+        bundle = _load(V11_VECTORS_DIR / "canonical-bundle-with-identity-1.0.0.canonical.json")
         assert has_any_agent_identity(bundle)
         result = validate_bundle_v1_1(
             bundle,
@@ -87,13 +78,8 @@ class TestV1_1Vectors:
         assert result.valid, result.reasons
         assert [v.status for v in result.record_verdicts] == ["valid"]
 
-    def test_multi_record_all_with_identity(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
-        bundle = _load(
-            V11_VECTORS_DIR
-            / "canonical-bundle-mixed-identity-1.0.0.canonical.json"
-        )
+    def test_multi_record_all_with_identity(self, issuer_pubkey_hex, evaluate_at):
+        bundle = _load(V11_VECTORS_DIR / "canonical-bundle-mixed-identity-1.0.0.canonical.json")
         result = validate_bundle_v1_1(
             bundle,
             issuer_public_key_hex=issuer_pubkey_hex,
@@ -107,10 +93,7 @@ class TestV1_1Vectors:
 
     def test_partial_identity_bundle(self, issuer_pubkey_hex, evaluate_at):
         """Mixed bundle: one record with identity, one without — both legal."""
-        bundle = _load(
-            V11_VECTORS_DIR
-            / "canonical-bundle-partial-identity-1.0.0.canonical.json"
-        )
+        bundle = _load(V11_VECTORS_DIR / "canonical-bundle-partial-identity-1.0.0.canonical.json")
         result = validate_bundle_v1_1(
             bundle,
             issuer_public_key_hex=issuer_pubkey_hex,
@@ -123,8 +106,7 @@ class TestV1_1Vectors:
 
     def test_empty_bundle(self, issuer_pubkey_hex, evaluate_at):
         bundle = _load(
-            V11_VECTORS_DIR
-            / "canonical-bundle-empty-with-identity-allowed-1.0.0.canonical.json"
+            V11_VECTORS_DIR / "canonical-bundle-empty-with-identity-allowed-1.0.0.canonical.json"
         )
         result = validate_bundle_v1_1(
             bundle,
@@ -138,16 +120,9 @@ class TestV1_1Vectors:
 class TestTampering:
     """Tampering with agent_identity flips the bundle to FAIL."""
 
-    def test_tampered_subject_fails_bundle(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
-        bundle = _load(
-            V11_VECTORS_DIR
-            / "canonical-bundle-with-identity-1.0.0.canonical.json"
-        )
-        bundle["records"][0]["agent_identity"]["subject"]["agent_id"] = (
-            "evil-impersonator"
-        )
+    def test_tampered_subject_fails_bundle(self, issuer_pubkey_hex, evaluate_at):
+        bundle = _load(V11_VECTORS_DIR / "canonical-bundle-with-identity-1.0.0.canonical.json")
+        bundle["records"][0]["agent_identity"]["subject"]["agent_id"] = "evil-impersonator"
         result = validate_bundle_v1_1(
             bundle,
             issuer_public_key_hex=issuer_pubkey_hex,
@@ -155,18 +130,10 @@ class TestTampering:
         )
         assert not result.valid
         assert result.record_verdicts[0].status == "invalid"
-        assert (
-            result.record_verdicts[0].reason
-            == "signature does not verify"
-        )
+        assert result.record_verdicts[0].reason == "signature does not verify"
 
-    def test_one_invalid_record_fails_whole_bundle(
-        self, issuer_pubkey_hex, evaluate_at
-    ):
-        bundle = _load(
-            V11_VECTORS_DIR
-            / "canonical-bundle-mixed-identity-1.0.0.canonical.json"
-        )
+    def test_one_invalid_record_fails_whole_bundle(self, issuer_pubkey_hex, evaluate_at):
+        bundle = _load(V11_VECTORS_DIR / "canonical-bundle-mixed-identity-1.0.0.canonical.json")
         # Tamper only the second record.
         bundle["records"][1]["agent_identity"]["public_key"] = "ee" * 32
         result = validate_bundle_v1_1(
@@ -184,18 +151,10 @@ class TestMissingIssuerKey:
     """When agent_identity is present but no issuer pubkey is supplied."""
 
     def test_no_issuer_pubkey_returns_invalid(self, evaluate_at):
-        bundle = _load(
-            V11_VECTORS_DIR
-            / "canonical-bundle-with-identity-1.0.0.canonical.json"
-        )
-        result = validate_bundle_v1_1(
-            bundle, issuer_public_key_hex=None, now=evaluate_at
-        )
+        bundle = _load(V11_VECTORS_DIR / "canonical-bundle-with-identity-1.0.0.canonical.json")
+        result = validate_bundle_v1_1(bundle, issuer_public_key_hex=None, now=evaluate_at)
         assert not result.valid
-        assert (
-            result.record_verdicts[0].reason
-            == "issuer pubkey not supplied"
-        )
+        assert result.record_verdicts[0].reason == "issuer pubkey not supplied"
 
 
 class TestVectorMetadata:

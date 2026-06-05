@@ -12,6 +12,7 @@ These tests verify:
 from __future__ import annotations
 
 import base64
+
 import pytest
 
 # Skip all tests if cryptography is not available
@@ -20,8 +21,6 @@ pytest.importorskip("cryptography")
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import (
     Encoding,
-    NoEncryption,
-    PrivateFormat,
     PublicFormat,
 )
 

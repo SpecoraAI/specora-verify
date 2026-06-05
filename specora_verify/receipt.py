@@ -16,9 +16,8 @@ from __future__ import annotations
 
 import json
 import platform
-import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from specora_verify import __version__
@@ -156,7 +155,9 @@ class VerificationReceipt:
 
     tool: ToolInfo
     verification: VerificationInfo
-    verified_at: str = field(default_factory=lambda: datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"))
+    verified_at: str = field(
+        default_factory=lambda: datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+    )
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -246,21 +247,26 @@ def generate_artifact_receipt(
         trust=trust_info,
     )
 
-    # Check if we have signature verification inputs
-    has_signature_inputs = signature_b64 is not None and public_key_data is not None
-
-    if has_signature_inputs:
+    # Check if we have signature verification inputs (inline so the type
+    # checker narrows signature_b64 / public_key_data to non-None below).
+    if signature_b64 is not None and public_key_data is not None:
         # Attempt signature verification
         try:
-            from specora_verify.signature import is_crypto_available, load_public_key, verify_signature
+            from specora_verify.signature import (
+                is_crypto_available,
+                load_public_key,
+                verify_signature,
+            )
 
             if not is_crypto_available():
                 verification.signature = SignatureInfo(valid=None)
                 verification.public_key = PublicKeyInfo(format=public_key_format)
-                errors.append({
-                    "code": "CRYPTO_MISSING",
-                    "message": "Cryptography library not available for signature verification",
-                })
+                errors.append(
+                    {
+                        "code": "CRYPTO_MISSING",
+                        "message": "Cryptography library not available for signature verification",
+                    }
+                )
             else:
                 # Load public key and get info
                 pub_key = load_public_key(public_key_data, public_key_format)
@@ -322,10 +328,15 @@ def generate_artifact_receipt(
             verification.signature = None
             verification.public_key = None
         else:
-            errors.append({
-                "code": "SIGNATURE_MISSING",
-                "message": "No signature or public key provided. Use --allow-hash-only for hash-only verification.",
-            })
+            errors.append(
+                {
+                    "code": "SIGNATURE_MISSING",
+                    "message": (
+                        "No signature or public key provided. "
+                        "Use --allow-hash-only for hash-only verification."
+                    ),
+                }
+            )
 
     verification.errors = errors
 
@@ -377,22 +388,33 @@ def generate_bundle_receipt(
             manifest_for_hash = {k: v for k, v in manifest.items() if k != "signing"}
             computed = sha256_hex(canonical_json_bytes(manifest_for_hash))
             if computed != manifest_sha256:
-                errors.append({
-                    "code": "HASH_MISMATCH",
-                    "message": f"Manifest hash mismatch: computed {computed}, declared {manifest_sha256}",
-                })
+                errors.append(
+                    {
+                        "code": "HASH_MISMATCH",
+                        "message": (
+                            f"Manifest hash mismatch: computed {computed}, "
+                            f"declared {manifest_sha256}"
+                        ),
+                    }
+                )
 
         # Verify signature if key provided
         if public_key_data and signature_b64:
             try:
-                from specora_verify.signature import is_crypto_available, load_public_key, verify_signature
+                from specora_verify.signature import (
+                    is_crypto_available,
+                    load_public_key,
+                    verify_signature,
+                )
 
                 if not is_crypto_available():
                     verification.signature = SignatureInfo(valid=None)
-                    errors.append({
-                        "code": "CRYPTO_MISSING",
-                        "message": "Cryptography library not available",
-                    })
+                    errors.append(
+                        {
+                            "code": "CRYPTO_MISSING",
+                            "message": "Cryptography library not available",
+                        }
+                    )
                 else:
                     pub_key = load_public_key(public_key_data, public_key_format)
 
@@ -402,7 +424,9 @@ def generate_bundle_receipt(
                     fingerprint = compute_key_fingerprint(raw_bytes)
                     derived_id = derive_key_id(fingerprint)
 
-                    if isinstance(public_key_data, str) and public_key_data.startswith("-----BEGIN"):
+                    if isinstance(public_key_data, str) and public_key_data.startswith(
+                        "-----BEGIN"
+                    ):
                         detected_format = "pem"
                     elif isinstance(public_key_data, bytes) and len(public_key_data) == 32:
                         detected_format = "raw32"
