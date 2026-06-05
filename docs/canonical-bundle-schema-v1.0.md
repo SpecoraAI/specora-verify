@@ -108,7 +108,7 @@ A producer that has neither per-record signatures nor a log-level integrity mech
 
 ## 3. Canonicalization primitive
 
-All canonicalization in this schema is performed by the **Frozen Canonicalizer v1.0.0**, ratified 2026-03-04, in the platform monorepo at `services/prspec-api/src/prspec_api/agent_execution/canonicalizer.py` (first landed in commit [`a0b1af5e`](https://github.com/ContinentalVC/soft-e2e/commit/a0b1af5e) and formalized in [Specora Wire Spec v1.0 §4](wire-spec-v1.0.md#4-canonical-json-encoding)). The Lean mechanized proof of the canonicalizer's contract lives at [`formal/lean/Specora/Canonicalizer.lean`](https://github.com/ContinentalVC/soft-e2e/blob/staging/formal/lean/Specora/Canonicalizer.lean).
+All canonicalization in this schema is performed by the **Frozen Canonicalizer v1.0.0**, ratified 2026-03-04, in the platform monorepo at `services/prspec-api/src/prspec_api/agent_execution/canonicalizer.py` (first landed in commit [`a0b1af5e`](https://github.com/SpecoraAI/specora-platform/commit/a0b1af5e) and formalized in [Specora Wire Spec v1.0 §4](wire-spec-v1.0.md#4-canonical-json-encoding)). The Lean mechanized proof of the canonicalizer's contract lives at [`formal/lean/Specora/Canonicalizer.lean`](https://github.com/SpecoraAI/specora-platform/blob/staging/formal/lean/Specora/Canonicalizer.lean).
 
 Readers in this repository reimplement the byte-level contract in [`specora_verify/canonical.py`](../specora_verify/canonical.py). The platform-side normalizer (`prspec_api.evidence_ledger.normalizer`) and the verifier MUST produce **byte-identical** canonical JSON for the same input; this is enforced by [`tests/test_canonical.py`](../tests/test_canonical.py) in this repo and by the platform-side property tests.
 

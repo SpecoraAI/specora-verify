@@ -167,13 +167,18 @@ def validate_agent_identity_certificate(
         return AgentIdentityValidationResult(
             valid=False, reason="principal.id missing or empty"
         )
+    # §5.2 mandates lowercase hex, and canonical-bundle-v1.1.json pins
+    # principal.public_key to ^[0-9a-f]{64}$. Accepting uppercase here would
+    # make this validator more permissive than its own schema — a cert the
+    # bundle schema rejects would pass this check. Enforce lowercase only.
     if (
         not isinstance(principal_pk, str)
         or len(principal_pk) != 64
-        or any(c not in "0123456789abcdefABCDEF" for c in principal_pk)
+        or any(c not in "0123456789abcdef" for c in principal_pk)
     ):
         return AgentIdentityValidationResult(
-            valid=False, reason="principal.public_key must be 64 hex chars"
+            valid=False,
+            reason="principal.public_key must be 64 lowercase hex chars",
         )
 
     return AgentIdentityValidationResult(
@@ -211,6 +216,14 @@ def _parse_rfc3339(value: Any) -> datetime | None:
     try:
         if value.endswith("Z"):
             value = value[:-1] + "+00:00"
-        return datetime.fromisoformat(value).astimezone(timezone.utc)
+        parsed = datetime.fromisoformat(value)
     except ValueError:
         return None
+    # RFC 3339 (§2.2 of the wire spec) REQUIRES an explicit UTC offset. A
+    # naive timestamp would be silently coerced to the *verifier's* local
+    # timezone by .astimezone(), so the same cert could be judged valid in
+    # one locale and expired in another — breaking the determinism guarantee
+    # that an independent verifier exists to provide. Reject it outright.
+    if parsed.tzinfo is None:
+        return None
+    return parsed.astimezone(timezone.utc)
