@@ -210,3 +210,88 @@ class TestVectorMetadata:
     def test_marker_present(self, name):
         vec = _load(name)
         assert vec["_metadata"]["marker"] == "for-demo-only-not-production"
+
+
+class TestPrincipalPubkeyCasing:
+    """§5.2 + canonical-bundle-v1.1.json pin principal.public_key to
+    ^[0-9a-f]{64}$. The validator must NOT be more permissive than its own
+    schema by accepting uppercase hex."""
+
+    def test_uppercase_principal_pubkey_rejected(
+        self, issuer_pubkey_hex, evaluate_at
+    ):
+        vec = _load("valid.json")
+        cert = dict(vec["certificate"])
+        cert["principal"] = {
+            **cert["principal"],
+            "public_key": cert["principal"]["public_key"].upper(),
+        }
+        result = validate_agent_identity_certificate(
+            cert, issuer_public_key_hex=issuer_pubkey_hex, now=evaluate_at
+        )
+        assert not result.valid
+        # Either the signature check (canonical bytes changed) or the
+        # lowercase-hex well-formedness check rejects it; both are correct.
+        assert result.reason in (
+            "signature does not verify",
+            "principal.public_key must be 64 lowercase hex chars",
+        )
+
+
+class TestTimezoneNaiveTimestamps:
+    """RFC 3339 requires an explicit offset. A naive (tz-less) validity
+    window must be REJECTED, never coerced to the verifier's local time —
+    otherwise the same cert flips verdict depending on where it runs, which
+    breaks the determinism guarantee the verifier exists to provide.
+    """
+
+    def _mint_naive_cert(self, issuer_pubkey_hex):
+        """A valid cert except its validity window lacks a 'Z' offset."""
+        vec = _load("valid.json")
+        cert = dict(vec["certificate"])
+        cert["issued_at"] = "2026-05-08T12:00:00"  # naive — no Z
+        cert["not_after"] = "2026-06-07T12:00:00"  # naive — no Z
+        return cert
+
+    def test_naive_validity_window_rejected(
+        self, issuer_pubkey_hex, evaluate_at
+    ):
+        cert = self._mint_naive_cert(issuer_pubkey_hex)
+        result = validate_agent_identity_certificate(
+            cert, issuer_public_key_hex=issuer_pubkey_hex, now=evaluate_at
+        )
+        assert not result.valid
+        # Rejected either at signature (canonical bytes changed) or at the
+        # validity-window well-formedness check; both are correct outcomes.
+        assert result.reason in (
+            "signature does not verify",
+            "missing or malformed validity window",
+        )
+
+    def test_verdict_is_locale_independent(self, monkeypatch):
+        """The same naive-timestamp cert must yield the SAME verdict under
+        any host timezone — never valid-here / expired-there."""
+        import time
+
+        vec = _load("valid.json")
+        issuer = _load("ISSUER.json")["issuer_public_key_hex"]
+        cert = dict(vec["certificate"])
+        cert["not_after"] = "2026-06-07T12:00:00"  # naive boundary
+        now = datetime(2026, 6, 7, 9, 0, 0, tzinfo=timezone.utc)
+
+        verdicts = []
+        for tz in ("Pacific/Honolulu", "Asia/Tokyo", "UTC"):
+            monkeypatch.setenv("TZ", tz)
+            try:
+                time.tzset()
+            except AttributeError:  # pragma: no cover - non-POSIX
+                pytest.skip("time.tzset() unavailable on this platform")
+            verdicts.append(
+                validate_agent_identity_certificate(
+                    cert, issuer_public_key_hex=issuer, now=now
+                ).valid
+            )
+        time.tzset()
+        assert len(set(verdicts)) == 1, (
+            f"verdict varied by host timezone: {verdicts}"
+        )

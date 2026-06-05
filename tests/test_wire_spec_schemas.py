@@ -167,3 +167,44 @@ def test_schema_rejects_wrong_enum_value() -> None:
     vector["hash_algorithm"] = "md5"
     with pytest.raises(jsonschema.ValidationError):
         jsonschema.validate(instance=vector, schema=schema)
+
+
+# --- Byte-level canonical conformance (Wire Spec §3.2 rule 5) ----------------
+#
+# The schema tests above load vectors via json.loads(), which tolerates
+# trailing whitespace — so a *.canonical.json that is not actually byte-
+# canonical (e.g. a stray trailing newline) passes them silently. These
+# guards compare the raw BYTES, closing that blind spot. A trailing-newline
+# regression in the v1.1 vectors was found this way by an independent
+# byte-parity reimplementation.
+
+ALL_CANONICAL_VECTORS = sorted(
+    p.relative_to(VECTORS_DIR).as_posix()
+    for p in VECTORS_DIR.rglob("*.canonical.json")
+)
+
+
+@pytest.mark.parametrize("rel", ALL_CANONICAL_VECTORS)
+def test_canonical_vector_has_no_trailing_newline(rel: str) -> None:
+    """§3.2 rule 5: 'There MUST be no trailing newline. The canonical form
+    is exactly len(output) bytes.'"""
+    raw = (VECTORS_DIR / rel).read_bytes()
+    assert raw[-1:] not in (b"\n", b"\r"), (
+        f"{rel}: canonical vector ends in a newline — not byte-canonical"
+    )
+
+
+@pytest.mark.parametrize("rel", ALL_CANONICAL_VECTORS)
+def test_canonical_vector_is_byte_canonical(rel: str) -> None:
+    """Re-canonicalizing a *.canonical.json must reproduce its exact bytes.
+
+    This is the round-trip the json.loads()-based tests cannot see.
+    """
+    from specora_verify.canonical import canonical_json_bytes
+
+    raw = (VECTORS_DIR / rel).read_bytes()
+    recomputed = canonical_json_bytes(json.loads(raw))
+    assert recomputed == raw, (
+        f"{rel}: stored bytes are not canonical (len {len(raw)} vs "
+        f"recomputed {len(recomputed)})"
+    )
