@@ -525,7 +525,7 @@ class LangSmithReader:
     def _build_bundle_payload(
         *, records: list[dict[str, Any]], key_id: str, schema_version: str
     ) -> dict[str, Any]:
-        payload = {
+        payload: dict[str, Any] = {
             "metadata": {
                 "provider": _PROVIDER,
                 "reader": "specora_verify.readers.langsmith",

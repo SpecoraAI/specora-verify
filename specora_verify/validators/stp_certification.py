@@ -360,7 +360,7 @@ def generate_stp_certification_scaffold(
         result.artifacts_found.append(f"samples/{filename}")
 
     # Generate placeholder verification output
-    verification = {
+    verification: dict[str, Any] = {
         "status": "pending",
         "tier": tier,
         "adapter_name": adapter_name,
@@ -716,7 +716,7 @@ def _verify_sample_messages(
     """Verify sample STP messages in a certification bundle."""
     from specora_verify.validators.stp import validate_stp_message
 
-    results = {"valid": True, "messages": []}
+    results: dict[str, Any] = {"valid": True, "messages": []}
 
     expected_files = [
         "agent-identity-request.json",

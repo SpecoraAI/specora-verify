@@ -285,7 +285,8 @@ class TransparencyLog:
 
     def epoch_root(self, epoch_id: str) -> dict[str, Any]:
         path = self.root_dir / epoch_id / "root.json"
-        return json.loads(path.read_text())
+        data: dict[str, Any] = json.loads(path.read_text())
+        return data
 
     def inclusion_proof(self, *, epoch_id: str, seq: int) -> InclusionProof:
         entries = self._read_entries(epoch_id)

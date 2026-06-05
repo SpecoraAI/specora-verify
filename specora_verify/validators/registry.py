@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from specora_verify.canonical import canonical_json_bytes
 from specora_verify.errors import VerificationError
@@ -872,7 +872,9 @@ def verify_registry_chain(
                     errors=errors,
                 )
         else:
-            parsed_snapshots.append(snapshot)
+            # Per the param type (list[RegistrySnapshot] | list[dict]), a
+            # non-dict element is already a parsed RegistrySnapshot.
+            parsed_snapshots.append(cast("RegistrySnapshot", snapshot))
 
     # Sort by registry_version
     parsed_snapshots.sort(key=lambda s: s.registry_version)

@@ -1550,7 +1550,8 @@ def _load_json_file(path: Path, output_format: str) -> dict[str, Any] | None:
         return None
 
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        data: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+        return data
     except json.JSONDecodeError as e:
         print(
             format_error(
@@ -2748,6 +2749,16 @@ def cmd_witness_verify(args: argparse.Namespace) -> int:
         return EXIT_ERROR
 
     statement = fetch_result.statement
+    if statement is None:
+        print(
+            format_error(
+                f"Loaded statement is empty: {args.statement}",
+                output_format=args.format,
+                code="STATEMENT_LOAD_ERROR",
+            ),
+            file=sys.stderr,
+        )
+        return EXIT_ERROR
 
     # Load registry if provided
     registry = None

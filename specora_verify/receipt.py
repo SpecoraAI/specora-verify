@@ -247,10 +247,9 @@ def generate_artifact_receipt(
         trust=trust_info,
     )
 
-    # Check if we have signature verification inputs
-    has_signature_inputs = signature_b64 is not None and public_key_data is not None
-
-    if has_signature_inputs:
+    # Check if we have signature verification inputs (inline so the type
+    # checker narrows signature_b64 / public_key_data to non-None below).
+    if signature_b64 is not None and public_key_data is not None:
         # Attempt signature verification
         try:
             from specora_verify.signature import (

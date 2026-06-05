@@ -465,7 +465,7 @@ class AnthropicReader:
         below to compute a stable content hash; that hash is the anchor
         the outer signature covers.
         """
-        payload = {
+        payload: dict[str, Any] = {
             "metadata": {
                 "provider": _PROVIDER,
                 "reader": "specora_verify.readers.anthropic",
