@@ -200,16 +200,13 @@ def verify_sigstore_signature(
             issuer=SIGSTORE_OIDC_ISSUER,
         )
 
-        # Verify signature and identity
-        # BUG/TODO: this uses the pre-2.0 sigstore API (Verifier.verify with
-        # `materials=`), but pyproject pins sigstore>=3.0.0 where Verifier
-        # exposes verify_artifact()/verify_dsse() instead — this call raises
-        # AttributeError at runtime. Needs a proper port to the 3.x API
-        # (verify_artifact(input_=..., bundle=..., policy=...)) with bundle
-        # tests. Tracked separately; type-ignored to unblock the type gate.
-        verifier.verify(  # type: ignore[attr-defined]
-            materials=bundle,
+        # Verify the signature against the pinned identity (sigstore >= 3.0
+        # API). verify_artifact raises sigstore.errors.VerificationError on
+        # any failure — signature, certificate chain, or identity-policy
+        # mismatch — which the outer try/except maps to (False, None, error).
+        verifier.verify_artifact(
             input_=content,
+            bundle=bundle,
             policy=identity,
         )
 
