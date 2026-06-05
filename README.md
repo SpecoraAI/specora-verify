@@ -19,6 +19,8 @@
 [![Homebrew tap](https://img.shields.io/badge/homebrew-specora%2Ftap-orange)](https://github.com/SpecoraAI/homebrew-tap)
 [![Wire Spec v1.0](https://img.shields.io/badge/wire%20spec-v1.0-green)](https://spec.specora.ai/v1.0)
 
+> **Availability:** public `1.0.0` release is scheduled for **2026-06-14** (PyPI publish, Homebrew tap, GitHub org public flip, and the `spec.specora.ai` wire-spec mirror all go live together). Until that flip the badges above and the `pip install` / `brew install` paths below will not resolve — install [from source](#from-source) in the meantime. The pre-flip distribution gate is tracked in [docs/release-checklist.md](docs/release-checklist.md) and verifiable with `python tools/qa/check_l1_distribution.py`.
+
 ---
 
 ## Why this exists
