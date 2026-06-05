@@ -98,9 +98,9 @@ def _load_schema(name: str) -> dict:
     path = SCHEMAS_DIR / name
     assert path.exists(), f"schema missing: {path}"
     data = json.loads(path.read_text())
-    assert data.get("$schema", "").startswith(
-        "https://json-schema.org/draft/"
-    ), f"{name}: must declare a JSON Schema draft"
+    assert data.get("$schema", "").startswith("https://json-schema.org/draft/"), (
+        f"{name}: must declare a JSON Schema draft"
+    )
     return data
 
 
@@ -179,8 +179,7 @@ def test_schema_rejects_wrong_enum_value() -> None:
 # byte-parity reimplementation.
 
 ALL_CANONICAL_VECTORS = sorted(
-    p.relative_to(VECTORS_DIR).as_posix()
-    for p in VECTORS_DIR.rglob("*.canonical.json")
+    p.relative_to(VECTORS_DIR).as_posix() for p in VECTORS_DIR.rglob("*.canonical.json")
 )
 
 
@@ -205,6 +204,5 @@ def test_canonical_vector_is_byte_canonical(rel: str) -> None:
     raw = (VECTORS_DIR / rel).read_bytes()
     recomputed = canonical_json_bytes(json.loads(raw))
     assert recomputed == raw, (
-        f"{rel}: stored bytes are not canonical (len {len(raw)} vs "
-        f"recomputed {len(recomputed)})"
+        f"{rel}: stored bytes are not canonical (len {len(raw)} vs recomputed {len(recomputed)})"
     )

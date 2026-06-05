@@ -38,7 +38,7 @@ from __future__ import annotations
 import base64
 import hashlib
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from specora_verify.canonical import canonical_json_bytes
@@ -105,7 +105,7 @@ def validate_agent_identity_certificate(
         5. ``principal`` block is present and well-formed
            (``{id: str, public_key: 64-hex-char str}``).
     """
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
 
     if not isinstance(certificate, dict):
         return AgentIdentityValidationResult(
@@ -113,21 +113,15 @@ def validate_agent_identity_certificate(
         )
 
     if certificate.get("format") != CERT_FORMAT_VERSION:
-        return AgentIdentityValidationResult(
-            valid=False, reason="unsupported certificate format"
-        )
+        return AgentIdentityValidationResult(valid=False, reason="unsupported certificate format")
 
     expected_fp = public_key_fingerprint(issuer_public_key_hex)
     if certificate.get("issuer_key_fingerprint") != expected_fp:
-        return AgentIdentityValidationResult(
-            valid=False, reason="issuer key fingerprint mismatch"
-        )
+        return AgentIdentityValidationResult(valid=False, reason="issuer key fingerprint mismatch")
 
     signature_b64 = certificate.get("signature")
     if not isinstance(signature_b64, str):
-        return AgentIdentityValidationResult(
-            valid=False, reason="missing or malformed signature"
-        )
+        return AgentIdentityValidationResult(valid=False, reason="missing or malformed signature")
 
     unsigned = {k: v for k, v in certificate.items() if k != "signature"}
     signed_bytes = canonical_json_bytes(unsigned)
@@ -137,9 +131,7 @@ def validate_agent_identity_certificate(
         message=signed_bytes,
         signature=base64.b64decode(signature_b64),
     ):
-        return AgentIdentityValidationResult(
-            valid=False, reason="signature does not verify"
-        )
+        return AgentIdentityValidationResult(valid=False, reason="signature does not verify")
 
     issued_at = _parse_rfc3339(certificate.get("issued_at"))
     not_after = _parse_rfc3339(certificate.get("not_after"))
@@ -148,13 +140,9 @@ def validate_agent_identity_certificate(
             valid=False, reason="missing or malformed validity window"
         )
     if now < issued_at:
-        return AgentIdentityValidationResult(
-            valid=False, reason="certificate not yet valid"
-        )
+        return AgentIdentityValidationResult(valid=False, reason="certificate not yet valid")
     if now >= not_after:
-        return AgentIdentityValidationResult(
-            valid=False, reason="certificate expired"
-        )
+        return AgentIdentityValidationResult(valid=False, reason="certificate expired")
 
     principal = certificate.get("principal")
     if not isinstance(principal, dict):
@@ -164,9 +152,7 @@ def validate_agent_identity_certificate(
     principal_id = principal.get("id")
     principal_pk = principal.get("public_key")
     if not isinstance(principal_id, str) or not principal_id:
-        return AgentIdentityValidationResult(
-            valid=False, reason="principal.id missing or empty"
-        )
+        return AgentIdentityValidationResult(valid=False, reason="principal.id missing or empty")
     # §5.2 mandates lowercase hex, and canonical-bundle-v1.1.json pins
     # principal.public_key to ^[0-9a-f]{64}$. Accepting uppercase here would
     # make this validator more permissive than its own schema — a cert the
@@ -189,9 +175,7 @@ def validate_agent_identity_certificate(
     )
 
 
-def _verify_ed25519(
-    *, public_key_hex: str, message: bytes, signature: bytes
-) -> bool:
+def _verify_ed25519(*, public_key_hex: str, message: bytes, signature: bytes) -> bool:
     try:
         from cryptography.hazmat.primitives.asymmetric.ed25519 import (
             Ed25519PublicKey,
@@ -226,4 +210,4 @@ def _parse_rfc3339(value: Any) -> datetime | None:
     # that an independent verifier exists to provide. Reject it outright.
     if parsed.tzinfo is None:
         return None
-    return parsed.astimezone(timezone.utc)
+    return parsed.astimezone(UTC)
