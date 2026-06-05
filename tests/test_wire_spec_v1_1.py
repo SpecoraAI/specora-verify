@@ -66,7 +66,7 @@ class TestForwardCompat:
         assert not has_any_agent_identity(bundle)
 
 
-class TestV1_1Vectors:
+class TestV1_1Vectors:  # noqa: N801  — versioned name (Wire Spec v1.1)
     def test_single_record_with_identity(self, issuer_pubkey_hex, evaluate_at):
         bundle = _load(V11_VECTORS_DIR / "canonical-bundle-with-identity-1.0.0.canonical.json")
         assert has_any_agent_identity(bundle)

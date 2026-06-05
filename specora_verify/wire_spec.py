@@ -69,7 +69,7 @@ class RecordIdentityVerdict:
 
 
 @dataclass
-class BundleV1_1ValidationResult:
+class BundleV1_1ValidationResult:  # noqa: N801  — versioned name (Wire Spec v1.1)
     """Whole-bundle validation outcome.
 
     ``valid=True`` requires every record's identity verdict to be

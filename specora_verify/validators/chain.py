@@ -243,9 +243,9 @@ def _validate_entry_schema(entry: dict[str, Any], index: int) -> list[str]:
         "created_at",
     ]
 
-    for field in required_fields:
-        if field not in entry:
-            errors.append(f"Entry {index}: missing required field '{field}'")
+    for field_name in required_fields:
+        if field_name not in entry:
+            errors.append(f"Entry {index}: missing required field '{field_name}'")
 
     # Validate hash lengths
     if "entry_hash" in entry and len(entry["entry_hash"]) != 64:

@@ -128,7 +128,7 @@ def available_readers() -> list[str]:
     return sorted(READERS)
 
 
-from specora_verify.readers import (
+from specora_verify.readers import (  # noqa: E402
     anthropic,  # noqa: E402,F401  — registers "anthropic"
     azure_cl,  # noqa: E402,F401  — registers "azure-cl"
     cloudtrail,  # noqa: E402,F401  — registers "cloudtrail"

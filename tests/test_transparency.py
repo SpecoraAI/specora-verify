@@ -91,9 +91,11 @@ class TestMonotonicity:
         _seed(log, 3)
         # Synthesize a corrupted entries file with a gap at seq=1.
         path = tmp_path / "2026-05-08" / "entries.ndjson"
-        lines = [json.loads(l) for l in path.read_text().splitlines()]
+        lines = [json.loads(ln) for ln in path.read_text().splitlines()]
         lines[1]["seq"] = 5  # corrupt
-        path.write_text("\n".join(json.dumps(l, separators=(",", ":")) for l in lines) + "\n")
+        path.write_text(
+            "\n".join(json.dumps(ln, separators=(",", ":")) for ln in lines) + "\n"
+        )
         with pytest.raises(AssertionError, match="gap"):
             assert_monotonic_no_gaps(log, "2026-05-08")
 

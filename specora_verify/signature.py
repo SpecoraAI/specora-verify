@@ -36,13 +36,9 @@ if TYPE_CHECKING:
 # Flag to track if cryptography is available
 _CRYPTO_AVAILABLE = False
 try:
-    from cryptography.exceptions import InvalidSignature
+    # Imported only to detect availability; verify_signature/load_public_key
+    # re-import the specific primitives they need locally.
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-    from cryptography.hazmat.primitives.serialization import (
-        Encoding,
-        PublicFormat,
-        load_pem_public_key,
-    )
 
     _CRYPTO_AVAILABLE = True
 except ImportError:

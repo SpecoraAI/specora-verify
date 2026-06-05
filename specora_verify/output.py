@@ -37,6 +37,23 @@ from specora_verify.validators.vectors import VectorVerificationResult
 
 if TYPE_CHECKING:
     from specora_verify.signature import KeyInfo, SignatureVerificationResult
+    from specora_verify.validators.external_anchor import (
+        ExternalAnchorChainResult,
+        ExternalAnchorVerificationResult,
+    )
+    from specora_verify.validators.mirror import (
+        AnchorChainVerificationResult,
+        MirrorVerificationResult,
+    )
+    from specora_verify.validators.registry import (
+        RegistrySnapshot,
+        SnapshotVerificationResult,
+    )
+    from specora_verify.validators.witness import (
+        WitnessQuorumResult,
+        WitnessRegistry,
+        WitnessStatementResult,
+    )
 
 
 DIVIDER = "=" * 60
