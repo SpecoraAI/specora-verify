@@ -20,10 +20,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
     tags: ["v*"]
   pull_request:
-    branches: [main]
+    branches: [main, staging]
 
 permissions:
   contents: read
