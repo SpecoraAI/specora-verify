@@ -56,9 +56,9 @@ LIVE_FIXTURES: list[tuple[str, str]] = [
 def _load_schema() -> dict:
     assert SCHEMA_PATH.exists(), f"schema missing: {SCHEMA_PATH}"
     schema = json.loads(SCHEMA_PATH.read_text())
-    assert schema.get("$schema", "").startswith(
-        "https://json-schema.org/draft/"
-    ), "canonical-bundle schema must declare a JSON Schema draft"
+    assert schema.get("$schema", "").startswith("https://json-schema.org/draft/"), (
+        "canonical-bundle schema must declare a JSON Schema draft"
+    )
     return schema
 
 
@@ -129,15 +129,11 @@ def test_live_reader_output_is_deterministic(provider: str, fixture_rel: str) ->
     reader = get_reader(provider)
     first = reader.read(fixture_path, key_id="specora-bundle-key-v1", strict=False)
     second = reader.read(fixture_path, key_id="specora-bundle-key-v1", strict=False)
-    assert canonical_json_bytes(first.bundle_payload) == canonical_json_bytes(
-        second.bundle_payload
-    )
+    assert canonical_json_bytes(first.bundle_payload) == canonical_json_bytes(second.bundle_payload)
 
 
 @pytest.mark.parametrize("provider,fixture_rel", LIVE_FIXTURES)
-def test_live_reader_content_hash_matches_records(
-    provider: str, fixture_rel: str
-) -> None:
+def test_live_reader_content_hash_matches_records(provider: str, fixture_rel: str) -> None:
     """metadata.content_hash MUST equal sha256(canonical({records: records})).
 
     Derivation is defined in docs/canonical-bundle-schema-v1.0.md §3.2.
@@ -148,12 +144,10 @@ def test_live_reader_content_hash_matches_records(
 
     fixture_path = FIXTURES_DIR / fixture_rel
     reader = get_reader(provider)
-    bundle = reader.read(
-        fixture_path, key_id="specora-bundle-key-v1", strict=False
-    ).bundle_payload
-    recomputed = "sha256:" + hashlib.sha256(
-        canonical_json_bytes({"records": bundle["records"]})
-    ).hexdigest()
+    bundle = reader.read(fixture_path, key_id="specora-bundle-key-v1", strict=False).bundle_payload
+    recomputed = (
+        "sha256:" + hashlib.sha256(canonical_json_bytes({"records": bundle["records"]})).hexdigest()
+    )
     assert bundle["metadata"]["content_hash"] == recomputed
 
 
@@ -164,9 +158,7 @@ def test_live_reader_content_hash_matches_records(
 
 def test_schema_rejects_missing_metadata() -> None:
     validator = _validator()
-    bundle = json.loads(
-        (VECTORS_DIR / GOLDEN_VECTORS[0]).read_text()
-    )
+    bundle = json.loads((VECTORS_DIR / GOLDEN_VECTORS[0]).read_text())
     del bundle["metadata"]
     with pytest.raises(jsonschema.ValidationError):
         validator.validate(bundle)
@@ -174,9 +166,7 @@ def test_schema_rejects_missing_metadata() -> None:
 
 def test_schema_rejects_unknown_decision_outcome() -> None:
     validator = _validator()
-    bundle = json.loads(
-        (VECTORS_DIR / GOLDEN_VECTORS[0]).read_text()
-    )
+    bundle = json.loads((VECTORS_DIR / GOLDEN_VECTORS[0]).read_text())
     bundle["records"][0]["decision"]["outcome"] = "maybe"
     with pytest.raises(jsonschema.ValidationError):
         validator.validate(bundle)
@@ -184,9 +174,7 @@ def test_schema_rejects_unknown_decision_outcome() -> None:
 
 def test_schema_rejects_non_sha256_content_hash() -> None:
     validator = _validator()
-    bundle = json.loads(
-        (VECTORS_DIR / GOLDEN_VECTORS[0]).read_text()
-    )
+    bundle = json.loads((VECTORS_DIR / GOLDEN_VECTORS[0]).read_text())
     bundle["metadata"]["content_hash"] = "md5:abc"
     with pytest.raises(jsonschema.ValidationError):
         validator.validate(bundle)
@@ -194,9 +182,7 @@ def test_schema_rejects_non_sha256_content_hash() -> None:
 
 def test_schema_rejects_bad_timestamp_fractional_seconds() -> None:
     validator = _validator()
-    bundle = json.loads(
-        (VECTORS_DIR / GOLDEN_VECTORS[0]).read_text()
-    )
+    bundle = json.loads((VECTORS_DIR / GOLDEN_VECTORS[0]).read_text())
     bundle["records"][0]["timestamp"] = "2026-06-10T14:22:01.500Z"
     with pytest.raises(jsonschema.ValidationError):
         validator.validate(bundle)
@@ -205,9 +191,7 @@ def test_schema_rejects_bad_timestamp_fractional_seconds() -> None:
 def test_schema_rejects_upstream_signature_mixed_shapes() -> None:
     """upstream_signature MUST be one of two shapes, not a mix."""
     validator = _validator()
-    bundle = json.loads(
-        (VECTORS_DIR / GOLDEN_VECTORS[0]).read_text()
-    )
+    bundle = json.loads((VECTORS_DIR / GOLDEN_VECTORS[0]).read_text())
     bundle["records"][0]["upstream_signature"] = {
         "alg": "ed25519",
         "key_id": "k",

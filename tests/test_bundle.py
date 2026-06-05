@@ -229,7 +229,11 @@ class TestMultipleArtifacts:
             "schema_version": "1.1.0",
             "artifacts": [
                 {"name": "valid.txt", "sha256": sha256_hex(content1), "size_bytes": len(content1)},
-                {"name": "tampered.txt", "sha256": sha256_hex(content2), "size_bytes": len(content2)},
+                {
+                    "name": "tampered.txt",
+                    "sha256": sha256_hex(content2),
+                    "size_bytes": len(content2),
+                },
             ],
         }
 

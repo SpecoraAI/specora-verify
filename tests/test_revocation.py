@@ -21,7 +21,6 @@ from specora_verify.revocation import (
     KEY_STATUS_RETIRED,
     KEY_STATUS_REVOKED,
     KEY_STATUS_UNKNOWN,
-    KeyEntry,
     RevocationList,
     check_key_trust,
     load_revocation_list,
@@ -39,21 +38,21 @@ def sample_revocation_list_data() -> dict:
         "keys": [
             {
                 "derived_key_id": "spk-e1c8139bffc31826",
-                "fingerprint_sha256": "e1c8139bffc31826d0bad3384200ed2be209b29cced8af4221368019e59a3ae0",
+                "fingerprint_sha256": "e1c8139bffc31826d0bad3384200ed2be209b29cced8af4221368019e59a3ae0",  # noqa: E501
                 "status": "active",
                 "status_reason": "current production key",
                 "effective_at": "2026-01-01T00:00:00Z",
             },
             {
                 "derived_key_id": "spk-a1b2c3d4e5f6a7b8",
-                "fingerprint_sha256": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+                "fingerprint_sha256": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",  # noqa: E501
                 "status": "retired",
                 "status_reason": "rotation",
                 "effective_at": "2025-12-01T00:00:00Z",
             },
             {
                 "derived_key_id": "spk-deadbeef12345678",
-                "fingerprint_sha256": "deadbeef12345678abcdef0123456789abcdef0123456789abcdef0123456789",
+                "fingerprint_sha256": "deadbeef12345678abcdef0123456789abcdef0123456789abcdef0123456789",  # noqa: E501
                 "status": "revoked",
                 "status_reason": "compromise",
                 "effective_at": "2025-11-15T00:00:00Z",
@@ -135,9 +134,7 @@ class TestRevocationListParsing:
     def test_key_id_fingerprint_mismatch_fails(self, sample_revocation_list_data: dict):
         """Key ID not matching fingerprint raises error."""
         # Change fingerprint but not key_id
-        sample_revocation_list_data["keys"][0]["fingerprint_sha256"] = (
-            "0000000000000000" + "0" * 48
-        )
+        sample_revocation_list_data["keys"][0]["fingerprint_sha256"] = "0000000000000000" + "0" * 48
 
         with pytest.raises(VerificationError) as exc:
             parse_revocation_list(sample_revocation_list_data)

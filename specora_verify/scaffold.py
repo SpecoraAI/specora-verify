@@ -16,7 +16,7 @@ import json
 import re
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -74,7 +74,8 @@ def _validate_name(name: str) -> list[str]:
     elif not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*$", name):
         errors.append(
             f"Invalid platform name: {name}. "
-            "Must start with alphanumeric and contain only alphanumeric, dots, underscores, hyphens."
+            "Must start with alphanumeric and contain only "
+            "alphanumeric, dots, underscores, hyphens."
         )
     return errors
 
@@ -100,7 +101,7 @@ def _generate_uuid() -> str:
 
 def _iso_timestamp() -> str:
     """Generate ISO8601 UTC timestamp with Z suffix."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _create_meta_json(
@@ -147,10 +148,12 @@ def _get_tier_artifacts(tier: str) -> list[str]:
     ]
 
     if tier in ("enterprise", "regulated"):
-        artifacts.extend([
-            "proofs/anchor-payload.json",
-            "proofs/anchor-receipt.json",
-        ])
+        artifacts.extend(
+            [
+                "proofs/anchor-payload.json",
+                "proofs/anchor-receipt.json",
+            ]
+        )
 
     if tier == "regulated":
         artifacts.append("optional/tla-summary.json")
@@ -305,7 +308,7 @@ Copy `ci/specora-governance.yml` to `.github/workflows/` in your repository.
 
 - [ ] `proofs/proof-manifest.json` - Updated with real data
 - [ ] `proofs/attestation-manifest.json` - Updated with real data
-- [ ] `verification/specora-verify-output.json` - Run `specora-verify vectors verify --format json > verification/specora-verify-output.json`
+- [ ] `verification/specora-verify-output.json` - `specora-verify vectors verify --format json`
 - [ ] `ci/badges.json` - Updated with real badge URL
 - [ ] `policy/baseline-policy.json` - Review and adjust policies
 """
@@ -325,7 +328,7 @@ Copy `ci/specora-governance.yml` to `.github/workflows/` in your repository.
 - [ ] `optional/tla-summary.json` - Generated from TLA+ CI
 """
 
-    instructions += f"""
+    instructions += """
 ## Documentation
 
 - Certification Program: https://specora.ai/proof/certification
@@ -388,8 +391,7 @@ def generate_scaffold(
     if output_dir.exists() and not force:
         result.success = False
         result.errors.append(
-            f"Output directory already exists: {output_dir}. "
-            "Use --force to overwrite."
+            f"Output directory already exists: {output_dir}. Use --force to overwrite."
         )
         return result
 
@@ -431,7 +433,9 @@ def generate_scaffold(
         # Create attestation-manifest.json
         attestation_manifest_path = output_dir / "proofs" / "attestation-manifest.json"
         attestation_manifest = _create_attestation_manifest_template(manifest_id, org_id, timestamp)
-        attestation_manifest_path.write_text(json.dumps(attestation_manifest, indent=2), encoding="utf-8")
+        attestation_manifest_path.write_text(
+            json.dumps(attestation_manifest, indent=2), encoding="utf-8"
+        )
         result.files_created.append("proofs/attestation-manifest.json")
 
         # Create verification output placeholder
@@ -515,9 +519,7 @@ def generate_scaffold(
         result.warnings.append(
             "Replace placeholder values in proof manifests with your actual data."
         )
-        result.warnings.append(
-            "Update ci/badges.json with your actual CI badge URL."
-        )
+        result.warnings.append("Update ci/badges.json with your actual CI badge URL.")
 
     except OSError as e:
         result.success = False

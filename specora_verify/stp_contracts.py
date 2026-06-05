@@ -9,8 +9,6 @@ These values are the normative reference from Specora Wire Spec v1.0 Annex E.
 
 from __future__ import annotations
 
-from typing import Dict, List, Set
-
 # =============================================================================
 # Protocol Constants (Frozen)
 # =============================================================================
@@ -29,14 +27,14 @@ STP_NAMESPACE = "57700000-5770-4570-8d1a-570000000700"
 # Message Types (4 values)
 # =============================================================================
 
-STP_MESSAGE_TYPES: List[str] = [
+STP_MESSAGE_TYPES: list[str] = [
     "agent.identity",
     "execution.authorize",
     "execution.record",
     "execution.attest",
 ]
 
-STP_RESPONSE_TYPES: List[str] = [
+STP_RESPONSE_TYPES: list[str] = [
     "agent.identity.response",
     "execution.authorize.response",
     "execution.record.response",
@@ -48,7 +46,7 @@ STP_RESPONSE_TYPES: List[str] = [
 # Decisions (4 values)
 # =============================================================================
 
-STP_DECISIONS: List[str] = [
+STP_DECISIONS: list[str] = [
     "allow",
     "block",
     "require_approval",
@@ -60,7 +58,7 @@ STP_DECISIONS: List[str] = [
 # Runtime Types (10 values)
 # =============================================================================
 
-STP_RUNTIME_TYPES: List[str] = [
+STP_RUNTIME_TYPES: list[str] = [
     # Coding Tools
     "cursor",
     "aider",
@@ -82,7 +80,7 @@ STP_RUNTIME_TYPES: List[str] = [
 # Capabilities (12 values)
 # =============================================================================
 
-STP_CAPABILITIES: List[str] = [
+STP_CAPABILITIES: list[str] = [
     # Read Operations
     "read_documents",
     "read_code",
@@ -107,7 +105,7 @@ STP_CAPABILITIES: List[str] = [
 # Action Types (15 values)
 # =============================================================================
 
-STP_ACTION_TYPES: List[str] = [
+STP_ACTION_TYPES: list[str] = [
     # Code Operations
     "code_read",
     "code_edit",
@@ -130,7 +128,7 @@ STP_ACTION_TYPES: List[str] = [
     "human_approval_request",
 ]
 
-STP_NON_LLM_ACTION_TYPES: Set[str] = {
+STP_NON_LLM_ACTION_TYPES: set[str] = {
     "deploy_service",
     "database_operation",
     "document_access",
@@ -145,7 +143,7 @@ STP_NON_LLM_ACTION_TYPES: Set[str] = {
 # Execution Status (5 values)
 # =============================================================================
 
-STP_EXECUTION_STATUSES: List[str] = [
+STP_EXECUTION_STATUSES: list[str] = [
     "success",
     "failure",
     "timeout",
@@ -158,7 +156,7 @@ STP_EXECUTION_STATUSES: List[str] = [
 # Attestation Status (4 values)
 # =============================================================================
 
-STP_ATTESTATION_STATUSES: List[str] = [
+STP_ATTESTATION_STATUSES: list[str] = [
     "pending",
     "signed",
     "verified",
@@ -170,7 +168,7 @@ STP_ATTESTATION_STATUSES: List[str] = [
 # Backend Types (6 values) - PLATFORM-460
 # =============================================================================
 
-STP_BACKEND_TYPES: List[str] = [
+STP_BACKEND_TYPES: list[str] = [
     "llm",
     "local_model",
     "fine_tuned",
@@ -179,7 +177,7 @@ STP_BACKEND_TYPES: List[str] = [
     "human_operator",
 ]
 
-STP_NON_LLM_BACKEND_TYPES: Set[str] = {
+STP_NON_LLM_BACKEND_TYPES: set[str] = {
     "tool_api",
     "workflow_engine",
     "human_operator",
@@ -191,7 +189,7 @@ STP_NON_LLM_BACKEND_TYPES: Set[str] = {
 # =============================================================================
 
 # Required fields by message type
-STP_REQUIRED_FIELDS: Dict[str, List[str]] = {
+STP_REQUIRED_FIELDS: dict[str, list[str]] = {
     "agent.identity": [
         "protocol_version",
         "message_type",
@@ -243,7 +241,7 @@ STP_REQUIRED_FIELDS: Dict[str, List[str]] = {
 }
 
 # Payload required fields by message type
-STP_PAYLOAD_REQUIRED_FIELDS: Dict[str, List[str]] = {
+STP_PAYLOAD_REQUIRED_FIELDS: dict[str, list[str]] = {
     "agent.identity": [
         "agent_name",
         "runtime",
@@ -262,7 +260,7 @@ STP_PAYLOAD_REQUIRED_FIELDS: Dict[str, List[str]] = {
 }
 
 # Result required fields by message type
-STP_RESULT_REQUIRED_FIELDS: Dict[str, List[str]] = {
+STP_RESULT_REQUIRED_FIELDS: dict[str, list[str]] = {
     "agent.identity.response": [
         "agent_identity_id",
         "trust_tier",
@@ -284,6 +282,7 @@ STP_RESULT_REQUIRED_FIELDS: Dict[str, List[str]] = {
 # =============================================================================
 # Cardinality Validation
 # =============================================================================
+
 
 def get_total_enum_cardinality() -> int:
     """Get total cardinality of all STP enums.
@@ -317,9 +316,7 @@ def validate_enum_cardinality() -> bool:
     """
     total = get_total_enum_cardinality()
     max_cardinality = 100
-    assert total < max_cardinality, (
-        f"STP enum cardinality {total} exceeds limit {max_cardinality}"
-    )
+    assert total < max_cardinality, f"STP enum cardinality {total} exceeds limit {max_cardinality}"
     return True
 
 

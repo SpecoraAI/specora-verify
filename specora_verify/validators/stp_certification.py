@@ -13,19 +13,21 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from datetime import UTC
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from specora_verify.canonical import canonical_json_bytes
 from specora_verify.hash import sha256_hex
 from specora_verify.stp_contracts import STP_PROTOCOL_VERSION
 
-
 # =============================================================================
 # Default vectors directory
 # =============================================================================
 
-DEFAULT_STP_CERTIFICATION_VECTORS_DIR = Path(__file__).parent.parent.parent / "vectors" / "stp-certification"
+DEFAULT_STP_CERTIFICATION_VECTORS_DIR = (
+    Path(__file__).parent.parent.parent / "vectors" / "stp-certification"
+)
 
 
 # =============================================================================
@@ -35,7 +37,7 @@ DEFAULT_STP_CERTIFICATION_VECTORS_DIR = Path(__file__).parent.parent.parent / "v
 STP_CERTIFICATION_TIERS = ["compatible", "governed", "enterprise"]
 
 # Tier requirement IDs
-STP_TIER_REQUIREMENTS: Dict[str, List[str]] = {
+STP_TIER_REQUIREMENTS: dict[str, list[str]] = {
     "compatible": [
         # Core STP Implementation
         "STP-REQ-101",  # Implements agent.identity message
@@ -51,9 +53,16 @@ STP_TIER_REQUIREMENTS: Dict[str, List[str]] = {
     ],
     "governed": [
         # All compatible requirements
-        "STP-REQ-101", "STP-REQ-102", "STP-REQ-103", "STP-REQ-104",
-        "STP-REQ-105", "STP-REQ-106", "STP-REQ-107", "STP-REQ-108",
-        "STP-REQ-109", "STP-REQ-110",
+        "STP-REQ-101",
+        "STP-REQ-102",
+        "STP-REQ-103",
+        "STP-REQ-104",
+        "STP-REQ-105",
+        "STP-REQ-106",
+        "STP-REQ-107",
+        "STP-REQ-108",
+        "STP-REQ-109",
+        "STP-REQ-110",
         # Governed additions
         "STP-REQ-201",  # Implements execution.attest message
         "STP-REQ-202",  # Policy discovery support (GET /api/v1/stp/policies)
@@ -64,11 +73,22 @@ STP_TIER_REQUIREMENTS: Dict[str, List[str]] = {
     ],
     "enterprise": [
         # All governed requirements
-        "STP-REQ-101", "STP-REQ-102", "STP-REQ-103", "STP-REQ-104",
-        "STP-REQ-105", "STP-REQ-106", "STP-REQ-107", "STP-REQ-108",
-        "STP-REQ-109", "STP-REQ-110",
-        "STP-REQ-201", "STP-REQ-202", "STP-REQ-203", "STP-REQ-204",
-        "STP-REQ-205", "STP-REQ-206",
+        "STP-REQ-101",
+        "STP-REQ-102",
+        "STP-REQ-103",
+        "STP-REQ-104",
+        "STP-REQ-105",
+        "STP-REQ-106",
+        "STP-REQ-107",
+        "STP-REQ-108",
+        "STP-REQ-109",
+        "STP-REQ-110",
+        "STP-REQ-201",
+        "STP-REQ-202",
+        "STP-REQ-203",
+        "STP-REQ-204",
+        "STP-REQ-205",
+        "STP-REQ-206",
         # Enterprise additions
         "STP-REQ-301",  # Evidence export to Evidence Ledger (CTRL-640)
         "STP-REQ-302",  # SIEM streaming integration
@@ -80,7 +100,7 @@ STP_TIER_REQUIREMENTS: Dict[str, List[str]] = {
 }
 
 # Required artifacts by tier
-STP_TIER_ARTIFACTS: Dict[str, List[str]] = {
+STP_TIER_ARTIFACTS: dict[str, list[str]] = {
     "compatible": [
         "meta.json",
         "samples/agent-identity-request.json",
@@ -138,14 +158,14 @@ class STPCertificationCheckResult:
     bundle_path: str
     adapter_name: str = ""
     adapter_version: str = ""
-    artifacts_found: List[str] = field(default_factory=list)
-    artifacts_missing: List[str] = field(default_factory=list)
-    requirements_met: List[str] = field(default_factory=list)
-    requirements_missing: List[str] = field(default_factory=list)
-    verification_results: Dict[str, Any] = field(default_factory=dict)
-    errors: List[str] = field(default_factory=list)
+    artifacts_found: list[str] = field(default_factory=list)
+    artifacts_missing: list[str] = field(default_factory=list)
+    requirements_met: list[str] = field(default_factory=list)
+    requirements_missing: list[str] = field(default_factory=list)
+    verification_results: dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "valid": self.valid,
             "tier": self.tier,
@@ -166,17 +186,17 @@ class STPCertificationAttestationResult:
     """Result of STP attestation validation."""
 
     valid: bool
-    spec_id: Optional[str] = None
-    schema_version: Optional[str] = None
-    tier: Optional[str] = None
-    adapter_name: Optional[str] = None
-    adapter_version: Optional[str] = None
-    computed_hash: Optional[str] = None
-    expected_hash: Optional[str] = None
-    signature_valid: Optional[bool] = None
-    errors: List[str] = field(default_factory=list)
+    spec_id: str | None = None
+    schema_version: str | None = None
+    tier: str | None = None
+    adapter_name: str | None = None
+    adapter_version: str | None = None
+    computed_hash: str | None = None
+    expected_hash: str | None = None
+    signature_valid: bool | None = None
+    errors: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "valid": self.valid,
             "spec_id": self.spec_id,
@@ -202,13 +222,13 @@ class STPCertificationVectorResult:
     hash_match: bool
     computed_hash: str
     expected_hash: str
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     @property
     def valid(self) -> bool:
         return self.bytes_match and self.hash_match
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "spec_id": self.spec_id,
             "version": self.version,
@@ -231,10 +251,10 @@ class STPCertificationVectorVerificationResult:
     total: int
     passed: int
     failed: int
-    results: List[STPCertificationVectorResult] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
+    results: list[STPCertificationVectorResult] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "valid": self.valid,
             "vectors_dir": self.vectors_dir,
@@ -273,7 +293,7 @@ def generate_stp_certification_scaffold(
         STPCertificationCheckResult with generation details
     """
     import shutil
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     result = STPCertificationCheckResult(
         valid=True,
@@ -314,7 +334,7 @@ def generate_stp_certification_scaffold(
         result.errors.append(f"Failed to create directories: {e}")
         return result
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     # Generate meta.json
     meta = {
@@ -340,7 +360,7 @@ def generate_stp_certification_scaffold(
         result.artifacts_found.append(f"samples/{filename}")
 
     # Generate placeholder verification output
-    verification = {
+    verification: dict[str, Any] = {
         "status": "pending",
         "tier": tier,
         "adapter_name": adapter_name,
@@ -400,9 +420,9 @@ def _generate_sample_messages(
     tier: str,
     adapter_name: str,
     timestamp: str,
-) -> Dict[str, Dict[str, Any]]:
+) -> dict[str, dict[str, Any]]:
     """Generate sample STP messages for certification bundle."""
-    samples: Dict[str, Dict[str, Any]] = {}
+    samples: dict[str, dict[str, Any]] = {}
 
     # agent.identity request/response
     samples["agent-identity-request.json"] = {
@@ -606,9 +626,7 @@ def check_stp_certification_bundle(
 
     if result.artifacts_missing:
         result.valid = False
-        result.errors.append(
-            f"Missing required artifacts: {', '.join(result.artifacts_missing)}"
-        )
+        result.errors.append(f"Missing required artifacts: {', '.join(result.artifacts_missing)}")
 
     # Load and verify meta.json
     meta_path = bundle_path / "meta.json"
@@ -637,9 +655,7 @@ def check_stp_certification_bundle(
     # Verify sample messages
     samples_dir = bundle_path / "samples"
     if samples_dir.exists():
-        result.verification_results["samples"] = _verify_sample_messages(
-            samples_dir, tier
-        )
+        result.verification_results["samples"] = _verify_sample_messages(samples_dir, tier)
         if not result.verification_results["samples"].get("valid", False):
             result.valid = False
 
@@ -696,11 +712,11 @@ def check_stp_certification_bundle(
 def _verify_sample_messages(
     samples_dir: Path,
     tier: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Verify sample STP messages in a certification bundle."""
     from specora_verify.validators.stp import validate_stp_message
 
-    results = {"valid": True, "messages": []}
+    results: dict[str, Any] = {"valid": True, "messages": []}
 
     expected_files = [
         "agent-identity-request.json",
@@ -712,40 +728,48 @@ def _verify_sample_messages(
     ]
 
     if tier in ("governed", "enterprise"):
-        expected_files.extend([
-            "execution-attest-request.json",
-            "execution-attest-response.json",
-            "attestation-bundle.json",
-        ])
+        expected_files.extend(
+            [
+                "execution-attest-request.json",
+                "execution-attest-response.json",
+                "attestation-bundle.json",
+            ]
+        )
 
     for filename in expected_files:
         filepath = samples_dir / filename
         if not filepath.exists():
-            results["messages"].append({
-                "file": filename,
-                "valid": False,
-                "error": "File not found",
-            })
+            results["messages"].append(
+                {
+                    "file": filename,
+                    "valid": False,
+                    "error": "File not found",
+                }
+            )
             results["valid"] = False
             continue
 
         try:
             payload = json.loads(filepath.read_text(encoding="utf-8"))
             verify_result = validate_stp_message(payload)
-            results["messages"].append({
-                "file": filename,
-                "valid": verify_result.valid,
-                "message_type": verify_result.message_type,
-                "errors": verify_result.errors,
-            })
+            results["messages"].append(
+                {
+                    "file": filename,
+                    "valid": verify_result.valid,
+                    "message_type": verify_result.message_type,
+                    "errors": verify_result.errors,
+                }
+            )
             if not verify_result.valid:
                 results["valid"] = False
         except json.JSONDecodeError as e:
-            results["messages"].append({
-                "file": filename,
-                "valid": False,
-                "error": str(e),
-            })
+            results["messages"].append(
+                {
+                    "file": filename,
+                    "valid": False,
+                    "error": str(e),
+                }
+            )
             results["valid"] = False
 
     return results
@@ -785,7 +809,7 @@ def generate_stp_certification_attestation(
     issued_at: str,
     issuer_key_id: str = "specora-root-key",
     proof_surface_url: str = "https://specora.ai/proof",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate an STP certification attestation for a bundle.
 
     Args:
@@ -802,7 +826,7 @@ def generate_stp_certification_attestation(
     check_result = check_stp_certification_bundle(bundle_path, tier)
 
     # Compute evidence hashes
-    evidence_hashes: Dict[str, str] = {}
+    evidence_hashes: dict[str, str] = {}
 
     meta_path = bundle_path / "meta.json"
     if meta_path.exists():
@@ -828,7 +852,7 @@ def generate_stp_certification_attestation(
     bundle_root_hash = sha256_hex(canonical_json_bytes(bundle_content))
 
     # Build attestation
-    attestation: Dict[str, Any] = {
+    attestation: dict[str, Any] = {
         "spec_id": "stp-certification-attestation",
         "schema_version": "1.0.0",
         "protocol_version": STP_PROTOCOL_VERSION,
@@ -850,9 +874,9 @@ def generate_stp_certification_attestation(
 
 
 def validate_stp_certification_attestation(
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     *,
-    expected_hash: Optional[str] = None,
+    expected_hash: str | None = None,
 ) -> STPCertificationAttestationResult:
     """Validate STP certification attestation structure and optionally hash.
 
@@ -863,14 +887,12 @@ def validate_stp_certification_attestation(
     Returns:
         STPCertificationAttestationResult with validation details
     """
-    errors: List[str] = []
+    errors: list[str] = []
 
     # Check spec_id
     spec_id = payload.get("spec_id")
     if spec_id != "stp-certification-attestation":
-        errors.append(
-            f"Invalid spec_id: expected 'stp-certification-attestation', got '{spec_id}'"
-        )
+        errors.append(f"Invalid spec_id: expected 'stp-certification-attestation', got '{spec_id}'")
 
     # Check schema_version
     schema_version = payload.get("schema_version")
@@ -884,9 +906,18 @@ def validate_stp_certification_attestation(
 
     # Check required fields
     required_fields = [
-        "spec_id", "schema_version", "protocol_version", "issued_at", "tier",
-        "adapter", "bundle_root_hash", "evidence_hashes", "proof_surface_url",
-        "issuer_key_id", "requirements_met", "requirements_missing",
+        "spec_id",
+        "schema_version",
+        "protocol_version",
+        "issued_at",
+        "tier",
+        "adapter",
+        "bundle_root_hash",
+        "evidence_hashes",
+        "proof_surface_url",
+        "issuer_key_id",
+        "requirements_met",
+        "requirements_missing",
     ]
     for field_name in required_fields:
         if field_name not in payload:
@@ -933,9 +964,9 @@ def _load_stp_certification_vector_files(
     spec_id: str,
     version: str,
     tier: str,
-) -> tuple[Dict[str, Any] | None, bytes | None, str | None, List[str]]:
+) -> tuple[dict[str, Any] | None, bytes | None, str | None, list[str]]:
     """Load the three vector files for an STP certification spec."""
-    errors: List[str] = []
+    errors: list[str] = []
 
     tier_dir = vectors_dir / tier
     json_file = tier_dir / f"{spec_id}-{version}.json"
@@ -973,16 +1004,11 @@ def verify_single_stp_certification_vector(
     tier: str,
 ) -> STPCertificationVectorResult:
     """Verify a single STP certification golden vector."""
-    payload, expected_bytes, expected_hash, load_errors = (
-        _load_stp_certification_vector_files(vectors_dir, spec_id, version, tier)
+    payload, expected_bytes, expected_hash, load_errors = _load_stp_certification_vector_files(
+        vectors_dir, spec_id, version, tier
     )
 
-    if (
-        load_errors
-        or payload is None
-        or expected_bytes is None
-        or expected_hash is None
-    ):
+    if load_errors or payload is None or expected_bytes is None or expected_hash is None:
         return STPCertificationVectorResult(
             spec_id=spec_id,
             version=version,
@@ -1000,7 +1026,7 @@ def verify_single_stp_certification_vector(
     bytes_match = computed_bytes == expected_bytes
     hash_match = computed_hash == expected_hash
 
-    errors: List[str] = []
+    errors: list[str] = []
     if not bytes_match:
         errors.append(
             f"Canonical bytes mismatch for {spec_id} v{version} ({tier}). "
@@ -1025,7 +1051,7 @@ def verify_single_stp_certification_vector(
 
 
 def verify_stp_certification_vectors(
-    vectors_dir: Optional[Path | str] = None,
+    vectors_dir: Path | str | None = None,
 ) -> STPCertificationVectorVerificationResult:
     """Verify all STP certification golden vectors.
 
@@ -1050,9 +1076,7 @@ def verify_stp_certification_vectors(
 
     if not vectors_dir.exists():
         result.valid = False
-        result.errors.append(
-            f"STP certification vectors directory not found: {vectors_dir}"
-        )
+        result.errors.append(f"STP certification vectors directory not found: {vectors_dir}")
         return result
 
     # Known certification vectors to verify by tier
@@ -1063,9 +1087,7 @@ def verify_stp_certification_vectors(
     ]
 
     for spec_id, version, tier in known_vectors:
-        vector_result = verify_single_stp_certification_vector(
-            vectors_dir, spec_id, version, tier
-        )
+        vector_result = verify_single_stp_certification_vector(vectors_dir, spec_id, version, tier)
         result.results.append(vector_result)
         result.total += 1
 

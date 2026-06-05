@@ -25,9 +25,10 @@ invariant, enforced by hypothesis property tests).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 __all__ = [
     "READERS",
@@ -57,7 +58,7 @@ class ReadResult:
     provider: str
     schema_version: str
     record_count: int
-    bundle_payload: dict
+    bundle_payload: dict[str, Any]
     upstream_key_id: str | None = None
     warnings: tuple[str, ...] = field(default_factory=tuple)
 
@@ -78,8 +79,7 @@ class ReaderProtocol(Protocol):
         public_key_path: Path | None = None,
         schema_version: str | None = None,
         strict: bool = True,
-    ) -> ReadResult:
-        ...
+    ) -> ReadResult: ...
 
 
 READERS: dict[str, ReaderProtocol] = {}
@@ -118,8 +118,7 @@ def get_reader(name: str) -> ReaderProtocol:
     """Return the registered reader for `name`, raising KeyError if absent."""
     if name not in READERS:
         raise KeyError(
-            f"No reader registered for provider '{name}'. "
-            f"Available readers: {sorted(READERS)}"
+            f"No reader registered for provider '{name}'. Available readers: {sorted(READERS)}"
         )
     return READERS[name]
 
@@ -129,8 +128,10 @@ def available_readers() -> list[str]:
     return sorted(READERS)
 
 
-from specora_verify.readers import anthropic  # noqa: E402,F401  — registers "anthropic"
-from specora_verify.readers import azure_cl  # noqa: E402,F401  — registers "azure-cl"
-from specora_verify.readers import cloudtrail  # noqa: E402,F401  — registers "cloudtrail"
-from specora_verify.readers import langsmith  # noqa: E402,F401  — registers "langsmith"
-from specora_verify.readers import openai_compliance  # noqa: E402,F401  — registers "openai"
+from specora_verify.readers import (  # noqa: E402
+    anthropic,  # noqa: E402,F401  — registers "anthropic"
+    azure_cl,  # noqa: E402,F401  — registers "azure-cl"
+    cloudtrail,  # noqa: E402,F401  — registers "cloudtrail"
+    langsmith,  # noqa: E402,F401  — registers "langsmith"
+    openai_compliance,  # noqa: E402,F401  — registers "openai"
+)

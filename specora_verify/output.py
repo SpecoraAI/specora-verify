@@ -10,14 +10,17 @@ from typing import TYPE_CHECKING, Any
 
 from specora_verify.validators.anchor import AnchorValidationResult, AnchorVectorVerificationResult
 from specora_verify.validators.bundle import BundleVerificationResult
-from specora_verify.validators.chain import ChainVerificationResult
 from specora_verify.validators.certification import (
     CertificationAttestationResult,
     CertificationCheckResult,
     CertificationVectorVerificationResult,
 )
+from specora_verify.validators.chain import ChainVerificationResult
 from specora_verify.validators.manifest import ManifestValidationResult
-from specora_verify.validators.receipt import ReceiptValidationResult, ReceiptVectorVerificationResult
+from specora_verify.validators.receipt import (
+    ReceiptValidationResult,
+    ReceiptVectorVerificationResult,
+)
 from specora_verify.validators.stp import (
     STPInitResult,
     STPInspectResult,
@@ -34,6 +37,26 @@ from specora_verify.validators.vectors import VectorVerificationResult
 
 if TYPE_CHECKING:
     from specora_verify.signature import KeyInfo, SignatureVerificationResult
+    from specora_verify.validators.external_anchor import (
+        ExternalAnchorChainResult,
+        ExternalAnchorVerificationResult,
+    )
+    from specora_verify.validators.mirror import (
+        AnchorChainVerificationResult,
+        MirrorVerificationResult,
+    )
+    from specora_verify.validators.registry import (
+        ChainVerificationResult as RegistryChainVerificationResult,
+    )
+    from specora_verify.validators.registry import (
+        RegistrySnapshot,
+        SnapshotVerificationResult,
+    )
+    from specora_verify.validators.witness import (
+        WitnessQuorumResult,
+        WitnessRegistry,
+        WitnessStatementResult,
+    )
 
 
 DIVIDER = "=" * 60
@@ -411,7 +434,7 @@ def format_receipt_vectors_result(
 
 
 def format_signature_result(
-    result: "SignatureVerificationResult",
+    result: SignatureVerificationResult,
     *,
     output_format: str = "text",
     file_path: str = "",
@@ -461,7 +484,10 @@ def format_signature_result(
     if trust_result:
         lines.append("")
         lines.append("Key Trust:")
-        lines.append(f"  Revocation List: {'provided' if trust_result.revocation_list_provided else 'not provided'}")
+        lines.append(
+            f"  Revocation List: "
+            f"{'provided' if trust_result.revocation_list_provided else 'not provided'}"
+        )
         lines.append(f"  Key Status:      {trust_result.key_status}")
         if trust_result.warning:
             lines.append(f"  Warning:         {trust_result.warning}")
@@ -479,7 +505,7 @@ def format_signature_result(
 
 
 def format_key_info(
-    info: "KeyInfo",
+    info: KeyInfo,
     *,
     output_format: str = "text",
     file_path: str = "",
@@ -751,7 +777,7 @@ def format_chain_result(
 
 
 def format_external_anchor_result(
-    result: "ExternalAnchorVerificationResult",
+    result: ExternalAnchorVerificationResult,
     *,
     output_format: str = "text",
     file_path: str = "",
@@ -767,7 +793,6 @@ def format_external_anchor_result(
         Formatted string output
     """
     # Import here to avoid circular imports
-    from specora_verify.validators.external_anchor import ExternalAnchorVerificationResult
 
     if output_format == "json":
         data = result.to_dict()
@@ -780,8 +805,12 @@ def format_external_anchor_result(
         DIVIDER,
         f"File:           {file_path}",
         f"Chain Index:    {result.chain_head_index}",
-        f"Anchor Hash:    {result.anchor_hash[:16]}..." if result.anchor_hash else "Anchor Hash:    N/A",
-        f"Previous Hash:  {result.previous_anchor_hash[:16]}..." if result.previous_anchor_hash else "Previous Hash:  N/A",
+        f"Anchor Hash:    {result.anchor_hash[:16]}..."
+        if result.anchor_hash
+        else "Anchor Hash:    N/A",
+        f"Previous Hash:  {result.previous_anchor_hash[:16]}..."
+        if result.previous_anchor_hash
+        else "Previous Hash:  N/A",
     ]
 
     lines.append(f"Hash Valid:     {'YES' if result.hash_valid else 'NO'}")
@@ -808,7 +837,7 @@ def format_external_anchor_result(
 
 
 def format_external_anchor_chain_result(
-    result: "ExternalAnchorChainResult",
+    result: ExternalAnchorChainResult,
     *,
     output_format: str = "text",
     directory_path: str = "",
@@ -824,7 +853,6 @@ def format_external_anchor_chain_result(
         Formatted string output
     """
     # Import here to avoid circular imports
-    from specora_verify.validators.external_anchor import ExternalAnchorChainResult
 
     if output_format == "json":
         data = result.to_dict()
@@ -863,7 +891,7 @@ def format_external_anchor_chain_result(
 
 
 def format_mirror_result(
-    result: "MirrorVerificationResult",
+    result: MirrorVerificationResult,
     *,
     output_format: str = "text",
 ) -> str:
@@ -877,7 +905,7 @@ def format_mirror_result(
         Formatted string output
     """
     # Import here to avoid circular imports
-    from specora_verify.validators.mirror import MirrorStatus, MirrorVerificationResult
+    from specora_verify.validators.mirror import MirrorStatus
 
     if output_format == "json":
         return json.dumps(result.to_dict(), indent=2)
@@ -910,7 +938,7 @@ def format_mirror_result(
         lines.append(f"Chain Index:        {result.consensus_chain_index}")
 
     if result.hash_mismatch_detected:
-        lines.append(f"Hash Mismatch:      YES (INV-ANCHOR-009 violation)")
+        lines.append("Hash Mismatch:      YES (INV-ANCHOR-009 violation)")
         if result.mismatched_sources:
             lines.append(f"Mismatched Sources: {', '.join(result.mismatched_sources)}")
 
@@ -948,7 +976,7 @@ def format_mirror_result(
 
 
 def format_anchor_chain_result(
-    result: "AnchorChainVerificationResult",
+    result: AnchorChainVerificationResult,
     *,
     output_format: str = "text",
 ) -> str:
@@ -962,7 +990,7 @@ def format_anchor_chain_result(
         Formatted string output
     """
     # Import here to avoid circular imports
-    from specora_verify.validators.mirror import AnchorChainVerificationResult, MirrorStatus
+    from specora_verify.validators.mirror import MirrorStatus
 
     if output_format == "json":
         return json.dumps(result.to_dict(), indent=2)
@@ -987,7 +1015,9 @@ def format_anchor_chain_result(
         lines.append(f"Index Range:        {result.first_index} - {result.last_index}")
 
     lines.append(f"Chain Linkage:      {'VALID' if result.chain_linkage_valid else 'BROKEN'}")
-    lines.append(f"Cross-Surface:      {'CONSISTENT' if result.cross_surface_consistent else 'MISMATCH'}")
+    lines.append(
+        f"Cross-Surface:      {'CONSISTENT' if result.cross_surface_consistent else 'MISMATCH'}"
+    )
 
     if result.mismatched_indices:
         lines.append(f"Mismatched At:      {result.mismatched_indices}")
@@ -1002,7 +1032,9 @@ def format_anchor_chain_result(
         lines.append("")
         lines.append("Anchor Details:")
         for detail in result.anchor_details[:10]:
-            status_mark = "OK" if detail.cross_surface_match and detail.chain_linkage_valid else "FAIL"
+            status_mark = (
+                "OK" if detail.cross_surface_match and detail.chain_linkage_valid else "FAIL"
+            )
             hash_str = f"{detail.anchor_hash[:16]}..." if detail.anchor_hash else "N/A"
             lines.append(f"  [{status_mark}] #{detail.chain_index}: {hash_str}")
             if detail.errors:
@@ -1033,7 +1065,7 @@ def format_anchor_chain_result(
 
 
 def format_witness_statement_result(
-    result: "WitnessStatementResult",
+    result: WitnessStatementResult,
     *,
     output_format: str = "text",
     file_path: str = "",
@@ -1048,7 +1080,6 @@ def format_witness_statement_result(
     Returns:
         Formatted string
     """
-    from specora_verify.validators.witness import WitnessStatementResult
 
     if output_format == "json":
         output = result.to_dict()
@@ -1097,7 +1128,7 @@ def format_witness_statement_result(
 
 
 def format_witness_quorum_result(
-    result: "WitnessQuorumResult",
+    result: WitnessQuorumResult,
     *,
     output_format: str = "text",
 ) -> str:
@@ -1110,7 +1141,7 @@ def format_witness_quorum_result(
     Returns:
         Formatted string
     """
-    from specora_verify.validators.witness import WitnessQuorumResult, WitnessVerificationStatus
+    from specora_verify.validators.witness import WitnessVerificationStatus
 
     if output_format == "json":
         return json.dumps(result.to_dict(), indent=2, sort_keys=True)
@@ -1147,9 +1178,14 @@ def format_witness_quorum_result(
         for org_id, stmt_result in result.statement_results.items():
             status_mark = "VALID" if stmt_result.valid else "INVALID"
             sig_status = "valid" if stmt_result.signature_valid else "invalid"
-            witness_status = stmt_result.witness_status.value if stmt_result.witness_status else "unknown"
+            witness_status = (
+                stmt_result.witness_status.value if stmt_result.witness_status else "unknown"
+            )
             lines.append(f"  [{status_mark}] {org_id}")
-            lines.append(f"         Verification: {stmt_result.verification_result} | Signature: {sig_status} | Status: {witness_status}")
+            lines.append(
+                f"         Verification: {stmt_result.verification_result} "
+                f"| Signature: {sig_status} | Status: {witness_status}"
+            )
             if stmt_result.errors:
                 for err in stmt_result.errors:
                     lines.append(f"         Error: {err}")
@@ -1175,7 +1211,7 @@ def format_witness_quorum_result(
 
 
 def format_witness_registry_info(
-    registry: "WitnessRegistry",
+    registry: WitnessRegistry,
     *,
     output_format: str = "text",
 ) -> str:
@@ -1188,7 +1224,7 @@ def format_witness_registry_info(
     Returns:
         Formatted string
     """
-    from specora_verify.validators.witness import WitnessRegistry, WitnessStatus
+    from specora_verify.validators.witness import WitnessStatus
 
     if output_format == "json":
         return json.dumps(registry.to_dict(), indent=2, sort_keys=True)
@@ -1233,7 +1269,7 @@ def format_witness_registry_info(
 
 
 def format_registry_snapshot_result(
-    result: "SnapshotVerificationResult",
+    result: SnapshotVerificationResult,
     *,
     output_format: str = "text",
     file_path: str = "",
@@ -1248,7 +1284,6 @@ def format_registry_snapshot_result(
     Returns:
         Formatted string
     """
-    from specora_verify.validators.registry import SnapshotVerificationResult
 
     if output_format == "json":
         data = result.to_dict()
@@ -1267,15 +1302,20 @@ def format_registry_snapshot_result(
     if result.generated_at:
         lines.append(f"Generated:          {result.generated_at}")
     if result.registry_hash:
-        lines.append(f"Registry Hash:      {result.registry_hash[:16]}...{result.registry_hash[-8:]}")
+        lines.append(
+            f"Registry Hash:      {result.registry_hash[:16]}...{result.registry_hash[-8:]}"
+        )
     if result.previous_registry_hash:
         if result.is_genesis:
-            lines.append(f"Previous Hash:      (genesis)")
+            lines.append("Previous Hash:      (genesis)")
         else:
             lines.append(f"Previous Hash:      {result.previous_registry_hash[:16]}...")
 
     lines.append(f"Hash Valid:         {'YES' if result.hash_valid else 'NO'}")
-    lines.append(f"Signature Valid:    {'YES' if result.signature_valid else 'NO' if not result.warnings else 'SKIPPED'}")
+    lines.append(
+        f"Signature Valid:    "
+        f"{'YES' if result.signature_valid else 'NO' if not result.warnings else 'SKIPPED'}"
+    )
 
     status = "PASS" if result.valid else "FAIL"
     lines.append(f"Status:             {status}")
@@ -1297,20 +1337,19 @@ def format_registry_snapshot_result(
 
 
 def format_registry_chain_result(
-    result: "ChainVerificationResult",
+    result: RegistryChainVerificationResult,
     *,
     output_format: str = "text",
 ) -> str:
     """Format registry chain verification result.
 
     Args:
-        result: ChainVerificationResult object
+        result: RegistryChainVerificationResult object
         output_format: "text" or "json"
 
     Returns:
         Formatted string
     """
-    from specora_verify.validators.registry import ChainVerificationResult, RegistryVerificationStatus
 
     if output_format == "json":
         return json.dumps(result.to_dict(), indent=2, sort_keys=True)
@@ -1363,7 +1402,7 @@ def format_registry_chain_result(
 
 
 def format_registry_snapshot_info(
-    snapshot: "RegistrySnapshot",
+    snapshot: RegistrySnapshot,
     *,
     output_format: str = "text",
 ) -> str:
@@ -1376,7 +1415,6 @@ def format_registry_snapshot_info(
     Returns:
         Formatted string
     """
-    from specora_verify.validators.registry import RegistrySnapshot
 
     if output_format == "json":
         return json.dumps(snapshot.to_dict(), indent=2, sort_keys=True)
@@ -1387,10 +1425,12 @@ def format_registry_snapshot_info(
     lines.append(f"Version:            {snapshot.registry_version}")
     lines.append(f"Generated:          {snapshot.generated_at}")
     lines.append(f"Authority:          {snapshot.registry_authority}")
-    lines.append(f"Registry Hash:      {snapshot.registry_hash[:16]}...{snapshot.registry_hash[-8:]}")
+    lines.append(
+        f"Registry Hash:      {snapshot.registry_hash[:16]}...{snapshot.registry_hash[-8:]}"
+    )
 
     if snapshot.is_genesis():
-        lines.append(f"Previous Hash:      (genesis)")
+        lines.append("Previous Hash:      (genesis)")
     else:
         lines.append(f"Previous Hash:      {snapshot.previous_registry_hash[:16]}...")
 
@@ -1556,7 +1596,9 @@ def format_stp_simulate_result(
         f"Decision:     {decision_display}",
         f"Trust Score:  {result.trust_score}",
         f"Policy:       {result.policy_path}",
-        f"Policy Hash:  {result.policy_hash[:32]}..." if result.policy_hash else "Policy Hash:  N/A",
+        f"Policy Hash:  {result.policy_hash[:32]}..."
+        if result.policy_hash
+        else "Policy Hash:  N/A",
     ]
 
     if result.restrictions:
@@ -1830,7 +1872,8 @@ def format_stp_certification_attestation_result(
         f"Spec ID:        {result.spec_id or 'unknown'}",
         f"Schema Version: {result.schema_version or 'unknown'}",
         f"Tier:           {result.tier or 'unknown'}",
-        f"Adapter:        {result.adapter_name or 'unknown'} v{result.adapter_version or 'unknown'}",
+        f"Adapter:        {result.adapter_name or 'unknown'} "
+        f"v{result.adapter_version or 'unknown'}",
         f"Computed Hash:  {result.computed_hash or 'N/A'}",
     ]
 

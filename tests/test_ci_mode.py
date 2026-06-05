@@ -8,8 +8,6 @@ These tests verify that:
 
 from __future__ import annotations
 
-import pytest
-
 from specora_verify.errors import (
     EXIT_ERROR,
     EXIT_FAIL,

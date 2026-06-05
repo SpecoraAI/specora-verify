@@ -48,8 +48,10 @@ Schema mapping (upstream → Specora wire spec):
     requestParameters.modelId                    → records[].model.{name,version}  (split)
     requestParameters.automatedReasoningPolicyId → records[].decision.policy_refs
     responseElements.modelInvocationResult       → records[].decision.outcome       (enum-mapped)
-    responseElements.automatedReasoningResult    → records[].decision.{formal_verdict, proof_hash, constraints}
-    (derived)                                    → records[].context.hash           (sha256 of req+resp)
+    responseElements.automatedReasoningResult
+        → records[].decision.{formal_verdict, proof_hash, constraints}
+    (derived)
+        → records[].context.hash  (sha256 of req+resp)
     eventVersion                                 → metadata.upstream_schema_version
 """
 
@@ -131,7 +133,7 @@ def _split_model_id(model_id: str) -> tuple[str, str]:
 
 @dataclass
 class _RecordOutcome:
-    mapped: dict | None
+    mapped: dict[str, Any] | None
     warning: str | None
     skipped: bool = False
 
@@ -207,9 +209,7 @@ class CloudTrailReader:
         try:
             envelope = json.loads(raw) if raw.strip() else {"Records": []}
         except json.JSONDecodeError as exc:
-            raise ReaderSchemaError(
-                _PROVIDER, f"input is not valid JSON: {exc.msg}"
-            ) from exc
+            raise ReaderSchemaError(_PROVIDER, f"input is not valid JSON: {exc.msg}") from exc
 
         if not isinstance(envelope, dict) or "Records" not in envelope:
             raise ReaderSchemaError(
@@ -221,7 +221,7 @@ class CloudTrailReader:
         if not isinstance(records_in, list):
             raise ReaderSchemaError(_PROVIDER, "'Records' must be a JSON array")
 
-        mapped_records: list[dict] = []
+        mapped_records: list[dict[str, Any]] = []
         warnings: list[str] = []
         seen_ids: set[str] = set()
         observed_schema_version: str | None = None
@@ -243,9 +243,7 @@ class CloudTrailReader:
             if outcome.mapped is not None:
                 mapped_records.append(outcome.mapped)
                 if observed_schema_version is None:
-                    observed_schema_version = outcome.mapped.pop(
-                        "_schema_version", None
-                    )
+                    observed_schema_version = outcome.mapped.pop("_schema_version", None)
                 else:
                     outcome.mapped.pop("_schema_version", None)
 
@@ -292,12 +290,8 @@ class CloudTrailReader:
         location = f"record[{index}]"
         if not isinstance(event, dict):
             if strict:
-                raise ReaderSchemaError(
-                    _PROVIDER, f"{location} is not a JSON object"
-                )
-            return _RecordOutcome(
-                mapped=None, warning=f"{location}: not a JSON object"
-            )
+                raise ReaderSchemaError(_PROVIDER, f"{location} is not a JSON object")
+            return _RecordOutcome(mapped=None, warning=f"{location}: not a JSON object")
 
         event_source = event.get("eventSource")
         if event_source != _BEDROCK_SOURCE:
@@ -315,10 +309,7 @@ class CloudTrailReader:
 
         event_version = forced_schema_version or event.get("eventVersion")
         if event_version not in _SUPPORTED_VERSIONS:
-            msg = (
-                f"unsupported eventVersion {event_version!r} "
-                f"(supported: {_SUPPORTED_VERSIONS})"
-            )
+            msg = f"unsupported eventVersion {event_version!r} (supported: {_SUPPORTED_VERSIONS})"
             if strict:
                 raise ReaderSchemaError(_PROVIDER, msg)
             return _RecordOutcome(mapped=None, warning=f"{location}: {msg}")
@@ -328,23 +319,18 @@ class CloudTrailReader:
         except ReaderSchemaError as exc:
             if strict:
                 raise
-            return _RecordOutcome(
-                mapped=None, warning=f"{location}: {exc.detail}"
-            )
+            return _RecordOutcome(mapped=None, warning=f"{location}: {exc.detail}")
 
         record_id = mapped["id"]
         if record_id in seen_ids:
             return _RecordOutcome(
                 mapped=None,
-                warning=(
-                    f"{location}: duplicate eventID {record_id!r} "
-                    f"(first occurrence wins)"
-                ),
+                warning=(f"{location}: duplicate eventID {record_id!r} (first occurrence wins)"),
             )
         seen_ids.add(record_id)
         return _RecordOutcome(mapped=mapped, warning=None)
 
-    def _map_ar_event(self, event: dict, *, event_version: str) -> dict:
+    def _map_ar_event(self, event: dict[str, Any], *, event_version: str) -> dict[str, Any]:
         for required in (
             "eventID",
             "eventTime",
@@ -353,20 +339,14 @@ class CloudTrailReader:
             "responseElements",
         ):
             if required not in event:
-                raise ReaderSchemaError(
-                    _PROVIDER, f"missing required field {required!r}"
-                )
+                raise ReaderSchemaError(_PROVIDER, f"missing required field {required!r}")
 
         request_params = event["requestParameters"]
         response_elements = event["responseElements"]
         if not isinstance(request_params, dict):
-            raise ReaderSchemaError(
-                _PROVIDER, "requestParameters must be a JSON object"
-            )
+            raise ReaderSchemaError(_PROVIDER, "requestParameters must be a JSON object")
         if not isinstance(response_elements, dict):
-            raise ReaderSchemaError(
-                _PROVIDER, "responseElements must be a JSON object"
-            )
+            raise ReaderSchemaError(_PROVIDER, "responseElements must be a JSON object")
 
         model_id = request_params.get("modelId")
         if not isinstance(model_id, str) or not model_id:
@@ -416,9 +396,7 @@ class CloudTrailReader:
         timestamp = self._normalize_timestamp(event["eventTime"])
         request_id = response_elements.get("requestId", event.get("requestID", ""))
         if not isinstance(request_id, str):
-            raise ReaderSchemaError(
-                _PROVIDER, "responseElements.requestId must be a string"
-            )
+            raise ReaderSchemaError(_PROVIDER, "responseElements.requestId must be a string")
 
         # Deterministic derived context hash over canonical request + response.
         context_material = {
@@ -429,9 +407,7 @@ class CloudTrailReader:
 
         aws_region = event["awsRegion"]
         if not isinstance(aws_region, str) or not aws_region:
-            raise ReaderSchemaError(
-                _PROVIDER, "awsRegion must be a non-empty string"
-            )
+            raise ReaderSchemaError(_PROVIDER, "awsRegion must be a non-empty string")
 
         mapped: dict[str, Any] = {
             "id": str(event["eventID"]),
@@ -477,9 +453,9 @@ class CloudTrailReader:
 
     @staticmethod
     def _build_bundle_payload(
-        *, records: list[dict], key_id: str, schema_version: str
-    ) -> dict:
-        payload = {
+        *, records: list[dict[str, Any]], key_id: str, schema_version: str
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {
             "metadata": {
                 "provider": _PROVIDER,
                 "reader": "specora_verify.readers.cloudtrail",

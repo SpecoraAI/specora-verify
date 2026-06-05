@@ -8,7 +8,6 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
-from typing import Any
 
 from specora_verify.validators.mirror import MirrorSource, SourceResult
 
@@ -49,7 +48,7 @@ def load_local_anchor(
         )
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             anchor_data = json.load(f)
 
         # Validate it looks like an anchor
@@ -125,7 +124,7 @@ def load_local_dns_txt(
         )
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             txt_value = f.read().strip()
 
         # Try to parse as JSON first (might be a full anchor file)

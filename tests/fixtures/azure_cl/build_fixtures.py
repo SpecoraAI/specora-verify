@@ -49,9 +49,7 @@ _MRSIGNER = "b" * 64
 
 
 def _fake_b64(seed: bytes, length: int = 48) -> str:
-    return base64.b64encode(hashlib.sha256(seed).digest()[:length] + seed[:8]).decode(
-        "ascii"
-    )
+    return base64.b64encode(hashlib.sha256(seed).digest()[:length] + seed[:8]).decode("ascii")
 
 
 def _context_hash(i: int) -> str:
@@ -68,9 +66,7 @@ def _leaf_components(i: int) -> dict:
     return {
         "claimsDigest": hashlib.sha256(f"claims-{i:06d}".encode("ascii")).hexdigest(),
         "commitEvidence": f"ce:1.{i:04d}",
-        "writeSetDigest": hashlib.sha256(
-            f"ws-{i:06d}".encode("ascii")
-        ).hexdigest(),
+        "writeSetDigest": hashlib.sha256(f"ws-{i:06d}".encode("ascii")).hexdigest(),
     }
 
 
@@ -112,9 +108,7 @@ def _entry(
         receipt["enclaveQuote"] = _fake_b64(f"quote-{i:08d}".encode("ascii"), 96)
         receipt["mrenclave"] = _MRENCLAVE
         receipt["mrsigner"] = _MRSIGNER
-        receipt["reportData"] = hashlib.sha256(
-            f"report-{i:06d}".encode("ascii")
-        ).hexdigest()
+        receipt["reportData"] = hashlib.sha256(f"report-{i:06d}".encode("ascii")).hexdigest()
     return {
         "collectionId": collection_id,
         "transactionId": transaction_id,
@@ -179,9 +173,7 @@ def main() -> None:
         model_name, model_version = _MODELS[i % 3]
         decision = _DECISION_PROGRAM[i % 4]
         include_tee = (i % 3) != 2  # 12 with TEE, 6 without
-        collection_id = (
-            _COLLECTION_ID if i < 12 else "subledger-ai-audit-2026-eu"
-        )
+        collection_id = _COLLECTION_ID if i < 12 else "subledger-ai-audit-2026-eu"
         complex_entries.append(
             _entry(
                 200 + i,
@@ -193,9 +185,7 @@ def main() -> None:
                 collection_id=collection_id,
             )
         )
-    (FIXTURE_DIR / "realistic-complex.json").write_text(
-        _pretty(complex_entries), encoding="utf-8"
-    )
+    (FIXTURE_DIR / "realistic-complex.json").write_text(_pretty(complex_entries), encoding="utf-8")
 
     # ------------------------------------------------------------------
     # malformed.json — 5 entries, 2 deliberately broken.
@@ -229,9 +219,7 @@ def main() -> None:
     )
     bad_context["contents"]["record"]["context_hash"] = "md5:nope"
     malformed_entries = good + [missing_receipt, bad_context]
-    (FIXTURE_DIR / "malformed.json").write_text(
-        _pretty(malformed_entries), encoding="utf-8"
-    )
+    (FIXTURE_DIR / "malformed.json").write_text(_pretty(malformed_entries), encoding="utf-8")
 
     print(f"Wrote Azure CL fixtures to {FIXTURE_DIR}")
     print(f"  minimal-valid.json      ({len(minimal)} entries)")

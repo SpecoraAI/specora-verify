@@ -7,10 +7,10 @@ Fetchers retrieve external anchors from different publication surfaces:
 - Local files (offline mode)
 """
 
-from specora_verify.fetchers.github import fetch_latest_github_anchor
-from specora_verify.fetchers.s3 import fetch_latest_s3_anchor
 from specora_verify.fetchers.dns import fetch_dns_txt_anchor
+from specora_verify.fetchers.github import fetch_latest_github_anchor
 from specora_verify.fetchers.local import load_local_anchor
+from specora_verify.fetchers.s3 import fetch_latest_s3_anchor
 
 __all__ = [
     "fetch_latest_github_anchor",

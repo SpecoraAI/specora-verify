@@ -22,10 +22,10 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from specora_verify.canonical import canonical_json_bytes
 from specora_verify.errors import VerificationError
@@ -232,9 +232,7 @@ class ChainVerificationResult:
             "latest_version": self.latest_version,
             "latest_hash": self.latest_hash,
             "revocation_violations": self.revocation_violations,
-            "snapshot_results": {
-                str(v): r.to_dict() for v, r in self.snapshot_results.items()
-            },
+            "snapshot_results": {str(v): r.to_dict() for v, r in self.snapshot_results.items()},
             "errors": self.errors,
             "warnings": self.warnings,
         }
@@ -286,7 +284,7 @@ def derive_witness_key_id(public_key_bytes: bytes) -> str:
 # =============================================================================
 
 
-def compute_registry_hash(snapshot: dict) -> str:
+def compute_registry_hash(snapshot: dict[str, Any]) -> str:
     """Compute SHA-256 hash of registry snapshot content.
 
     The hash is computed over the canonical JSON of the snapshot
@@ -299,14 +297,13 @@ def compute_registry_hash(snapshot: dict) -> str:
         SHA-256 hash as lowercase hex string
     """
     to_hash = {
-        k: v for k, v in snapshot.items()
-        if k not in ("registry_hash", "registry_signature")
+        k: v for k, v in snapshot.items() if k not in ("registry_hash", "registry_signature")
     }
     canonical_bytes = canonical_json_bytes(to_hash)
     return hashlib.sha256(canonical_bytes).hexdigest()
 
 
-def compute_snapshot_signing_bytes(snapshot: dict) -> bytes:
+def compute_snapshot_signing_bytes(snapshot: dict[str, Any]) -> bytes:
     """Compute bytes to sign for registry snapshot.
 
     Consistent with existing signing convention: sign the SHA-256 hash
@@ -327,7 +324,7 @@ def compute_snapshot_signing_bytes(snapshot: dict) -> bytes:
 # =============================================================================
 
 
-def parse_registry_snapshot(data: dict) -> RegistrySnapshot:
+def parse_registry_snapshot(data: dict[str, Any]) -> RegistrySnapshot:
     """Parse and validate a registry snapshot from a dictionary.
 
     Args:
@@ -463,7 +460,7 @@ def parse_registry_snapshot(data: dict) -> RegistrySnapshot:
     )
 
 
-def _parse_registry_witness(data: dict, index: int) -> RegistryWitness:
+def _parse_registry_witness(data: dict[str, Any], index: int) -> RegistryWitness:
     """Parse a witness entry from snapshot."""
     if not isinstance(data, dict):
         raise VerificationError(
@@ -471,7 +468,14 @@ def _parse_registry_witness(data: dict, index: int) -> RegistryWitness:
             f"witnesses[{index}] must be an object",
         )
 
-    required_fields = ["witness_org_id", "org_name", "trust_level", "status", "registered_at", "keys"]
+    required_fields = [
+        "witness_org_id",
+        "org_name",
+        "trust_level",
+        "status",
+        "registered_at",
+        "keys",
+    ]
     for field_name in required_fields:
         if field_name not in data:
             raise VerificationError(
@@ -550,7 +554,7 @@ def _parse_registry_witness(data: dict, index: int) -> RegistryWitness:
     )
 
 
-def _parse_registry_key(data: dict, witness_index: int, key_index: int) -> RegistryKey:
+def _parse_registry_key(data: dict[str, Any], witness_index: int, key_index: int) -> RegistryKey:
     """Parse a key entry from witness."""
     prefix = f"witnesses[{witness_index}].keys[{key_index}]"
 
@@ -667,7 +671,7 @@ def load_registry_snapshot(path: Path | str) -> RegistrySnapshot:
 
 
 def validate_registry_snapshot(
-    snapshot: dict | RegistrySnapshot,
+    snapshot: dict[str, Any] | RegistrySnapshot,
     public_key: str | None = None,
     key_format: str = "pem",
     skip_signature: bool = False,
@@ -787,9 +791,7 @@ def enforce_revocation_monotonicity(
     violations: list[str] = []
 
     # Build lookup for previous state
-    prev_witnesses: dict[str, RegistryWitness] = {
-        w.witness_org_id: w for w in previous.witnesses
-    }
+    prev_witnesses: dict[str, RegistryWitness] = {w.witness_org_id: w for w in previous.witnesses}
 
     for witness in current.witnesses:
         prev_w = prev_witnesses.get(witness.witness_org_id)
@@ -810,8 +812,7 @@ def enforce_revocation_monotonicity(
             prev_k = prev_keys.get(key.public_key_id)
             if prev_k and prev_k.status == "revoked" and key.status != "revoked":
                 violations.append(
-                    f"Key {key.public_key_id} was revoked, "
-                    f"cannot become {key.status} (INV-REG-003)"
+                    f"Key {key.public_key_id} was revoked, cannot become {key.status} (INV-REG-003)"
                 )
 
     return violations
@@ -823,7 +824,7 @@ def enforce_revocation_monotonicity(
 
 
 def verify_registry_chain(
-    snapshots: list[RegistrySnapshot] | list[dict],
+    snapshots: list[RegistrySnapshot] | list[dict[str, Any]],
     public_key: str | None = None,
     key_format: str = "pem",
     skip_signature: bool = False,
@@ -871,7 +872,9 @@ def verify_registry_chain(
                     errors=errors,
                 )
         else:
-            parsed_snapshots.append(snapshot)
+            # Per the param type (list[RegistrySnapshot] | list[dict]), a
+            # non-dict element is already a parsed RegistrySnapshot.
+            parsed_snapshots.append(cast("RegistrySnapshot", snapshot))
 
     # Sort by registry_version
     parsed_snapshots.sort(key=lambda s: s.registry_version)
@@ -995,6 +998,6 @@ def create_registry_receipt(
     return RegistryVerificationReceipt(
         schema_version="1.0.0",
         verifier_version=verifier_version,
-        verification_timestamp=datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        verification_timestamp=datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         result=result,
     )
