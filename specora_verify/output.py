@@ -482,7 +482,8 @@ def format_signature_result(
         lines.append("")
         lines.append("Key Trust:")
         lines.append(
-            f"  Revocation List: {'provided' if trust_result.revocation_list_provided else 'not provided'}"
+            f"  Revocation List: "
+            f"{'provided' if trust_result.revocation_list_provided else 'not provided'}"
         )
         lines.append(f"  Key Status:      {trust_result.key_status}")
         if trust_result.warning:
@@ -1179,7 +1180,8 @@ def format_witness_quorum_result(
             )
             lines.append(f"  [{status_mark}] {org_id}")
             lines.append(
-                f"         Verification: {stmt_result.verification_result} | Signature: {sig_status} | Status: {witness_status}"
+                f"         Verification: {stmt_result.verification_result} "
+                f"| Signature: {sig_status} | Status: {witness_status}"
             )
             if stmt_result.errors:
                 for err in stmt_result.errors:
@@ -1308,7 +1310,8 @@ def format_registry_snapshot_result(
 
     lines.append(f"Hash Valid:         {'YES' if result.hash_valid else 'NO'}")
     lines.append(
-        f"Signature Valid:    {'YES' if result.signature_valid else 'NO' if not result.warnings else 'SKIPPED'}"
+        f"Signature Valid:    "
+        f"{'YES' if result.signature_valid else 'NO' if not result.warnings else 'SKIPPED'}"
     )
 
     status = "PASS" if result.valid else "FAIL"
@@ -1866,7 +1869,8 @@ def format_stp_certification_attestation_result(
         f"Spec ID:        {result.spec_id or 'unknown'}",
         f"Schema Version: {result.schema_version or 'unknown'}",
         f"Tier:           {result.tier or 'unknown'}",
-        f"Adapter:        {result.adapter_name or 'unknown'} v{result.adapter_version or 'unknown'}",
+        f"Adapter:        {result.adapter_name or 'unknown'} "
+        f"v{result.adapter_version or 'unknown'}",
         f"Computed Hash:  {result.computed_hash or 'N/A'}",
     ]
 

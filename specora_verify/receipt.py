@@ -332,7 +332,10 @@ def generate_artifact_receipt(
             errors.append(
                 {
                     "code": "SIGNATURE_MISSING",
-                    "message": "No signature or public key provided. Use --allow-hash-only for hash-only verification.",
+                    "message": (
+                        "No signature or public key provided. "
+                        "Use --allow-hash-only for hash-only verification."
+                    ),
                 }
             )
 
@@ -389,7 +392,10 @@ def generate_bundle_receipt(
                 errors.append(
                     {
                         "code": "HASH_MISMATCH",
-                        "message": f"Manifest hash mismatch: computed {computed}, declared {manifest_sha256}",
+                        "message": (
+                            f"Manifest hash mismatch: computed {computed}, "
+                            f"declared {manifest_sha256}"
+                        ),
                     }
                 )
 

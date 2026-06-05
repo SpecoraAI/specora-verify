@@ -74,7 +74,8 @@ def _validate_name(name: str) -> list[str]:
     elif not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*$", name):
         errors.append(
             f"Invalid platform name: {name}. "
-            "Must start with alphanumeric and contain only alphanumeric, dots, underscores, hyphens."
+            "Must start with alphanumeric and contain only "
+            "alphanumeric, dots, underscores, hyphens."
         )
     return errors
 
@@ -307,7 +308,7 @@ Copy `ci/specora-governance.yml` to `.github/workflows/` in your repository.
 
 - [ ] `proofs/proof-manifest.json` - Updated with real data
 - [ ] `proofs/attestation-manifest.json` - Updated with real data
-- [ ] `verification/specora-verify-output.json` - Run `specora-verify vectors verify --format json > verification/specora-verify-output.json`
+- [ ] `verification/specora-verify-output.json` - `specora-verify vectors verify --format json`
 - [ ] `ci/badges.json` - Updated with real badge URL
 - [ ] `policy/baseline-policy.json` - Review and adjust policies
 """

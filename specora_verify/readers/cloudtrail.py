@@ -48,8 +48,10 @@ Schema mapping (upstream → Specora wire spec):
     requestParameters.modelId                    → records[].model.{name,version}  (split)
     requestParameters.automatedReasoningPolicyId → records[].decision.policy_refs
     responseElements.modelInvocationResult       → records[].decision.outcome       (enum-mapped)
-    responseElements.automatedReasoningResult    → records[].decision.{formal_verdict, proof_hash, constraints}
-    (derived)                                    → records[].context.hash           (sha256 of req+resp)
+    responseElements.automatedReasoningResult
+        → records[].decision.{formal_verdict, proof_hash, constraints}
+    (derived)
+        → records[].context.hash  (sha256 of req+resp)
     eventVersion                                 → metadata.upstream_schema_version
 """
 

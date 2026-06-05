@@ -307,7 +307,8 @@ def verify_external_anchor_chain(
         actual_previous = anchor.get("previous_external_anchor_hash", "")
         if actual_previous != expected_previous_hash:
             errors.append(
-                f"Chain break at anchor {i} (chain_head_index={anchor.get('chain_head_index', '?')}): "
+                f"Chain break at anchor {i} "
+                f"(chain_head_index={anchor.get('chain_head_index', '?')}): "
                 f"previous_hash ({actual_previous[:16]}...) does not match "
                 f"expected ({expected_previous_hash[:16]}...)"
             )

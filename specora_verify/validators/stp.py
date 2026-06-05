@@ -435,7 +435,10 @@ def validate_stp_message(
     result.protocol_version = protocol_version
 
     if protocol_version != STP_PROTOCOL_VERSION:
-        msg = f"Protocol version mismatch: expected '{STP_PROTOCOL_VERSION}', got '{protocol_version}'"
+        msg = (
+            f"Protocol version mismatch: expected '{STP_PROTOCOL_VERSION}', "
+            f"got '{protocol_version}'"
+        )
         if strict:
             errors.append(msg)
         else:

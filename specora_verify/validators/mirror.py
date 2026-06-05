@@ -546,9 +546,12 @@ def verify_anchor_chain(
                 detail.chain_linkage_valid = False
                 chain_linkage_valid = False
                 broken_linkages.append(idx)
+                got_hash = (
+                    detail.previous_anchor_hash[:16] if detail.previous_anchor_hash else "null"
+                )
                 detail.errors.append(
                     f"Chain linkage broken: expected {expected_previous_hash[:16]}..., "
-                    f"got {(detail.previous_anchor_hash or 'null')[:16] if detail.previous_anchor_hash else 'null'}..."
+                    f"got {got_hash}..."
                 )
 
         # Update expected previous hash for next iteration

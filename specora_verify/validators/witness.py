@@ -491,7 +491,8 @@ def parse_witness_registry(data: dict[str, Any]) -> WitnessRegistry:
         if public_key_id != expected_key_id:
             raise VerificationError(
                 ERR_REGISTRY_SCHEMA,
-                f"witnesses[{i}].public_key_id mismatch: {public_key_id} vs expected {expected_key_id}",
+                f"witnesses[{i}].public_key_id mismatch: {public_key_id} "
+                f"vs expected {expected_key_id}",
             )
 
         # Check for duplicate key IDs

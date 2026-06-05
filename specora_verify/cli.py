@@ -5,12 +5,14 @@ Usage:
     specora-verify verify-log --log <file> [--public-key <key.pem>]
     specora-verify verify-external-anchor <file> [--public-key <key.pem>] [--skip-signature]
     specora-verify verify-external-anchor-chain <dir> [--public-key <key.pem>] [--skip-signatures]
-    specora-verify emit-receipt --artifact <file> [--signature <sig.b64>] [--public-key <key.pem>] [--out <receipt.json>]
+    specora-verify emit-receipt --artifact <file> [--signature <sig.b64>]
+        [--public-key <key.pem>] [--out <receipt.json>]
     specora-verify canonicalize <file>
     specora-verify key-info --public-key <key.pem>
     specora-verify vectors verify [--vectors-dir DIR]
     specora-verify manifest hash <file>
-    specora-verify manifest verify <file> [--expected-hash HASH] [--spec-id ID] [--schema-version VER]
+    specora-verify manifest verify <file> [--expected-hash HASH] [--spec-id ID]
+        [--schema-version VER]
     specora-verify bundle verify <file>
     specora-verify anchor vectors verify [--vectors-dir DIR]
     specora-verify anchor hash <file>
@@ -18,7 +20,8 @@ Usage:
     specora-verify receipt vectors verify [--vectors-dir DIR]
     specora-verify receipt hash <file>
     specora-verify receipt verify <file> [--expected HASH]
-    specora-verify certify scaffold --tier <basic|enterprise|regulated> --name <name> --version <ver> [--out <dir>]
+    specora-verify certify scaffold --tier <basic|enterprise|regulated> --name <name>
+        --version <ver> [--out <dir>]
     specora-verify certify check --tier <basic|enterprise|regulated> --bundle <path>
     specora-verify certify attest --tier <...> --bundle <path> --out <attestation.json>
     specora-verify certify vectors verify [--vectors-dir DIR]
@@ -29,13 +32,17 @@ Usage:
     specora-verify stp inspect <file> [--show-seal] [--show-chain] [--show-canonical]
     specora-verify stp vectors verify [--vectors-dir DIR]
     specora-verify stp hash <file>
-    specora-verify stp certify scaffold --tier <compatible|governed|enterprise> --adapter-name <name> [--out <dir>]
+    specora-verify stp certify scaffold --tier <compatible|governed|enterprise>
+        --adapter-name <name> [--out <dir>]
     specora-verify stp certify check --tier <compatible|governed|enterprise> --bundle <path>
-    specora-verify stp certify attest --tier <...> --bundle <path> --out <attestation.json> --issued-at <ts>
+    specora-verify stp certify attest --tier <...> --bundle <path>
+        --out <attestation.json> --issued-at <ts>
     specora-verify stp certify verify <file> [--expected HASH]
     specora-verify stp certify vectors verify [--vectors-dir DIR]
-    specora-verify mirror verify-latest [--github-repo REPO] [--s3-url URL] [--dns-fqdn FQDN] [--quorum N]
-    specora-verify mirror verify-anchors --since DATE [--github-repo REPO] [--s3-prefix URL] [--quorum N]
+    specora-verify mirror verify-latest [--github-repo REPO] [--s3-url URL]
+        [--dns-fqdn FQDN] [--quorum N]
+    specora-verify mirror verify-anchors --since DATE [--github-repo REPO]
+        [--s3-prefix URL] [--quorum N]
 
 Global Options:
     --ci                        CI mode: map WARN exit code to FAIL (exit 2)
@@ -129,7 +136,9 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the argument parser with all subcommands."""
     parser = argparse.ArgumentParser(
         prog="specora-verify",
-        description="Specora Public Manifest Verifier CLI - Verify proof manifests and bundles offline",
+        description=(
+            "Specora Public Manifest Verifier CLI - Verify proof manifests and bundles offline"
+        ),
     )
     parser.add_argument(
         "--version",
@@ -1239,7 +1248,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--public-key",
         type=Path,
         default=None,
-        help="Optional Ed25519 public key (raw 32 bytes or 64-char hex) to verify upstream signatures",
+        help=(
+            "Optional Ed25519 public key (raw 32 bytes or 64-char hex) "
+            "to verify upstream signatures"
+        ),
     )
     read_anthropic.add_argument(
         "--schema-version",
@@ -2203,7 +2215,8 @@ def cmd_certify_scaffold(args: argparse.Namespace) -> int:
             print("  1. Update manifest files with your actual data")
             print("  2. Run: specora-verify vectors verify")
             print(
-                f"  3. Run: specora-verify certify check --tier {result.tier} --bundle {result.output_dir}"
+                f"  3. Run: specora-verify certify check --tier {result.tier} "
+                f"--bundle {result.output_dir}"
             )
             print(f"  4. See {result.output_dir}/INSTRUCTIONS.md for details")
             print("============================================================")

@@ -226,7 +226,8 @@ def verify_sigstore_signature(
                                 False,
                                 None,
                                 (
-                                    f"Repository mismatch: expected {SIGSTORE_EXPECTED_REPOSITORY}, "
+                                    f"Repository mismatch: "
+                                    f"expected {SIGSTORE_EXPECTED_REPOSITORY}, "
                                     f"got {repo_value}"
                                 ),
                             )

@@ -335,7 +335,8 @@ def verify_chain(
             if previous_entry_hash and entry.get("previous_entry_hash") != previous_entry_hash:
                 entry_errors.append(
                     f"Entry {entry_index}: previous_entry_hash mismatch "
-                    f"(expected {previous_entry_hash[:16]}..., got {entry.get('previous_entry_hash', '')[:16]}...)"
+                    f"(expected {previous_entry_hash[:16]}..., "
+                    f"got {entry.get('previous_entry_hash', '')[:16]}...)"
                 )
                 link_valid = False
                 result.valid = False
@@ -346,7 +347,8 @@ def verify_chain(
             if computed_hash != entry.get("entry_hash"):
                 entry_errors.append(
                     f"Entry {entry_index}: entry_hash mismatch "
-                    f"(computed {computed_hash[:16]}..., stored {entry.get('entry_hash', '')[:16]}...)"
+                    f"(computed {computed_hash[:16]}..., "
+                    f"stored {entry.get('entry_hash', '')[:16]}...)"
                 )
                 hash_valid = False
                 result.valid = False

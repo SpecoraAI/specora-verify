@@ -281,7 +281,8 @@ def verify_signature(
     # Validate manifest hash format
     if not manifest_hash or len(manifest_hash) != 64:
         result.errors.append(
-            f"Invalid manifest hash length: expected 64 chars, got {len(manifest_hash) if manifest_hash else 0}"
+            f"Invalid manifest hash length: expected 64 chars, "
+            f"got {len(manifest_hash) if manifest_hash else 0}"
         )
         return result
 
