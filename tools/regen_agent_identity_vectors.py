@@ -150,7 +150,7 @@ def main() -> int:
     principal_bundle_pk, _ = keypair_from_seed(PRINCIPAL_BUNDLE_SEED)
 
     # -------- vectors/agent-identity/ -----------------------------------
-    agent_identity_dir = REPO_ROOT / "vectors" / "agent-identity"
+    agent_identity_dir = REPO_ROOT / "specora_verify" / "vectors" / "agent-identity"
     write_json(
         agent_identity_dir / "ISSUER.json",
         {
@@ -249,7 +249,9 @@ def main() -> int:
     )
 
     # -------- vectors/canonical-bundle/with-agent-identity/ -------------
-    bundle_dir = REPO_ROOT / "vectors" / "canonical-bundle" / "with-agent-identity"
+    bundle_dir = (
+        REPO_ROOT / "specora_verify" / "vectors" / "canonical-bundle" / "with-agent-identity"
+    )
     write_json(
         bundle_dir / "ISSUER.json",
         {

@@ -11,7 +11,7 @@ from specora_verify.cli import main
 from specora_verify.errors import EXIT_ERROR, EXIT_FAIL, EXIT_PASS
 
 # Path to golden vectors
-VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "manifest"
+VECTORS_DIR = Path(__file__).parent.parent / "specora_verify" / "vectors" / "manifest"
 
 
 class TestCLIVectorsVerify:

@@ -15,7 +15,7 @@ from specora_verify.hash import sha256_hex
 from specora_verify.validators.manifest import validate_manifest
 
 # Default anchor vectors directory (relative to repo root)
-DEFAULT_ANCHOR_VECTORS_DIR = Path(__file__).parent.parent.parent / "vectors" / "anchor"
+DEFAULT_ANCHOR_VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "anchor"
 
 
 @dataclass

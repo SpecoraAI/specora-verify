@@ -24,7 +24,7 @@ from specora_verify.agent_identity import (
     validate_agent_identity_certificate,
 )
 
-VECTORS_DIR = Path(__file__).resolve().parents[1] / "vectors" / "agent-identity"
+VECTORS_DIR = Path(__file__).resolve().parents[1] / "specora_verify" / "vectors" / "agent-identity"
 
 
 def _load(name: str) -> dict:

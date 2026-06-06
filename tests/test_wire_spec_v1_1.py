@@ -22,8 +22,9 @@ from specora_verify.wire_spec import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-V11_VECTORS_DIR = REPO_ROOT / "vectors" / "canonical-bundle" / "with-agent-identity"
-V10_VECTORS_DIR = REPO_ROOT / "vectors" / "canonical-bundle"
+_BUNDLES = REPO_ROOT / "specora_verify" / "vectors" / "canonical-bundle"
+V11_VECTORS_DIR = _BUNDLES / "with-agent-identity"
+V10_VECTORS_DIR = _BUNDLES
 
 
 def _load(path: Path) -> dict:
