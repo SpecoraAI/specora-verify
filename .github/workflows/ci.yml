@@ -112,6 +112,16 @@ jobs:
       - name: Build sdist and wheel
         run: python -m build
 
+      # Publish BEFORE signing: gh-action-pypi-publish uploads everything in
+      # dist/, so dist/ must contain only the wheel + sdist at this point.
+      # (Signing below writes .sigstore.json bundles into dist/.)
+      - name: Publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: false
+          verbose: true
+
       - name: Build standalone binary (linux-x86_64)
         run: |
           pyinstaller \
@@ -123,39 +133,28 @@ jobs:
 
       - name: Sign artifacts with Sigstore
         # Keyless signing via GitHub Actions OIDC. No private key material
-        # stored in the repo. The signing identity is the workflow run's
-        # ephemeral OIDC token, which Sigstore transparency-logs.
+        # stored in the repo. `sigstore sign` accepts multiple inputs and
+        # writes <file>.sigstore.json for each — the bundle name
+        # specora_verify.release expects (do NOT override with --bundle).
         run: |
           python -m sigstore sign \
-            --bundle dist/specora_verify-*.whl.sigstore \
-            dist/specora_verify-*.whl
-          python -m sigstore sign \
-            --bundle dist/specora_verify-*.tar.gz.sigstore \
-            dist/specora_verify-*.tar.gz
-          python -m sigstore sign \
-            --bundle specora-verify-linux-x86_64.sigstore \
+            dist/specora_verify-*.whl \
+            dist/specora_verify-*.tar.gz \
             specora-verify-linux-x86_64
-
-      - name: Publish to PyPI (trusted publishing)
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: dist/
-          skip-existing: false
-          verbose: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           draft: false
-          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') }}
+          prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
           generate_release_notes: true
           files: |
             dist/specora_verify-*.whl
-            dist/specora_verify-*.whl.sigstore
+            dist/specora_verify-*.whl.sigstore.json
             dist/specora_verify-*.tar.gz
-            dist/specora_verify-*.tar.gz.sigstore
+            dist/specora_verify-*.tar.gz.sigstore.json
             specora-verify-linux-x86_64
-            specora-verify-linux-x86_64.sigstore
+            specora-verify-linux-x86_64.sigstore.json
 
   # ---------------------------------------------------------------------------
   # Additional standalone-binary builds for macOS and Windows. Kept as
@@ -175,21 +174,21 @@ jobs:
       - uses: actions/setup-python@v6
         with: { python-version: "3.12" }
       - run: pip install pyinstaller sigstore -e ".[all]"
+      # Native arm64 build. universal2 needs fat-binary builds of every
+      # native dep (cffi etc.), which the runner wheels are not — pyinstaller
+      # fails with IncompatibleBinaryArchError. arm64 covers Apple-silicon
+      # Macs; an x86_64 build can be added as a separate job if needed.
       - run: |
-          pyinstaller --onefile --name specora-verify-darwin-universal \
-            --target-arch universal2 \
+          pyinstaller --onefile --name specora-verify-darwin-arm64 \
             --collect-all specora_verify \
             specora_verify/__main__.py
-          mv dist/specora-verify-darwin-universal ./
-      - run: |
-          python -m sigstore sign \
-            --bundle specora-verify-darwin-universal.sigstore \
-            specora-verify-darwin-universal
+          mv dist/specora-verify-darwin-arm64 ./
+      - run: python -m sigstore sign specora-verify-darwin-arm64
       - uses: softprops/action-gh-release@v3
         with:
           files: |
-            specora-verify-darwin-universal
-            specora-verify-darwin-universal.sigstore
+            specora-verify-darwin-arm64
+            specora-verify-darwin-arm64.sigstore.json
 
   binary-windows:
     name: standalone binary (Windows)
@@ -211,12 +210,9 @@ jobs:
             --collect-all specora_verify `
             specora_verify/__main__.py
           move dist\specora-verify-windows-x86_64.exe .
-      - run: |
-          python -m sigstore sign `
-            --bundle specora-verify-windows-x86_64.exe.sigstore `
-            specora-verify-windows-x86_64.exe
+      - run: python -m sigstore sign specora-verify-windows-x86_64.exe
       - uses: softprops/action-gh-release@v3
         with:
           files: |
             specora-verify-windows-x86_64.exe
-            specora-verify-windows-x86_64.exe.sigstore
+            specora-verify-windows-x86_64.exe.sigstore.json
