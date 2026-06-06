@@ -1,6 +1,6 @@
 # Golden vectors
 
-This document is the guide to the [`vectors/`](../vectors/) tree:
+This document is the guide to the [`vectors/`](../specora_verify/vectors/) tree:
 what each subdirectory contains, what each file is for, how to
 regenerate vectors, and how to add a new one.
 
@@ -78,13 +78,13 @@ Breaking either of those invariants means the vector is corrupt.
 
 | Type | Spec ID | Schema | Vector |
 |---|---|---|---|
-| Attestation Manifest | `attestation-manifest` | [schemas/attestation-manifest-v1.0.json](schemas/attestation-manifest-v1.0.json) | [manifest/attestation-manifest-1.0.0.canonical.json](../vectors/manifest/attestation-manifest-1.0.0.canonical.json) |
-| Proof Manifest | `proof-manifest` | [schemas/proof-manifest-v1.0.json](schemas/proof-manifest-v1.0.json) | [manifest/proof-manifest-1.0.0.canonical.json](../vectors/manifest/proof-manifest-1.0.0.canonical.json) |
-| Anchor Payload | `anchor-payload` | [schemas/anchor-payload-v1.0.json](schemas/anchor-payload-v1.0.json) | [anchor/anchor-payload-1.0.0.canonical.json](../vectors/anchor/anchor-payload-1.0.0.canonical.json) |
-| Anchor Receipt | `anchor-receipt` | [schemas/anchor-receipt-v1.0.json](schemas/anchor-receipt-v1.0.json) | [anchor-receipts/anchor-receipt-1.0.0.canonical.json](../vectors/anchor-receipts/anchor-receipt-1.0.0.canonical.json) |
-| Certification Attestation | `certification-attestation` | [schemas/certification-attestation-v1.0.json](schemas/certification-attestation-v1.0.json) | [certification/certification-attestation-1.0.0.canonical.json](../vectors/certification/certification-attestation-1.0.0.canonical.json) |
-| STP Certification Attestation | `stp-certification-attestation` | [schemas/stp-certification-attestation-v1.0.json](schemas/stp-certification-attestation-v1.0.json) | [stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json](../vectors/stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json) |
-| Governance Attestation (inside Signed Artifact Envelope) | `governance-attestation` | [schemas/governance-attestation-v1.0.json](schemas/governance-attestation-v1.0.json) | [signature/signed-artifact-001/artifact.canonical.json](../vectors/signature/signed-artifact-001/artifact.canonical.json) |
+| Attestation Manifest | `attestation-manifest` | [schemas/attestation-manifest-v1.0.json](schemas/attestation-manifest-v1.0.json) | [manifest/attestation-manifest-1.0.0.canonical.json](../specora_verify/vectors/manifest/attestation-manifest-1.0.0.canonical.json) |
+| Proof Manifest | `proof-manifest` | [schemas/proof-manifest-v1.0.json](schemas/proof-manifest-v1.0.json) | [manifest/proof-manifest-1.0.0.canonical.json](../specora_verify/vectors/manifest/proof-manifest-1.0.0.canonical.json) |
+| Anchor Payload | `anchor-payload` | [schemas/anchor-payload-v1.0.json](schemas/anchor-payload-v1.0.json) | [anchor/anchor-payload-1.0.0.canonical.json](../specora_verify/vectors/anchor/anchor-payload-1.0.0.canonical.json) |
+| Anchor Receipt | `anchor-receipt` | [schemas/anchor-receipt-v1.0.json](schemas/anchor-receipt-v1.0.json) | [anchor-receipts/anchor-receipt-1.0.0.canonical.json](../specora_verify/vectors/anchor-receipts/anchor-receipt-1.0.0.canonical.json) |
+| Certification Attestation | `certification-attestation` | [schemas/certification-attestation-v1.0.json](schemas/certification-attestation-v1.0.json) | [certification/certification-attestation-1.0.0.canonical.json](../specora_verify/vectors/certification/certification-attestation-1.0.0.canonical.json) |
+| STP Certification Attestation | `stp-certification-attestation` | [schemas/stp-certification-attestation-v1.0.json](schemas/stp-certification-attestation-v1.0.json) | [stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json](../specora_verify/vectors/stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json) |
+| Governance Attestation (inside Signed Artifact Envelope) | `governance-attestation` | [schemas/governance-attestation-v1.0.json](schemas/governance-attestation-v1.0.json) | [signature/signed-artifact-001/artifact.canonical.json](../specora_verify/vectors/signature/signed-artifact-001/artifact.canonical.json) |
 
 ## 4. Vector canonicality (source-of-truth policy)
 
@@ -129,7 +129,7 @@ PY
 
 For the signed-artifact vector, regeneration is more involved because
 it requires a deterministic signing key. See
-[`vectors/signature/README.md`](../vectors/signature/README.md) and
+[`vectors/signature/README.md`](../specora_verify/vectors/signature/README.md) and
 the reference regenerator at
 [`tests/fixtures/anthropic/build_fixtures.py`](../tests/fixtures/anthropic/build_fixtures.py)
 (reader fixtures, same pattern).

@@ -26,7 +26,7 @@ from specora_verify.hash import sha256_hex
 from specora_verify.signature import get_key_info, verify_signature
 
 # Golden vectors directory (relative to repo root)
-VECTORS_ROOT = Path(__file__).parent.parent / "vectors" / "signature"
+VECTORS_ROOT = Path(__file__).parent.parent / "specora_verify" / "vectors" / "signature"
 
 
 def _load_vector(vector_name: str) -> dict:

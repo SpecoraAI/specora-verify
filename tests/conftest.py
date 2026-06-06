@@ -10,7 +10,7 @@ import pytest
 @pytest.fixture
 def vectors_dir() -> Path:
     """Path to golden vectors directory."""
-    return Path(__file__).parent.parent / "vectors" / "manifest"
+    return Path(__file__).parent.parent / "specora_verify" / "vectors" / "manifest"
 
 
 @pytest.fixture

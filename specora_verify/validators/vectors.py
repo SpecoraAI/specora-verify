@@ -17,7 +17,7 @@ from specora_verify.canonical import canonical_json_bytes
 from specora_verify.hash import sha256_hex
 
 # Default vectors directory (relative to repo root)
-DEFAULT_VECTORS_DIR = Path(__file__).parent.parent.parent / "vectors" / "manifest"
+DEFAULT_VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "manifest"
 
 
 @dataclass

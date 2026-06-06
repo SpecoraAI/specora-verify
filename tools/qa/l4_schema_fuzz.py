@@ -30,7 +30,7 @@ import jsonschema
 
 ROOT = Path(__file__).resolve().parents[2]  # repo root (tools/qa/ -> ../../)
 SCHEMAS = ROOT / "docs" / "schemas"
-VECTORS = ROOT / "vectors"
+VECTORS = ROOT / "specora_verify" / "vectors"
 
 PAIRS = [
     ("attestation-manifest-v1.0.json", "manifest/attestation-manifest-1.0.0.canonical.json"),

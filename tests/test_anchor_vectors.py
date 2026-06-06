@@ -14,7 +14,7 @@ from specora_verify.validators.anchor import (
 )
 
 # Path to anchor vectors
-ANCHOR_VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "anchor"
+ANCHOR_VECTORS_DIR = Path(__file__).parent.parent / "specora_verify" / "vectors" / "anchor"
 
 
 class TestAnchorVectorParity:

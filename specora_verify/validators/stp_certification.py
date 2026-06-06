@@ -26,7 +26,7 @@ from specora_verify.stp_contracts import STP_PROTOCOL_VERSION
 # =============================================================================
 
 DEFAULT_STP_CERTIFICATION_VECTORS_DIR = (
-    Path(__file__).parent.parent.parent / "vectors" / "stp-certification"
+    Path(__file__).parent.parent / "vectors" / "stp-certification"
 )
 
 

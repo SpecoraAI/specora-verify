@@ -15,9 +15,7 @@ from specora_verify.canonical import canonical_json_bytes
 from specora_verify.hash import sha256_hex
 
 # Default certification vectors directory (relative to repo root)
-DEFAULT_CERTIFICATION_VECTORS_DIR = (
-    Path(__file__).parent.parent.parent / "vectors" / "certification"
-)
+DEFAULT_CERTIFICATION_VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "certification"
 
 # Tier requirement definitions
 TIER_REQUIREMENTS: dict[str, list[str]] = {

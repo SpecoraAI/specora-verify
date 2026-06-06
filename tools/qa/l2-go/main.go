@@ -417,7 +417,7 @@ func repoVectorsDir() string {
 	_, self, _, ok := runtime.Caller(0)
 	if ok {
 		root := filepath.Join(filepath.Dir(self), "..", "..", "..")
-		if abs, err := filepath.Abs(filepath.Join(root, "vectors")); err == nil {
+		if abs, err := filepath.Abs(filepath.Join(root, "specora_verify", "vectors")); err == nil {
 			if _, statErr := os.Stat(abs); statErr == nil {
 				return abs
 			}
@@ -426,8 +426,8 @@ func repoVectorsDir() string {
 	// Fallback: walk up from cwd looking for a vectors/ dir.
 	wd, _ := os.Getwd()
 	for d := wd; d != "/" && d != ""; d = filepath.Dir(d) {
-		if _, err := os.Stat(filepath.Join(d, "vectors")); err == nil {
-			return filepath.Join(d, "vectors")
+		if _, err := os.Stat(filepath.Join(d, "specora_verify", "vectors")); err == nil {
+			return filepath.Join(d, "specora_verify", "vectors")
 		}
 	}
 	return "vectors"

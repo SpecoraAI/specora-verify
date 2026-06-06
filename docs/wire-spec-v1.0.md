@@ -38,19 +38,19 @@ This spec exists because Specora is structurally the auditor and cannot also be 
 
 ## 2. Data model
 
-A Specora evidence bundle is a set of files on disk (or equivalent in-memory objects). Each file belongs to exactly one of seven canonical payload types. All seven are already present as golden vectors in [`vectors/`](../vectors/) and are the normative reference for the field definitions below.
+A Specora evidence bundle is a set of files on disk (or equivalent in-memory objects). Each file belongs to exactly one of seven canonical payload types. All seven are already present as golden vectors in [`vectors/`](../specora_verify/vectors/) and are the normative reference for the field definitions below.
 
 ### 2.1 Summary table
 
 | # | Payload type | `spec_id` field | Schema file | Vector location |
 |---|---|---|---|---|
-| 1 | Attestation Manifest | `attestation-manifest` | [`schemas/attestation-manifest-v1.0.json`](schemas/attestation-manifest-v1.0.json) | [`vectors/manifest/attestation-manifest-1.0.0.canonical.json`](../vectors/manifest/attestation-manifest-1.0.0.canonical.json) |
-| 2 | Proof Manifest | `proof-manifest` | [`schemas/proof-manifest-v1.0.json`](schemas/proof-manifest-v1.0.json) | [`vectors/manifest/proof-manifest-1.0.0.canonical.json`](../vectors/manifest/proof-manifest-1.0.0.canonical.json) |
-| 3 | Anchor Payload | `anchor-payload` | [`schemas/anchor-payload-v1.0.json`](schemas/anchor-payload-v1.0.json) | [`vectors/anchor/anchor-payload-1.0.0.canonical.json`](../vectors/anchor/anchor-payload-1.0.0.canonical.json) |
-| 4 | Anchor Receipt | `anchor-receipt` | [`schemas/anchor-receipt-v1.0.json`](schemas/anchor-receipt-v1.0.json) | [`vectors/anchor-receipts/anchor-receipt-1.0.0.canonical.json`](../vectors/anchor-receipts/anchor-receipt-1.0.0.canonical.json) |
-| 5 | Certification Attestation | `certification-attestation` | [`schemas/certification-attestation-v1.0.json`](schemas/certification-attestation-v1.0.json) | [`vectors/certification/certification-attestation-1.0.0.canonical.json`](../vectors/certification/certification-attestation-1.0.0.canonical.json) |
-| 6 | STP Certification Attestation | `stp-certification-attestation` | [`schemas/stp-certification-attestation-v1.0.json`](schemas/stp-certification-attestation-v1.0.json) | [`vectors/stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json`](../vectors/stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json) |
-| 7 | Signed Artifact Envelope | `governance-attestation` (example) | [`schemas/signed-artifact-envelope-v1.0.json`](schemas/signed-artifact-envelope-v1.0.json) | [`vectors/signature/signed-artifact-001/`](../vectors/signature/signed-artifact-001/) |
+| 1 | Attestation Manifest | `attestation-manifest` | [`schemas/attestation-manifest-v1.0.json`](schemas/attestation-manifest-v1.0.json) | [`vectors/manifest/attestation-manifest-1.0.0.canonical.json`](../specora_verify/vectors/manifest/attestation-manifest-1.0.0.canonical.json) |
+| 2 | Proof Manifest | `proof-manifest` | [`schemas/proof-manifest-v1.0.json`](schemas/proof-manifest-v1.0.json) | [`vectors/manifest/proof-manifest-1.0.0.canonical.json`](../specora_verify/vectors/manifest/proof-manifest-1.0.0.canonical.json) |
+| 3 | Anchor Payload | `anchor-payload` | [`schemas/anchor-payload-v1.0.json`](schemas/anchor-payload-v1.0.json) | [`vectors/anchor/anchor-payload-1.0.0.canonical.json`](../specora_verify/vectors/anchor/anchor-payload-1.0.0.canonical.json) |
+| 4 | Anchor Receipt | `anchor-receipt` | [`schemas/anchor-receipt-v1.0.json`](schemas/anchor-receipt-v1.0.json) | [`vectors/anchor-receipts/anchor-receipt-1.0.0.canonical.json`](../specora_verify/vectors/anchor-receipts/anchor-receipt-1.0.0.canonical.json) |
+| 5 | Certification Attestation | `certification-attestation` | [`schemas/certification-attestation-v1.0.json`](schemas/certification-attestation-v1.0.json) | [`vectors/certification/certification-attestation-1.0.0.canonical.json`](../specora_verify/vectors/certification/certification-attestation-1.0.0.canonical.json) |
+| 6 | STP Certification Attestation | `stp-certification-attestation` | [`schemas/stp-certification-attestation-v1.0.json`](schemas/stp-certification-attestation-v1.0.json) | [`vectors/stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json`](../specora_verify/vectors/stp-certification/compatible/stp-certification-attestation-1.0.0.canonical.json) |
+| 7 | Signed Artifact Envelope | `governance-attestation` (example) | [`schemas/signed-artifact-envelope-v1.0.json`](schemas/signed-artifact-envelope-v1.0.json) | [`vectors/signature/signed-artifact-001/`](../specora_verify/vectors/signature/signed-artifact-001/) |
 
 Bundles typically reference multiple payload types together: a producer emits an Attestation Manifest + Proof Manifest for a period, anchors them via an Anchor Payload + Anchor Receipt, then optionally wraps everything in a Certification Attestation or STP Certification Attestation for a specific compliance tier. The Signed Artifact Envelope (§2.8) describes the wrapper format that carries any payload alongside its detached signature.
 
@@ -67,7 +67,7 @@ A time-window snapshot of governance state for a single organization. Emitted by
 | `period_end` | string (RFC 3339 UTC `Z`) | MUST | Exclusive-or-inclusive per producer convention; MUST be ≥ `period_start`. |
 | `created_at` | string (RFC 3339 UTC `Z`) | MUST | Wall-clock timestamp at which the manifest was finalized. |
 
-See [`schemas/attestation-manifest-v1.0.json`](schemas/attestation-manifest-v1.0.json) for the normative field definitions and [`vectors/manifest/attestation-manifest-1.0.0.canonical.json`](../vectors/manifest/attestation-manifest-1.0.0.canonical.json) for the golden example.
+See [`schemas/attestation-manifest-v1.0.json`](schemas/attestation-manifest-v1.0.json) for the normative field definitions and [`vectors/manifest/attestation-manifest-1.0.0.canonical.json`](../specora_verify/vectors/manifest/attestation-manifest-1.0.0.canonical.json) for the golden example.
 
 ### 2.3 Proof Manifest (`proof-manifest`)
 
@@ -163,7 +163,7 @@ Wraps a Specora Trust Protocol (STP) compatibility attestation: a compatibility 
 
 ### 2.8 Signed Artifact Envelope
 
-The on-disk layout that pairs any canonical payload with its detached Ed25519 signature and verification metadata. See [`vectors/signature/signed-artifact-001/`](../vectors/signature/signed-artifact-001/) for the reference layout.
+The on-disk layout that pairs any canonical payload with its detached Ed25519 signature and verification metadata. See [`vectors/signature/signed-artifact-001/`](../specora_verify/vectors/signature/signed-artifact-001/) for the reference layout.
 
 | File | Purpose | REQUIRED |
 |---|---|---|

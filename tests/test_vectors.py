@@ -16,7 +16,7 @@ from specora_verify.hash import sha256_hex
 from specora_verify.validators.vectors import verify_single_vector, verify_vectors
 
 # Path to golden vectors
-VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "manifest"
+VECTORS_DIR = Path(__file__).parent.parent / "specora_verify" / "vectors" / "manifest"
 
 
 class TestGoldenVectorParity:
