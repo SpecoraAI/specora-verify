@@ -1,3 +1,8 @@
 title: Specora Wire Spec
-description: On-the-wire format for Specora evidence bundles — the contract specora-verify checks.
-theme: jekyll-theme-cayman
+description: On-the-wire format for Specora evidence bundles — what specora-verify checks.
+markdown: kramdown
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
