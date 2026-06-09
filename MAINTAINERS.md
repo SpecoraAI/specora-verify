@@ -6,7 +6,7 @@ The maintainers of `specora-verify` are listed below. Each has write access to t
 
 | GitHub | Name | Affiliation | Email | Responsibility area | Security sign-off | Appointed |
 |---|---|---|---|---|:-:|---|
-| [`@cho-cvc`](https://github.com/cho-cvc) | Cho Sone | Specora, Inc. | `cho@specora.ai` | Core verifier, wire-spec v1.0 conformance, CI, release engineering, cryptographic primitives, canonicalization | ✅ | 2026-04-14 |
+| [`@cho-cvc`](https://github.com/cho-cvc) | Nsang-Nhon Sone | Specora, Inc. | `cho@specora.ai` | Core verifier, wire-spec v1.0 conformance, CI, release engineering, cryptographic primitives, canonicalization | ✅ | 2026-04-14 |
 | [`@nickcontinentalvc`](https://github.com/nickcontinentalvc) | Nick (CVC) | Specora, Inc. | `nick@specora.ai` | Provider audit-log readers (CloudTrail, Anthropic, upcoming Azure/OpenAI/LangSmith), integration tests, reader documentation | ✅ | 2026-04-14 |
 
 Both initial maintainers are Specora, Inc. employees as of 2026-04-15. Security sign-off authority is held by both so that embargoed vulnerability reports received via [SECURITY.md](SECURITY.md) can be triaged without a single-person dependency.
