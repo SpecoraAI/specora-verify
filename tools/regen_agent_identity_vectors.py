@@ -124,8 +124,10 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 
 def write_canonical_json(path: Path, payload: dict[str, Any]) -> None:
+    # No trailing newline: .canonical.json vectors are byte-canonical
+    # (tests/test_wire_spec_schemas.py::test_canonical_vector_is_byte_canonical).
     path.write_text(
-        canonical_json_bytes(payload).decode("utf-8") + "\n",
+        canonical_json_bytes(payload).decode("utf-8"),
         encoding="utf-8",
     )
     print(f"wrote {path.relative_to(REPO_ROOT)}")
@@ -172,7 +174,7 @@ def main() -> int:
         principal_public_key_hex=principal_valid_pk,
         issuer_keypair=issuer,
         issued_at="2026-05-08T12:00:00Z",
-        not_after="2026-06-07T12:00:00Z",
+        not_after="2036-01-01T00:00:00Z",
     )
     write_json(
         agent_identity_dir / "valid.json",
@@ -222,7 +224,7 @@ def main() -> int:
         principal_public_key_hex=principal_revoked_pk,
         issuer_keypair=issuer,
         issued_at="2026-05-08T12:00:00Z",
-        not_after="2026-06-07T12:00:00Z",
+        not_after="2036-01-01T00:00:00Z",
     )
     write_json(
         agent_identity_dir / "revoked.json",
@@ -271,7 +273,7 @@ def main() -> int:
         principal_public_key_hex=principal_bundle_pk,
         issuer_keypair=issuer,
         issued_at="2026-05-08T12:00:00Z",
-        not_after="2026-06-07T12:00:00Z",
+        not_after="2036-01-01T00:00:00Z",
     )
     bundle_cert_2 = build_certificate(
         identity_id="00000000-0000-0000-0000-000000000004",
@@ -282,7 +284,7 @@ def main() -> int:
         principal_public_key_hex=principal_bundle_pk,
         issuer_keypair=issuer,
         issued_at="2026-05-08T12:00:00Z",
-        not_after="2026-06-07T12:00:00Z",
+        not_after="2036-01-01T00:00:00Z",
     )
 
     for path in sorted(bundle_dir.glob("canonical-bundle-*.canonical.json")):
