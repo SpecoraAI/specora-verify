@@ -15,13 +15,13 @@
       "organizational_unit": "for-demo-only-not-production"
     },
     "issuer_key_fingerprint": "495bf96fce1b9bc49c337a338571db2ea5dee9f4835a6e7919f33fa2262b98e1",
-    "not_after": "2026-06-07T12:00:00Z",
+    "not_after": "2036-01-01T00:00:00Z",
     "principal": {
       "id": "00000000-0000-0000-0000-0000000000aa",
       "public_key": "2634881c3e414b5a352698bdbd439aa3a2445c61118356c54f5cb420dfcb9575"
     },
     "public_key": "7aea77dcf92da977e79966f38d6ad1faf43a91d2d9148610e1ca7f44b8a33eea",
-    "signature": "qaNXi1223228OI3c7hY7nZ1LfgBe6gEpSbMWi6XwTFOabKjWTtRyFrv2hbfXnvANQ0j42aEoz9IUBGMHy9aLCw==",
+    "signature": "Hl68BHLqcnmr/qwi3ILYirMW3xAxdgNmGSjw9/3d45ToBHH4L3vqoSNh3tGDnVImrK4wqr0B5LJ2xy3aEBtGCQ==",
     "subject": {
       "agent_id": "acme-demo-agent",
       "identity_id": "00000000-0000-0000-0000-000000000001",
