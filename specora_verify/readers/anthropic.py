@@ -85,6 +85,8 @@ class AnthropicReader:
         "wire-spec evidence bundle. Offline, no network calls."
     )
     supported_schema_versions: tuple[str, ...] = _SUPPORTED_VERSIONS
+    # Validated against real Anthropic Compliance API exports.
+    preview: bool = False
 
     def read(
         self,
