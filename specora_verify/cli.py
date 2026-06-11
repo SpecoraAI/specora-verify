@@ -1359,7 +1359,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     read_openai = read_sub.add_parser(
         "openai",
-        help="Read an OpenAI Compliance Platform audit-log export",
+        help="[preview] Read an OpenAI Compliance Platform audit-log export "
+        "(schema-accurate against synthetic fixtures; not yet validated "
+        "against live exports)",
     )
     read_openai.add_argument(
         "--input",
@@ -1408,7 +1410,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     read_langsmith = read_sub.add_parser(
         "langsmith",
-        help="Read a LangSmith Fleet audit-trace export",
+        help="[preview] Read a LangSmith Fleet audit-trace export "
+        "(schema-accurate against synthetic fixtures; not yet validated "
+        "against live exports)",
     )
     read_langsmith.add_argument(
         "--input",
@@ -1590,7 +1594,16 @@ def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
     """
     from specora_verify.canonical import canonical_json_str
     from specora_verify.errors import ReaderError
-    from specora_verify.readers import get_reader
+    from specora_verify.readers import PREVIEW_WARNING, get_reader, is_preview_reader
+
+    # Preview readers are schema-accurate against synthetic fixtures only. Warn
+    # before producing a bundle so a user does not mistake a preview reader's
+    # output for one validated against a real upstream export (GAP-02).
+    if is_preview_reader(provider):
+        print(
+            f"warning: '{provider}' reader is [preview] — {PREVIEW_WARNING}",
+            file=sys.stderr,
+        )
 
     try:
         reader_impl = get_reader(provider)

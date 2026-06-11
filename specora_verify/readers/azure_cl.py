@@ -104,6 +104,8 @@ class AzureConfidentialLedgerReader:
         "extracted as first-class evidence. Offline, no network calls."
     )
     supported_schema_versions: tuple[str, ...] = _SUPPORTED_VERSIONS
+    # Validated against real Azure Confidential Ledger exports.
+    preview: bool = False
 
     def read(
         self,

@@ -1,4 +1,9 @@
-# OpenAI Compliance Platform Reader
+# OpenAI Compliance Platform Reader `[preview]`
+
+> **`[preview]` reader.** Schema-accurate against synthetic fixtures, not yet
+> validated against a real OpenAI Compliance Platform export. The CLI prints a
+> warning when you run it. Do not treat its output as field-validated until the
+> reader is promoted (tracked in [issue #30](https://github.com/SpecoraAI/specora-verify/issues/30)).
 
 ## What it is
 

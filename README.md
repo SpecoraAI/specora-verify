@@ -165,13 +165,22 @@ specora-verify read anthropic \
 specora-verify bundle verify bundle.sev
 ```
 
-Reader coverage at launch (2026-06-14):
+Reader coverage. **Validated** readers have been run against real provider
+exports. **`[preview]`** readers are schema-accurate against synthetic fixtures
+but have not yet been validated against a live export; they print a warning when
+you run them, and their output should not be treated as field-validated until
+they are promoted.
+
+Validated:
 
 - [x] Anthropic Compliance API — [docs](docs/readers/anthropic.md) · [module](specora_verify/readers/anthropic.py)
 - [x] AWS CloudTrail Lake + Bedrock Automated Reasoning Checks — [docs](docs/readers/cloudtrail.md) · [module](specora_verify/readers/cloudtrail.py)
 - [x] Azure Confidential Ledger (entries + receipts, TEE attestation extracted) — [docs](docs/readers/azure_cl.md) · [module](specora_verify/readers/azure_cl.py)
-- [x] OpenAI Compliance Platform (moderation/policy-check evidence, design-accurate pending live-data validation) — [docs](docs/readers/openai-compliance.md) · [module](specora_verify/readers/openai_compliance.py)
-- [x] LangSmith Fleet (feedback scores / human annotations as first-class evidence, design-accurate pending live-data validation) — [docs](docs/readers/langsmith.md) · [module](specora_verify/readers/langsmith.py)
+
+`[preview]` (schema-accurate against synthetic fixtures; not yet validated against live exports):
+
+- [x] **`[preview]`** OpenAI Compliance Platform (moderation/policy-check evidence) — [docs](docs/readers/openai-compliance.md) · [module](specora_verify/readers/openai_compliance.py)
+- [x] **`[preview]`** LangSmith Fleet (feedback scores / human annotations as first-class evidence) — [docs](docs/readers/langsmith.md) · [module](specora_verify/readers/langsmith.py)
 
 Each reader is roughly 200 lines of Python and a schema-mapping document. Contributions for additional providers are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
