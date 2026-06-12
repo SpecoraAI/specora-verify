@@ -22,7 +22,7 @@ Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
   (`present_unverified`), or absent (`absent`). Unverified-but-present signatures
   emit a `stderr` warning and require `--public-key` to promote to `verified`. ([#33])
 - **Internal-hostname CI guard** — `tests/test_no_internal_hostnames.py` blocks
-  accidental commits of `home.lab`, `*.internal`, or `localhost` references outside
+  accidental commits of private lab hostnames and loopback references outside
   the `tests/` directory, mirroring the monorepo `test_no_*` pattern. ([#34])
 
 ### Changed
