@@ -257,4 +257,7 @@ class TestCLIVersion:
 
         captured = capsys.readouterr()
         assert "specora-verify" in captured.out
-        assert "1.0.0" in captured.out
+        # Assert against the package version so this does not break on bumps.
+        from specora_verify import __version__
+
+        assert __version__ in captured.out
