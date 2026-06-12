@@ -1566,6 +1566,44 @@ def _load_json_file(path: Path, output_format: str) -> dict[str, Any] | None:
         return None
 
 
+# GAP-15: upstream per-record signature verification status. Recorded in bundle
+# metadata (``metadata.upstream_signatures``) and surfaced on stderr so a user
+# never mistakes an unverified signed export for a verified one. Three states:
+#   "verified"           — records carried upstream signatures AND --public-key
+#                          was supplied, so the surviving records were checked.
+#   "present_unverified" — records carried upstream signatures but no
+#                          --public-key was supplied, so verification was
+#                          skipped; the records are ingested as-is.
+#   "absent"             — no record carried an upstream signature (the common
+#                          case for readers whose upstream has no per-record
+#                          signing: cloudtrail, azure-cl, openai, langsmith).
+UPSTREAM_SIG_VERIFIED = "verified"
+UPSTREAM_SIG_PRESENT_UNVERIFIED = "present_unverified"
+UPSTREAM_SIG_ABSENT = "absent"
+
+
+def _classify_upstream_signatures(result: Any, public_key_path: Any) -> str:
+    """Classify whether a read's upstream signatures were verified.
+
+    ``ReadResult.upstream_key_id`` is the cross-reader "signatures present"
+    signal: per the reader contract it is ``None`` when the upstream export is
+    unsigned and set to the upstream key id when records carry per-record
+    signatures. Today only the Anthropic reader emits signed records; the other
+    readers' upstreams have no per-record signing and leave it ``None``.
+
+    Verification was attempted iff a ``--public-key`` was supplied (readers that
+    cannot verify, e.g. cloudtrail, already emit a "provided but ignored"
+    warning and leave ``upstream_key_id`` ``None``, so they classify as
+    ``absent`` rather than a false ``verified``).
+    """
+    signatures_present = getattr(result, "upstream_key_id", None) is not None
+    if not signatures_present:
+        return UPSTREAM_SIG_ABSENT
+    if public_key_path is not None:
+        return UPSTREAM_SIG_VERIFIED
+    return UPSTREAM_SIG_PRESENT_UNVERIFIED
+
+
 def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
     """Shared dispatch path for every ``specora-verify read <provider>`` subcommand.
 
@@ -1625,6 +1663,26 @@ def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
         )
         return EXIT_ERROR
 
+    # GAP-15: record the upstream-signature verification status in bundle
+    # metadata. The bundle's content_hash covers {"records": ...} only, so
+    # adding a metadata key here does not perturb it.
+    sig_status = _classify_upstream_signatures(result, args.public_key)
+    metadata = result.bundle_payload.get("metadata")
+    if isinstance(metadata, dict):
+        metadata["upstream_signatures"] = sig_status
+
+    # GAP-15: if the upstream records carried per-record signatures we did NOT
+    # verify (no --public-key supplied), warn loudly so a user does not assume
+    # the upstream signatures were checked when they were merely passed through.
+    if sig_status == UPSTREAM_SIG_PRESENT_UNVERIFIED:
+        print(
+            f"warning: '{provider}' export carries per-record upstream "
+            "signatures that were NOT verified (no --public-key supplied). "
+            "Pass --public-key <path> to verify them; bundle metadata records "
+            "upstream_signatures=present_unverified.",
+            file=sys.stderr,
+        )
+
     output = canonical_json_str(result.bundle_payload)
     if args.out:
         args.out.write_text(output + "\n", encoding="utf-8")
@@ -1637,6 +1695,7 @@ def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
             "schema_version": result.schema_version,
             "record_count": result.record_count,
             "upstream_key_id": result.upstream_key_id,
+            "upstream_signatures": sig_status,
             "warnings": list(result.warnings),
             "out": str(args.out) if args.out else None,
         }
