@@ -27,12 +27,8 @@ EXAMPLE = REPO_ROOT / "examples" / "verify-sample-bundle.sh"
 
 # Documented DEMO-ROOT pin (docs/issuer-key-pinning.md). Kept in lockstep with
 # the published endpoint and the example script.
-DEMO_ROOT_PUBLIC_KEY_HEX = (
-    "5a4e96c468061f94d90b4ec2998b65b9f6b57debc32dd098ffdcd8d99d29bb3c"
-)
-DEMO_ROOT_FINGERPRINT = (
-    "ebeef29a04e372d1ac9a2239beea4af8152de9a6d9e63698fa79f2720abb91b8"
-)
+DEMO_ROOT_PUBLIC_KEY_HEX = "5a4e96c468061f94d90b4ec2998b65b9f6b57debc32dd098ffdcd8d99d29bb3c"
+DEMO_ROOT_FINGERPRINT = "ebeef29a04e372d1ac9a2239beea4af8152de9a6d9e63698fa79f2720abb91b8"
 
 pytest.importorskip(
     "cryptography",
@@ -59,9 +55,7 @@ def test_sample_fingerprint_matches_published_root() -> None:
 def test_pinned_pubkey_hashes_to_documented_fingerprint() -> None:
     import hashlib
 
-    computed = hashlib.sha256(
-        bytes.fromhex(DEMO_ROOT_PUBLIC_KEY_HEX)
-    ).hexdigest()
+    computed = hashlib.sha256(bytes.fromhex(DEMO_ROOT_PUBLIC_KEY_HEX)).hexdigest()
     assert computed == DEMO_ROOT_FINGERPRINT
 
 
@@ -81,9 +75,7 @@ def test_sample_rejected_under_wrong_issuer_key() -> None:
     from specora_verify.agent_identity import validate_agent_identity_certificate
 
     wrong_key = "00" * 32
-    result = validate_agent_identity_certificate(
-        _load_sample(), issuer_public_key_hex=wrong_key
-    )
+    result = validate_agent_identity_certificate(_load_sample(), issuer_public_key_hex=wrong_key)
     assert not result.valid
 
 

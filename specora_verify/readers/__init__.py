@@ -140,8 +140,7 @@ def available_readers() -> list[str]:
 # emitted on stderr when a preview reader runs.
 PREVIEW_LABEL = "[preview]"
 PREVIEW_WARNING = (
-    "schema validated against synthetic fixtures only; "
-    "not yet validated against live exports"
+    "schema validated against synthetic fixtures only; not yet validated against live exports"
 )
 
 

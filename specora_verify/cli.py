@@ -1526,9 +1526,7 @@ def build_parser() -> argparse.ArgumentParser:
         "agent-identity",
         help="Agent identity certificate operations",
     )
-    agent_identity_sub = agent_identity_parser.add_subparsers(
-        dest="agent_identity_command"
-    )
+    agent_identity_sub = agent_identity_parser.add_subparsers(dest="agent_identity_command")
     aid_verify = agent_identity_sub.add_parser(
         "verify",
         help="Verify a Specora agent-identity certificate against an issuer key",
@@ -1916,14 +1914,13 @@ def _resolve_issuer_key_hex(args: argparse.Namespace) -> str:
     only option that touches the network, and only because the user named the URL.
     """
     if getattr(args, "issuer_key_hex", None):
-        return args.issuer_key_hex.strip()
+        key_hex: str = args.issuer_key_hex
+        return key_hex.strip()
     if getattr(args, "issuer_key_file", None):
         return Path(args.issuer_key_file).read_text(encoding="utf-8").strip()
     if getattr(args, "issuer_url", None):
         return _fetch_issuer_key_hex(args.issuer_url)
-    raise ValueError(
-        "provide one of --issuer-key-hex, --issuer-key-file, or --issuer-url"
-    )
+    raise ValueError("provide one of --issuer-key-hex, --issuer-key-file, or --issuer-url")
 
 
 def _fetch_issuer_key_hex(url: str) -> str:
@@ -1966,16 +1963,12 @@ def cmd_agent_identity_verify(args: argparse.Namespace) -> int:
         issuer_hex = _resolve_issuer_key_hex(args)
     except ValueError as exc:
         print(
-            format_error(
-                str(exc), output_format=args.format, code="ISSUER_KEY_ERROR"
-            ),
+            format_error(str(exc), output_format=args.format, code="ISSUER_KEY_ERROR"),
             file=sys.stderr,
         )
         return EXIT_ERROR
 
-    result = validate_agent_identity_certificate(
-        cert, issuer_public_key_hex=issuer_hex
-    )
+    result = validate_agent_identity_certificate(cert, issuer_public_key_hex=issuer_hex)
     if args.format == "json":
         print(
             json.dumps(

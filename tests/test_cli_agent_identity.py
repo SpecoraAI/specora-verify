@@ -34,17 +34,13 @@ def _run(argv: list[str]) -> int:
 
 
 def test_agent_identity_verify_pass_with_pinned_key(capsys) -> None:
-    code = _run(
-        ["agent-identity", "verify", str(SAMPLE), "--issuer-key-hex", PINNED_KEY_HEX]
-    )
+    code = _run(["agent-identity", "verify", str(SAMPLE), "--issuer-key-hex", PINNED_KEY_HEX])
     assert code == EXIT_PASS
     assert "PASS" in capsys.readouterr().out
 
 
 def test_agent_identity_verify_fail_with_wrong_key(capsys) -> None:
-    code = _run(
-        ["agent-identity", "verify", str(SAMPLE), "--issuer-key-hex", "00" * 32]
-    )
+    code = _run(["agent-identity", "verify", str(SAMPLE), "--issuer-key-hex", "00" * 32])
     assert code == EXIT_FAIL
 
 
@@ -57,9 +53,7 @@ def test_agent_identity_verify_requires_an_issuer_source() -> None:
 def test_agent_identity_verify_issuer_key_file(tmp_path: Path) -> None:
     key_file = tmp_path / "issuer.hex"
     key_file.write_text(PINNED_KEY_HEX, encoding="utf-8")
-    code = _run(
-        ["agent-identity", "verify", str(SAMPLE), "--issuer-key-file", str(key_file)]
-    )
+    code = _run(["agent-identity", "verify", str(SAMPLE), "--issuer-key-file", str(key_file)])
     assert code == EXIT_PASS
 
 
