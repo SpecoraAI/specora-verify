@@ -1875,8 +1875,17 @@ def _fetch_issuer_key_hex(url: str) -> str:
     """
     import urllib.request
 
+    from specora_verify import __version__
+
+    # Send an explicit User-Agent. The default urllib UA ("Python-urllib/X") is
+    # rejected (HTTP 403) by the published-root endpoint's edge, whereas a named
+    # client UA is allowed — the GAP-01 sample script sets one for the same
+    # reason. Without this, the convenience --issuer-url path fails for users.
+    request = urllib.request.Request(  # noqa: S310 — user-named URL
+        url, headers={"User-Agent": f"specora-verify/{__version__}"}
+    )
     try:
-        with urllib.request.urlopen(url, timeout=15) as resp:  # noqa: S310 — user-named URL
+        with urllib.request.urlopen(request, timeout=15) as resp:  # noqa: S310
             payload = json.loads(resp.read().decode("utf-8"))
     except (OSError, ValueError) as exc:
         raise ValueError(f"failed to fetch issuer root from {url}: {exc}") from exc
