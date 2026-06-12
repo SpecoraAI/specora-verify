@@ -7,5 +7,5 @@ No SDK or internal API access required - designed for offline verification
 by customers, auditors, and third parties.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = "Specora AI"
