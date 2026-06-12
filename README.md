@@ -19,7 +19,7 @@
 [![Homebrew tap](https://img.shields.io/badge/homebrew-specora%2Ftap-orange)](https://github.com/SpecoraAI/homebrew-tap)
 [![Wire Spec v1.0](https://img.shields.io/badge/wire%20spec-v1.0-green)](https://spec.specora.ai/v1.0)
 
-> **Availability:** `1.0.0` is live — `pip install specora-verify`, `brew install SpecoraAI/tap/specora-verify`, and the Sigstore-signed release binaries all resolve today. The one piece still in flight is the `spec.specora.ai` wire-spec mirror (DNS pending); until it's up, read the spec from [`docs/wire-spec-v1.0.md`](docs/wire-spec-v1.0.md) in this repo. Distribution status is verifiable any time with `python tools/qa/check_l1_distribution.py`.
+> **Availability:** `specora-verify` is live. Install from [PyPI](https://pypi.org/project/specora-verify/) (`pip install specora-verify`) or the [Homebrew tap](https://github.com/SpecoraAI/homebrew-tap) (`brew tap SpecoraAI/tap && brew install specora-verify`). The wire spec is published at [spec.specora.ai/v1.0](https://spec.specora.ai/v1.0), and this repository is public. The `1.0.0` line shipped ahead of the original 2026-06-14 target. Remaining post-launch hardening is tracked in [docs/release-checklist.md](docs/release-checklist.md).
 
 ---
 
@@ -117,6 +117,19 @@ Status:         PASS
 
 If this prints `PASS`, your verifier is byte-identical with the reference implementation and you can trust everything else it tells you. If it prints `FAIL`, something is wrong with either the install or the vectors — stop and investigate before relying on the tool.
 
+## Verify a Specora-issued credential without a Specora account
+
+The point of this tool is that you verify what Specora signs without trusting Specora at verification time. You can see that in one command. This repository ships a pre-built agent-identity credential that Specora issued. The script below fetches Specora's published issuer key, checks that key's fingerprint against the value pinned in [docs/issuer-key-pinning.md](docs/issuer-key-pinning.md), and then verifies the credential against it:
+
+```bash
+pip install "specora-verify[crypto]"
+./examples/verify-sample-bundle.sh            # fetches the published issuer key
+# or, with no network:
+./examples/verify-sample-bundle.sh --offline  # uses the pinned key only
+```
+
+A `PASS` means a credential Specora signed verified on your machine, against a key you pinned, with no Specora service in the verification path. The shipped sample is signed by the prelaunch **DEMO-ROOT** key, a pre-production demo issuer marked `for-demo-only-not-production`. It is not the production C01 ceremony root. The two lanes are kept apart by the pinned fingerprint, never by the credential format string. See [docs/issuer-key-pinning.md](docs/issuer-key-pinning.md) for the full pinning and rotation contract.
+
 ## Verify an evidence bundle
 
 ```bash
@@ -152,13 +165,22 @@ specora-verify read anthropic \
 specora-verify bundle verify bundle.sev
 ```
 
-Reader coverage at launch (2026-06-14):
+Reader coverage. **Validated** readers have been run against real provider
+exports. **`[preview]`** readers are schema-accurate against synthetic fixtures
+but have not yet been validated against a live export; they print a warning when
+you run them, and their output should not be treated as field-validated until
+they are promoted.
+
+Validated:
 
 - [x] Anthropic Compliance API — [docs](docs/readers/anthropic.md) · [module](specora_verify/readers/anthropic.py)
 - [x] AWS CloudTrail Lake + Bedrock Automated Reasoning Checks — [docs](docs/readers/cloudtrail.md) · [module](specora_verify/readers/cloudtrail.py)
 - [x] Azure Confidential Ledger (entries + receipts, TEE attestation extracted) — [docs](docs/readers/azure_cl.md) · [module](specora_verify/readers/azure_cl.py)
-- [x] OpenAI Compliance Platform (moderation/policy-check evidence, design-accurate pending live-data validation) — [docs](docs/readers/openai-compliance.md) · [module](specora_verify/readers/openai_compliance.py)
-- [x] LangSmith Fleet (feedback scores / human annotations as first-class evidence, design-accurate pending live-data validation) — [docs](docs/readers/langsmith.md) · [module](specora_verify/readers/langsmith.py)
+
+`[preview]` (schema-accurate against synthetic fixtures; not yet validated against live exports):
+
+- [x] **`[preview]`** OpenAI Compliance Platform (moderation/policy-check evidence) — [docs](docs/readers/openai-compliance.md) · [module](specora_verify/readers/openai_compliance.py)
+- [x] **`[preview]`** LangSmith Fleet (feedback scores / human annotations as first-class evidence) — [docs](docs/readers/langsmith.md) · [module](specora_verify/readers/langsmith.py)
 
 Each reader is roughly 200 lines of Python and a schema-mapping document. Contributions for additional providers are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -215,7 +237,7 @@ Supported GRC platforms (commercial connectors available from Specora):
 
 ## Documentation
 
-- **Wire Spec v1.0 (canonical):** [docs/wire-spec-v1.0.md](docs/wire-spec-v1.0.md) — normative contract. The `spec.specora.ai/v1.0` badge URL above is reserved for a future rendered view of this in-repo document; the repo is the authoritative source.
+- **Wire Spec v1.0 (canonical):** [docs/wire-spec-v1.0.md](docs/wire-spec-v1.0.md) — normative contract, also rendered at [spec.specora.ai/v1.0](https://spec.specora.ai/v1.0). The in-repo document is the authoritative source; the hosted page mirrors it.
 - **Versioning policy:** [docs/versioning-policy.md](docs/versioning-policy.md)
 - **Quickstart tutorial:** [docs/quickstart.md](docs/quickstart.md)
 - **Trust model:** [docs/trust-model.md](docs/trust-model.md)

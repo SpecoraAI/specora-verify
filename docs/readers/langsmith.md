@@ -1,4 +1,9 @@
-# LangSmith Fleet Reader
+# LangSmith Fleet Reader `[preview]`
+
+> **`[preview]` reader.** Schema-accurate against synthetic fixtures, not yet
+> validated against a real LangSmith Fleet export. The CLI prints a warning when
+> you run it. Do not treat its output as field-validated until the reader is
+> promoted (tracked in [issue #31](https://github.com/SpecoraAI/specora-verify/issues/31)).
 
 ## What it is
 

@@ -102,6 +102,27 @@ with a warning in `--non-strict` mode.
 
 The public key format is either raw 32 bytes or 64-character hex.
 
+#### Verified vs unverified signatures
+
+When you omit `--public-key`, the reader still ingests the signed
+records, but it does **not** check the upstream signatures. So you do
+not mistake passed-through signatures for verified ones, the CLI:
+
+- prints a `warning: ... carries per-record upstream signatures that
+  were NOT verified` line to stderr, and
+- records the status in the bundle under `metadata.upstream_signatures`.
+
+`metadata.upstream_signatures` is one of:
+
+| Value | Meaning |
+| --- | --- |
+| `verified` | Records carried upstream signatures and `--public-key` checked them. |
+| `present_unverified` | Records carried upstream signatures but no `--public-key` was supplied, so they were passed through unchecked. |
+| `absent` | No record carried an upstream signature (the case for readers whose upstream has no per-record signing). |
+
+Pass `--public-key <path>` to move a bundle from `present_unverified` to
+`verified`.
+
 ### Non-strict mode
 
 ```bash

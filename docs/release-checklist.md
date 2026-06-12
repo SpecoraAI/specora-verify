@@ -1,15 +1,17 @@
-# Release Checklist — Public Flip (v1.0.0, target 2026-06-14)
+# Release Checklist — Public Flip (v1.0.0, flipped 2026-06-10)
 
 This is the gate between a private working repo and the public-trust posture
 the product promises. The whole thesis of `specora-verify` is that an
 independent third party can **obtain and verify the tool without trusting
 the producer**. That promise is only real once every public distribution and
-out-of-band verification anchor resolves. Until they do, the README badges,
-`pip install`, and `brew install` paths point at 404s.
+out-of-band verification anchor resolves.
 
-> Status as of last edit: **pre-flip.** The public surface is intentionally
-> absent. Run the L1 gate below in pre-flip mode to confirm a clean (not
-> half-published) state, and in post-flip mode on flip day.
+> Status as of last edit: **flipped.** `specora-verify 1.0.0` is published on
+> PyPI, this repository is public, the Homebrew tap carries the formula, and
+> the wire-spec mirror at `spec.specora.ai/v1.0` resolves. The flip landed
+> 2026-06-10, ahead of the original 2026-06-14 target. The remaining open
+> items below are post-flip verification an operator runs against the live
+> artifacts (Sigstore signature checks), not pending publish work.
 
 ## L0 — In-repo correctness (must be green before flip)
 
@@ -44,13 +46,13 @@ python tools/qa/check_l1_distribution.py --expect-prelaunch
 python tools/qa/check_l1_distribution.py
 ```
 
-| Anchor | What it unlocks | Publish action |
+| Anchor | What it unlocks | Status |
 |---|---|---|
-| **PyPI package** `specora-verify` | `pip install specora-verify` | Trusted-publishing release job on the `v1.0.0` tag. |
-| **GitHub repo public** `SpecoraAI/specora-verify` | source review, signed commits, issues | Org/repo private→public flip after licence + legal sign-off. |
-| **GitHub release + Sigstore bundles** | signed sdist/wheel + standalone binaries; `cosign verify-blob` / `sigstore verify` before running | Release job uploads artifacts + `.sigstore` bundles. |
-| **Homebrew tap** `SpecoraAI/homebrew-tap` | `brew install specora-verify` | Create + publish the tap formula. |
-| **Wire-spec mirror** `spec.specora.ai` | the canonical spec URL cited throughout the docs (DNS currently NXDOMAIN) | Point DNS + serve `/v1.0` (mirror of `docs/wire-spec-v1.0.md`). |
+| **PyPI package** `specora-verify` | `pip install specora-verify` | **Live.** `1.0.0` published via the trusted-publishing release job. |
+| **GitHub repo public** `SpecoraAI/specora-verify` | source review, signed commits, issues | **Live.** Repository is public (`gh repo view` reports `PUBLIC`). |
+| **GitHub release + Sigstore bundles** | signed sdist/wheel + standalone binaries; `cosign verify-blob` / `sigstore verify` before running | Release job uploads artifacts + `.sigstore` bundles. Operator verifies per L1 post-publish checklist below. |
+| **Homebrew tap** `SpecoraAI/homebrew-tap` | `brew install specora-verify` | **Live.** Tap repository carries the `specora-verify` formula. |
+| **Wire-spec mirror** `spec.specora.ai` | the canonical spec URL cited throughout the docs | **Live.** `spec.specora.ai/v1.0` serves the rendered wire spec (mirror of `docs/wire-spec-v1.0.md`). |
 
 ### Post-publish verification a third party should be able to do
 
@@ -64,10 +66,11 @@ python tools/qa/check_l1_distribution.py
 
 ## L2 — Claim-accuracy (docs must match availability)
 
-- [ ] README "Availability" note reflects the real flip date and is removed or
-      updated once anchors are live.
-- [ ] No present-tense install/verification claim resolves to a 404 for a
-      public reader. (`check_l1_distribution.py` is the objective test.)
+- [x] README "Availability" note reflects the real flip date and is removed or
+      updated once anchors are live. (Updated 2026-06-11 to post-flip state.)
+- [x] No present-tense install/verification claim resolves to a 404 for a
+      public reader. (`check_l1_distribution.py` is the objective test;
+      endpoint reachability re-verified 2026-06-11.)
 - [ ] `pyproject.toml` `Development Status` matches reality at publish time.
 
 ---

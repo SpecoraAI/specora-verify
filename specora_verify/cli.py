@@ -1359,7 +1359,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     read_openai = read_sub.add_parser(
         "openai",
-        help="Read an OpenAI Compliance Platform audit-log export",
+        help="[preview] Read an OpenAI Compliance Platform audit-log export "
+        "(schema-accurate against synthetic fixtures; not yet validated "
+        "against live exports)",
     )
     read_openai.add_argument(
         "--input",
@@ -1408,7 +1410,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     read_langsmith = read_sub.add_parser(
         "langsmith",
-        help="Read a LangSmith Fleet audit-trace export",
+        help="[preview] Read a LangSmith Fleet audit-trace export "
+        "(schema-accurate against synthetic fixtures; not yet validated "
+        "against live exports)",
     )
     read_langsmith.add_argument(
         "--input",
@@ -1514,6 +1518,45 @@ def build_parser() -> argparse.ArgumentParser:
         help="Drop malformed records with warnings instead of failing the read",
     )
 
+    # agent-identity command — verify a Specora agent-identity certificate
+    # against an issuer key. The default posture stays offline: pass the issuer
+    # key with --issuer-key-hex or --issuer-key-file. --issuer-url is the one
+    # explicit network opt-in, fetching the published root key the user names.
+    agent_identity_parser = subparsers.add_parser(
+        "agent-identity",
+        help="Agent identity certificate operations",
+    )
+    agent_identity_sub = agent_identity_parser.add_subparsers(dest="agent_identity_command")
+    aid_verify = agent_identity_sub.add_parser(
+        "verify",
+        help="Verify a Specora agent-identity certificate against an issuer key",
+    )
+    aid_verify.add_argument(
+        "file",
+        type=Path,
+        help="Path to the agent-identity certificate JSON",
+    )
+    aid_verify.add_argument(
+        "--issuer-key-hex",
+        default=None,
+        help="Issuer Ed25519 public key as 64 hex chars (offline)",
+    )
+    aid_verify.add_argument(
+        "--issuer-key-file",
+        type=Path,
+        default=None,
+        help="File containing the issuer public key as hex (offline)",
+    )
+    aid_verify.add_argument(
+        "--issuer-url",
+        default=None,
+        help=(
+            "URL of the published issuer root JSON to fetch the key from "
+            "(e.g. https://api.specora.ai/.well-known/specora-demo-root.json). "
+            "This is the only option that makes a network request."
+        ),
+    )
+
     return parser
 
 
@@ -1562,6 +1605,44 @@ def _load_json_file(path: Path, output_format: str) -> dict[str, Any] | None:
         return None
 
 
+# GAP-15: upstream per-record signature verification status. Recorded in bundle
+# metadata (``metadata.upstream_signatures``) and surfaced on stderr so a user
+# never mistakes an unverified signed export for a verified one. Three states:
+#   "verified"           — records carried upstream signatures AND --public-key
+#                          was supplied, so the surviving records were checked.
+#   "present_unverified" — records carried upstream signatures but no
+#                          --public-key was supplied, so verification was
+#                          skipped; the records are ingested as-is.
+#   "absent"             — no record carried an upstream signature (the common
+#                          case for readers whose upstream has no per-record
+#                          signing: cloudtrail, azure-cl, openai, langsmith).
+UPSTREAM_SIG_VERIFIED = "verified"
+UPSTREAM_SIG_PRESENT_UNVERIFIED = "present_unverified"
+UPSTREAM_SIG_ABSENT = "absent"
+
+
+def _classify_upstream_signatures(result: Any, public_key_path: Any) -> str:
+    """Classify whether a read's upstream signatures were verified.
+
+    ``ReadResult.upstream_key_id`` is the cross-reader "signatures present"
+    signal: per the reader contract it is ``None`` when the upstream export is
+    unsigned and set to the upstream key id when records carry per-record
+    signatures. Today only the Anthropic reader emits signed records; the other
+    readers' upstreams have no per-record signing and leave it ``None``.
+
+    Verification was attempted iff a ``--public-key`` was supplied (readers that
+    cannot verify, e.g. cloudtrail, already emit a "provided but ignored"
+    warning and leave ``upstream_key_id`` ``None``, so they classify as
+    ``absent`` rather than a false ``verified``).
+    """
+    signatures_present = getattr(result, "upstream_key_id", None) is not None
+    if not signatures_present:
+        return UPSTREAM_SIG_ABSENT
+    if public_key_path is not None:
+        return UPSTREAM_SIG_VERIFIED
+    return UPSTREAM_SIG_PRESENT_UNVERIFIED
+
+
 def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
     """Shared dispatch path for every ``specora-verify read <provider>`` subcommand.
 
@@ -1590,7 +1671,16 @@ def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
     """
     from specora_verify.canonical import canonical_json_str
     from specora_verify.errors import ReaderError
-    from specora_verify.readers import get_reader
+    from specora_verify.readers import PREVIEW_WARNING, get_reader, is_preview_reader
+
+    # Preview readers are schema-accurate against synthetic fixtures only. Warn
+    # before producing a bundle so a user does not mistake a preview reader's
+    # output for one validated against a real upstream export (GAP-02).
+    if is_preview_reader(provider):
+        print(
+            f"warning: '{provider}' reader is [preview] — {PREVIEW_WARNING}",
+            file=sys.stderr,
+        )
 
     try:
         reader_impl = get_reader(provider)
@@ -1612,6 +1702,26 @@ def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
         )
         return EXIT_ERROR
 
+    # GAP-15: record the upstream-signature verification status in bundle
+    # metadata. The bundle's content_hash covers {"records": ...} only, so
+    # adding a metadata key here does not perturb it.
+    sig_status = _classify_upstream_signatures(result, args.public_key)
+    metadata = result.bundle_payload.get("metadata")
+    if isinstance(metadata, dict):
+        metadata["upstream_signatures"] = sig_status
+
+    # GAP-15: if the upstream records carried per-record signatures we did NOT
+    # verify (no --public-key supplied), warn loudly so a user does not assume
+    # the upstream signatures were checked when they were merely passed through.
+    if sig_status == UPSTREAM_SIG_PRESENT_UNVERIFIED:
+        print(
+            f"warning: '{provider}' export carries per-record upstream "
+            "signatures that were NOT verified (no --public-key supplied). "
+            "Pass --public-key <path> to verify them; bundle metadata records "
+            "upstream_signatures=present_unverified.",
+            file=sys.stderr,
+        )
+
     output = canonical_json_str(result.bundle_payload)
     if args.out:
         args.out.write_text(output + "\n", encoding="utf-8")
@@ -1624,6 +1734,7 @@ def _dispatch_read(args: argparse.Namespace, provider: str) -> int:
             "schema_version": result.schema_version,
             "record_count": result.record_count,
             "upstream_key_id": result.upstream_key_id,
+            "upstream_signatures": sig_status,
             "warnings": list(result.warnings),
             "out": str(args.out) if args.out else None,
         }
@@ -1793,6 +1904,90 @@ def cmd_bundle_verify(args: argparse.Namespace) -> int:
 
     result = verify_bundle(args.file)
     print(format_bundle_result(result, output_format=args.format))
+    return EXIT_PASS if result.valid else EXIT_FAIL
+
+
+def _resolve_issuer_key_hex(args: argparse.Namespace) -> str:
+    """Resolve the issuer public key hex from the offline or network options.
+
+    Offline first: --issuer-key-hex, then --issuer-key-file. --issuer-url is the
+    only option that touches the network, and only because the user named the URL.
+    """
+    if getattr(args, "issuer_key_hex", None):
+        key_hex: str = args.issuer_key_hex
+        return key_hex.strip()
+    if getattr(args, "issuer_key_file", None):
+        return Path(args.issuer_key_file).read_text(encoding="utf-8").strip()
+    if getattr(args, "issuer_url", None):
+        return _fetch_issuer_key_hex(args.issuer_url)
+    raise ValueError("provide one of --issuer-key-hex, --issuer-key-file, or --issuer-url")
+
+
+def _fetch_issuer_key_hex(url: str) -> str:
+    """Fetch the published issuer root JSON and return its public_key_hex.
+
+    The published root (e.g. specora-demo-root-v1) serializes only the public
+    half of the issuer key plus its fingerprint.
+    """
+    import urllib.request
+
+    from specora_verify import __version__
+
+    # Send an explicit User-Agent. The default urllib UA ("Python-urllib/X") is
+    # rejected (HTTP 403) by the published-root endpoint's edge, whereas a named
+    # client UA is allowed — the GAP-01 sample script sets one for the same
+    # reason. Without this, the convenience --issuer-url path fails for users.
+    request = urllib.request.Request(  # noqa: S310 — user-named URL
+        url, headers={"User-Agent": f"specora-verify/{__version__}"}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15) as resp:  # noqa: S310
+            payload = json.loads(resp.read().decode("utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"failed to fetch issuer root from {url}: {exc}") from exc
+    key = payload.get("public_key_hex")
+    if not isinstance(key, str) or not key:
+        raise ValueError(f"{url} did not return a 'public_key_hex' field")
+    return key
+
+
+def cmd_agent_identity_verify(args: argparse.Namespace) -> int:
+    """Handle: specora-verify agent-identity verify <cert.json> --issuer-*"""
+    from specora_verify.agent_identity import validate_agent_identity_certificate
+
+    cert = _load_json_file(args.file, args.format)
+    if cert is None:
+        return EXIT_ERROR
+
+    try:
+        issuer_hex = _resolve_issuer_key_hex(args)
+    except ValueError as exc:
+        print(
+            format_error(str(exc), output_format=args.format, code="ISSUER_KEY_ERROR"),
+            file=sys.stderr,
+        )
+        return EXIT_ERROR
+
+    result = validate_agent_identity_certificate(cert, issuer_public_key_hex=issuer_hex)
+    if args.format == "json":
+        print(
+            json.dumps(
+                {
+                    "verification": "PASS" if result.valid else "FAIL",
+                    "reason": result.reason,
+                    "issuer_key_fingerprint": result.issuer_key_fingerprint,
+                }
+            )
+        )
+    else:
+        if result.valid:
+            subject = cert.get("subject", {})
+            print("verification: PASS")
+            print(f"  agent_id:    {subject.get('agent_id')}")
+            print(f"  org_id:      {subject.get('org_id')}")
+            print(f"  fingerprint: {result.issuer_key_fingerprint}")
+        else:
+            print(f"verification: FAIL ({result.reason})", file=sys.stderr)
     return EXIT_PASS if result.valid else EXIT_FAIL
 
 
@@ -3530,6 +3725,11 @@ def main(argv: list[str] | None = None) -> NoReturn:
                     parser.print_help()
             else:
                 parser.print_help()
+        else:
+            parser.print_help()
+    elif args.command == "agent-identity":
+        if args.agent_identity_command == "verify":
+            exit_code = cmd_agent_identity_verify(args)
         else:
             parser.print_help()
     else:

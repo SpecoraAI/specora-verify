@@ -196,6 +196,9 @@ class LangSmithReader:
         "live-data validation."
     )
     supported_schema_versions: tuple[str, ...] = _SUPPORTED_VERSIONS
+    # Preview: schema-accurate against synthetic fixtures, not yet validated
+    # against a real LangSmith Fleet export. Tracked in GAP-02.
+    preview: bool = True
 
     def read(
         self,

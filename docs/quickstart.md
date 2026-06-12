@@ -17,6 +17,25 @@ You will:
 **Time:** ≤5 minutes if you already have Python 3.11+ installed.
 **No network calls. No API keys. No accounts.**
 
+> **In a hurry? The 60-second proof.** If you only want to see that this tool
+> verifies what Specora signs without trusting Specora, skip ahead and run the
+> shipped sample:
+>
+> ```sh
+> pip install "specora-verify[crypto]"
+> git clone https://github.com/SpecoraAI/specora-verify.git && cd specora-verify
+> ./examples/verify-sample-bundle.sh            # fetch the published issuer key
+> # or ./examples/verify-sample-bundle.sh --offline   # use the pinned key, no network
+> ```
+>
+> It fetches Specora's published issuer key, checks the key's fingerprint
+> against the value pinned in [issuer-key-pinning.md](issuer-key-pinning.md),
+> and verifies a pre-built Specora-issued credential against it. A `PASS` means
+> the credential verified on your machine against a key you pinned, with no
+> Specora service in the loop. The sample is signed by the prelaunch
+> **DEMO-ROOT** key (`for-demo-only-not-production`), not the production C01
+> ceremony root.
+
 ## 1. Prerequisites
 
 ```sh

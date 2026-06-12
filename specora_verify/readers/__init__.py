@@ -37,6 +37,9 @@ __all__ = [
     "reader",
     "get_reader",
     "available_readers",
+    "is_preview_reader",
+    "PREVIEW_LABEL",
+    "PREVIEW_WARNING",
 ]
 
 
@@ -70,6 +73,11 @@ class ReaderProtocol(Protocol):
     provider_name: str
     provider_description: str
     supported_schema_versions: tuple[str, ...]
+    # Preview readers are schema-accurate against synthetic fixtures but have
+    # not yet been validated against a real upstream export. They carry a
+    # `[preview]` label everywhere they surface and emit a one-line CLI warning
+    # on invocation. Flip to False only after a real export passes.
+    preview: bool
 
     def read(
         self,
@@ -126,6 +134,23 @@ def get_reader(name: str) -> ReaderProtocol:
 def available_readers() -> list[str]:
     """Return a sorted list of registered provider names."""
     return sorted(READERS)
+
+
+# Shown wherever a preview reader surfaces (README, reader docs, `--help`) and
+# emitted on stderr when a preview reader runs.
+PREVIEW_LABEL = "[preview]"
+PREVIEW_WARNING = (
+    "schema validated against synthetic fixtures only; not yet validated against live exports"
+)
+
+
+def is_preview_reader(name: str) -> bool:
+    """True if the reader registered under `name` is a preview reader.
+
+    Defensive `getattr` so a reader written before the `preview` attribute
+    existed defaults to non-preview rather than raising.
+    """
+    return bool(getattr(READERS.get(name), "preview", False))
 
 
 from specora_verify.readers import (  # noqa: E402

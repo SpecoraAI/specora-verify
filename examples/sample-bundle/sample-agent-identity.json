@@ -1,0 +1,22 @@
+{
+  "format": "specora-aid-cert-v1",
+  "issued_at": "2026-06-10T00:00:00Z",
+  "issuer": {
+    "common_name": "Specora Demo Root",
+    "organization": "Specora",
+    "organizational_unit": "for-demo-only-not-production"
+  },
+  "issuer_key_fingerprint": "ebeef29a04e372d1ac9a2239beea4af8152de9a6d9e63698fa79f2720abb91b8",
+  "not_after": "2036-06-07T00:00:00Z",
+  "principal": {
+    "id": "00000000-0000-0000-0000-0000000000b1",
+    "public_key": "a09aa5f47a6759802ff955f8dc2d2a14a5c99d23be97f864127ff9383455a4f0"
+  },
+  "public_key": "d04ab232742bb4ab3a1368bd4615e4e6d0224ab71a016baf8520a332c9778737",
+  "signature": "TrZ2ou+qOjIedHsWBvO8U35UpNcSomIRa96QL8DThD6Gfq8P3aqUAXaRHgVEeRZbue+0RzAWw8wZY/T1ThN7Cg==",
+  "subject": {
+    "agent_id": "specora-sample-agent",
+    "identity_id": "00000000-0000-0000-0000-0000000000a1",
+    "org_id": "00000000-0000-0000-0000-0000000000aa"
+  }
+}
