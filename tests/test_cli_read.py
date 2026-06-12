@@ -147,6 +147,106 @@ def test_cli_read_anthropic_with_upstream_public_key(tmp_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
+# GAP-15: upstream-signature verification status (warning + bundle metadata)
+# ---------------------------------------------------------------------------
+
+
+def test_cli_read_anthropic_unverified_signatures_warn(tmp_path: Path, capsys) -> None:
+    """Signed export read WITHOUT --public-key warns and flags the bundle."""
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "read",
+            "anthropic",
+            "--input",
+            str(FIXTURE_DIR / "minimal-valid.jsonl"),
+            "--key-id",
+            "spk-unverified",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    err = capsys.readouterr().err
+    assert "NOT verified" in err
+    assert "--public-key" in err
+    assert "upstream_signatures=present_unverified" in err
+    # Bundle metadata records the unverified status.
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["metadata"]["upstream_signatures"] == "present_unverified"
+
+
+def test_cli_read_anthropic_verified_signatures_no_warn(tmp_path: Path, capsys) -> None:
+    """Signed export read WITH --public-key flags the bundle 'verified', no warning."""
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "read",
+            "anthropic",
+            "--input",
+            str(FIXTURE_DIR / "minimal-valid.jsonl"),
+            "--key-id",
+            "spk-verified",
+            "--public-key",
+            str(FIXTURE_DIR / "keys" / "public.hex"),
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    err = capsys.readouterr().err
+    assert "NOT verified" not in err
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["metadata"]["upstream_signatures"] == "verified"
+
+
+def test_cli_read_unsigned_upstream_flags_absent(tmp_path: Path, capsys) -> None:
+    """A reader whose upstream has no per-record signatures flags 'absent', no warning."""
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "read",
+            "cloudtrail",
+            "--input",
+            str(CT_FIXTURE_DIR / "minimal-valid.json"),
+            "--key-id",
+            "spk-ct-absent",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    err = capsys.readouterr().err
+    assert "NOT verified" not in err
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["metadata"]["upstream_signatures"] == "absent"
+
+
+def test_cli_read_anthropic_unverified_json_summary(tmp_path: Path, capsys) -> None:
+    """The --format json stderr summary carries the upstream_signatures status."""
+    out = tmp_path / "bundle.json"
+    code = _run(
+        [
+            "--format",
+            "json",
+            "read",
+            "anthropic",
+            "--input",
+            str(FIXTURE_DIR / "minimal-valid.jsonl"),
+            "--key-id",
+            "spk-json-summary",
+            "--out",
+            str(out),
+        ]
+    )
+    assert code == EXIT_PASS
+    # The last non-empty stderr line is the JSON summary dict.
+    err_lines = [line for line in capsys.readouterr().err.splitlines() if line.strip()]
+    summary = json.loads(err_lines[-1])
+    assert summary["upstream_signatures"] == "present_unverified"
+
+
+# ---------------------------------------------------------------------------
 # CloudTrail CLI integration tests
 # ---------------------------------------------------------------------------
 
