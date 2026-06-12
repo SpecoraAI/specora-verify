@@ -20,7 +20,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMAS_DIR = REPO_ROOT / "docs" / "schemas"
-VECTORS_DIR = REPO_ROOT / "vectors"
+VECTORS_DIR = REPO_ROOT / "specora_verify" / "vectors"
 
 SCHEMA_VECTOR_PAIRS: list[tuple[str, str]] = [
     (

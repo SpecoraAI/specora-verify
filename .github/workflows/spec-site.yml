@@ -1,0 +1,58 @@
+# Keep the hosted wire spec (spec.specora.ai) in sync with the source of truth.
+# Rebuilds the gh-pages site from docs/wire-spec-v1.0.md whenever it changes on
+# main, so the canonical mirror can never drift. Plain git — no third-party
+# actions in the deploy path.
+name: Sync wire-spec site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/wire-spec-v1.0.md"
+      - "scripts/build_spec_site.py"
+      - ".github/workflows/spec-site.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: spec-site
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Build the spec site
+        run: python scripts/build_spec_site.py site
+
+      - name: Publish to gh-pages (only if changed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin gh-pages
+          git worktree add gh-pages-out gh-pages
+          # Replace the worktree contents with the freshly built site
+          # (keep the worktree's own .git link intact).
+          find gh-pages-out -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -R site/. gh-pages-out/
+          cd gh-pages-out
+          git add -A
+          if git diff --cached --quiet; then
+            echo "spec site already up to date — nothing to publish."
+          else
+            git commit -m "docs: sync wire-spec site from ${GITHUB_SHA::7}"
+            git push origin gh-pages
+            echo "Published updated spec site to gh-pages."
+          fi

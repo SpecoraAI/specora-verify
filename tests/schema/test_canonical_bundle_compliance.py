@@ -31,7 +31,7 @@ from specora_verify.readers import get_reader
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCHEMA_PATH = REPO_ROOT / "docs" / "schemas" / "canonical-bundle-v1.0.json"
-VECTORS_DIR = REPO_ROOT / "vectors" / "canonical-bundle"
+VECTORS_DIR = REPO_ROOT / "specora_verify" / "vectors" / "canonical-bundle"
 FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures"
 
 GOLDEN_VECTORS: list[str] = [

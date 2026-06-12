@@ -94,6 +94,18 @@ Issues        = "https://github.com/SpecoraAI/specora-verify/issues"
 where = ["."]
 include = ["specora_verify*"]
 
+# Ship the golden vectors inside the wheel so `specora-verify vectors verify`
+# works from a pip install (the CLI defaults to the bundled copy).
+[tool.setuptools.package-data]
+specora_verify = [
+    "vectors/**/*.json",
+    "vectors/**/*.txt",
+    "vectors/**/*.b64",
+    "vectors/**/*.pem",
+    "vectors/**/*.md",
+    "py.typed",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

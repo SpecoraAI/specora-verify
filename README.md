@@ -19,7 +19,7 @@
 [![Homebrew tap](https://img.shields.io/badge/homebrew-specora%2Ftap-orange)](https://github.com/SpecoraAI/homebrew-tap)
 [![Wire Spec v1.0](https://img.shields.io/badge/wire%20spec-v1.0-green)](https://spec.specora.ai/v1.0)
 
-> **Availability:** `specora-verify 1.0.0` is live. Install from [PyPI](https://pypi.org/project/specora-verify/) (`pip install specora-verify`) or the [Homebrew tap](https://github.com/SpecoraAI/homebrew-tap) (`brew tap SpecoraAI/tap && brew install specora-verify`). The wire spec is published at [spec.specora.ai/v1.0](https://spec.specora.ai/v1.0), and this repository is public. The `1.0.0` line shipped ahead of the original 2026-06-14 target. Remaining post-launch hardening is tracked in [docs/release-checklist.md](docs/release-checklist.md).
+> **Availability:** `specora-verify` is live. Install from [PyPI](https://pypi.org/project/specora-verify/) (`pip install specora-verify`) or the [Homebrew tap](https://github.com/SpecoraAI/homebrew-tap) (`brew tap SpecoraAI/tap && brew install specora-verify`). The wire spec is published at [spec.specora.ai/v1.0](https://spec.specora.ai/v1.0), and this repository is public. The `1.0.0` line shipped ahead of the original 2026-06-14 target. Remaining post-launch hardening is tracked in [docs/release-checklist.md](docs/release-checklist.md).
 
 ---
 

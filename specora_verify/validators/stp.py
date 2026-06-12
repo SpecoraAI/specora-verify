@@ -32,7 +32,7 @@ from specora_verify.stp_contracts import (
 # Default vectors directory
 # =============================================================================
 
-DEFAULT_STP_VECTORS_DIR = Path(__file__).parent.parent.parent / "vectors" / "stp"
+DEFAULT_STP_VECTORS_DIR = Path(__file__).parent.parent / "vectors" / "stp"
 
 
 # =============================================================================
