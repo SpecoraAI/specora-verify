@@ -79,6 +79,11 @@ def test_sample_rejected_under_wrong_issuer_key() -> None:
     assert not result.valid
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="verify-sample-bundle.sh is a POSIX shell example; the test invokes "
+    "bash and hardcodes a Unix PATH, so it is exercised on Linux/macOS only.",
+)
 def test_verify_example_exits_zero_offline() -> None:
     # The acceptance criterion: the sample-bundle example exits 0 in CI.
     proc = subprocess.run(
