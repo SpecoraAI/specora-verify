@@ -42,6 +42,10 @@ env/
 receipt.json
 bundle.sev
 
+# Local CA certs / trust-store overrides — never commit to public repo
+*.crt
+home-lab-root-ca.crt
+
 # Security disclosure key material — NEVER commit
 gnupg-specora-security/
 specora-security-private*.asc
