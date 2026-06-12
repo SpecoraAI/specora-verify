@@ -1518,6 +1518,47 @@ def build_parser() -> argparse.ArgumentParser:
         help="Drop malformed records with warnings instead of failing the read",
     )
 
+    # agent-identity command — verify a Specora agent-identity certificate
+    # against an issuer key. The default posture stays offline: pass the issuer
+    # key with --issuer-key-hex or --issuer-key-file. --issuer-url is the one
+    # explicit network opt-in, fetching the published root key the user names.
+    agent_identity_parser = subparsers.add_parser(
+        "agent-identity",
+        help="Agent identity certificate operations",
+    )
+    agent_identity_sub = agent_identity_parser.add_subparsers(
+        dest="agent_identity_command"
+    )
+    aid_verify = agent_identity_sub.add_parser(
+        "verify",
+        help="Verify a Specora agent-identity certificate against an issuer key",
+    )
+    aid_verify.add_argument(
+        "file",
+        type=Path,
+        help="Path to the agent-identity certificate JSON",
+    )
+    aid_verify.add_argument(
+        "--issuer-key-hex",
+        default=None,
+        help="Issuer Ed25519 public key as 64 hex chars (offline)",
+    )
+    aid_verify.add_argument(
+        "--issuer-key-file",
+        type=Path,
+        default=None,
+        help="File containing the issuer public key as hex (offline)",
+    )
+    aid_verify.add_argument(
+        "--issuer-url",
+        default=None,
+        help=(
+            "URL of the published issuer root JSON to fetch the key from "
+            "(e.g. https://api.specora.ai/.well-known/specora-demo-root.json). "
+            "This is the only option that makes a network request."
+        ),
+    )
+
     return parser
 
 
@@ -1865,6 +1906,95 @@ def cmd_bundle_verify(args: argparse.Namespace) -> int:
 
     result = verify_bundle(args.file)
     print(format_bundle_result(result, output_format=args.format))
+    return EXIT_PASS if result.valid else EXIT_FAIL
+
+
+def _resolve_issuer_key_hex(args: argparse.Namespace) -> str:
+    """Resolve the issuer public key hex from the offline or network options.
+
+    Offline first: --issuer-key-hex, then --issuer-key-file. --issuer-url is the
+    only option that touches the network, and only because the user named the URL.
+    """
+    if getattr(args, "issuer_key_hex", None):
+        return args.issuer_key_hex.strip()
+    if getattr(args, "issuer_key_file", None):
+        return Path(args.issuer_key_file).read_text(encoding="utf-8").strip()
+    if getattr(args, "issuer_url", None):
+        return _fetch_issuer_key_hex(args.issuer_url)
+    raise ValueError(
+        "provide one of --issuer-key-hex, --issuer-key-file, or --issuer-url"
+    )
+
+
+def _fetch_issuer_key_hex(url: str) -> str:
+    """Fetch the published issuer root JSON and return its public_key_hex.
+
+    The published root (e.g. specora-demo-root-v1) serializes only the public
+    half of the issuer key plus its fingerprint.
+    """
+    import urllib.request
+
+    from specora_verify import __version__
+
+    # Send an explicit User-Agent. The default urllib UA ("Python-urllib/X") is
+    # rejected (HTTP 403) by the published-root endpoint's edge, whereas a named
+    # client UA is allowed — the GAP-01 sample script sets one for the same
+    # reason. Without this, the convenience --issuer-url path fails for users.
+    request = urllib.request.Request(  # noqa: S310 — user-named URL
+        url, headers={"User-Agent": f"specora-verify/{__version__}"}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15) as resp:  # noqa: S310
+            payload = json.loads(resp.read().decode("utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"failed to fetch issuer root from {url}: {exc}") from exc
+    key = payload.get("public_key_hex")
+    if not isinstance(key, str) or not key:
+        raise ValueError(f"{url} did not return a 'public_key_hex' field")
+    return key
+
+
+def cmd_agent_identity_verify(args: argparse.Namespace) -> int:
+    """Handle: specora-verify agent-identity verify <cert.json> --issuer-*"""
+    from specora_verify.agent_identity import validate_agent_identity_certificate
+
+    cert = _load_json_file(args.file, args.format)
+    if cert is None:
+        return EXIT_ERROR
+
+    try:
+        issuer_hex = _resolve_issuer_key_hex(args)
+    except ValueError as exc:
+        print(
+            format_error(
+                str(exc), output_format=args.format, code="ISSUER_KEY_ERROR"
+            ),
+            file=sys.stderr,
+        )
+        return EXIT_ERROR
+
+    result = validate_agent_identity_certificate(
+        cert, issuer_public_key_hex=issuer_hex
+    )
+    if args.format == "json":
+        print(
+            json.dumps(
+                {
+                    "verification": "PASS" if result.valid else "FAIL",
+                    "reason": result.reason,
+                    "issuer_key_fingerprint": result.issuer_key_fingerprint,
+                }
+            )
+        )
+    else:
+        if result.valid:
+            subject = cert.get("subject", {})
+            print("verification: PASS")
+            print(f"  agent_id:    {subject.get('agent_id')}")
+            print(f"  org_id:      {subject.get('org_id')}")
+            print(f"  fingerprint: {result.issuer_key_fingerprint}")
+        else:
+            print(f"verification: FAIL ({result.reason})", file=sys.stderr)
     return EXIT_PASS if result.valid else EXIT_FAIL
 
 
@@ -3602,6 +3732,11 @@ def main(argv: list[str] | None = None) -> NoReturn:
                     parser.print_help()
             else:
                 parser.print_help()
+        else:
+            parser.print_help()
+    elif args.command == "agent-identity":
+        if args.agent_identity_command == "verify":
+            exit_code = cmd_agent_identity_verify(args)
         else:
             parser.print_help()
     else:
