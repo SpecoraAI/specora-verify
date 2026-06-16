@@ -1,0 +1,29 @@
+# gitleaks configuration for specora-verify.
+#
+# specora-verify is a *verifier*: its golden vectors, test fixtures, and example
+# bundles deliberately contain public key material, fingerprints, and base64
+# signatures so that anyone can reproduce a verification offline. gitleaks'
+# generic high-entropy / "api-key" heuristics fire on that public crypto data,
+# producing ~100 false positives. None of it is secret — the private halves
+# never live in the repo (they are guarded in .gitignore and produced only at
+# release time via Sigstore keyless signing).
+#
+# This config extends gitleaks' default ruleset and allowlists ONLY the paths
+# that hold intentional public test data. Real source, CI, and docs prose are
+# still fully scanned.
+
+title = "specora-verify gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public crypto test data: golden vectors, fixtures, examples, OpenAPI samples"
+paths = [
+    '''^vectors/''',                          # public golden vectors (root)
+    '''^specora_verify/vectors/''',           # same vectors, bundled into the wheel
+    '''^tests/fixtures/''',                    # test bundles with sample signatures
+    '''^tests/test_cli_agent_identity\.py$''', # inline sample cert/key literals
+    '''^examples/''',                          # sample bundles shipped as docs
+    '''^docs/openapi/''',                      # example payloads in the OpenAPI specs
+]

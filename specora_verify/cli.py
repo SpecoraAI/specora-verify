@@ -1930,18 +1930,25 @@ def _fetch_issuer_key_hex(url: str) -> str:
     half of the issuer key plus its fingerprint.
     """
     import urllib.request
+    from urllib.parse import urlparse
 
     from specora_verify import __version__
+
+    # Restrict to network schemes. urlopen() otherwise honors file:// (and
+    # custom schemes), which would turn an operator-supplied --issuer-url into a
+    # local-file read primitive. Validate before opening (closes bandit B310).
+    if urlparse(url).scheme not in ("http", "https"):
+        raise ValueError(f"issuer URL must use http(s), got: {url!r}")
 
     # Send an explicit User-Agent. The default urllib UA ("Python-urllib/X") is
     # rejected (HTTP 403) by the published-root endpoint's edge, whereas a named
     # client UA is allowed — the GAP-01 sample script sets one for the same
     # reason. Without this, the convenience --issuer-url path fails for users.
-    request = urllib.request.Request(  # noqa: S310 — user-named URL
+    request = urllib.request.Request(  # noqa: S310 — scheme validated above
         url, headers={"User-Agent": f"specora-verify/{__version__}"}
     )
     try:
-        with urllib.request.urlopen(request, timeout=15) as resp:  # noqa: S310
+        with urllib.request.urlopen(request, timeout=15) as resp:  # noqa: S310 # nosec B310
             payload = json.loads(resp.read().decode("utf-8"))
     except (OSError, ValueError) as exc:
         raise ValueError(f"failed to fetch issuer root from {url}: {exc}") from exc

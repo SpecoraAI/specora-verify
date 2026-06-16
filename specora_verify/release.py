@@ -111,7 +111,9 @@ def fetch_release_checksums(version: str) -> dict[str, str]:
     url = f"{GITHUB_RELEASES_URL}/{tag}/checksums.txt"
 
     try:
-        with urllib.request.urlopen(url, timeout=30) as response:
+        # url is built from the GITHUB_RELEASES_URL https constant plus a
+        # version tag, never from user input; the scheme is always https.
+        with urllib.request.urlopen(url, timeout=30) as response:  # noqa: S310 # nosec B310
             content = response.read().decode("utf-8")
     except urllib.error.HTTPError as e:
         raise ValueError(f"Failed to fetch checksums for {version}: HTTP {e.code}")
