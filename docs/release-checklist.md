@@ -80,3 +80,11 @@ exits 0 with every anchor GREEN, and a clean machine can
 `pip install specora-verify`, verify its Sigstore signature, and run
 `specora-verify vectors verify` to a green `PASS` — without any access this
 project's maintainers control.
+
+## L3 — When a release goes bad
+
+Publishing is immutable: PyPI versions and Sigstore signatures cannot be
+deleted, only superseded. The procedure for yanking a bad release, rolling
+forward with a fix, and — critically for a verifier — notifying anyone who may
+have already produced an audit opinion with the bad build is documented in
+**[release-rollback.md](release-rollback.md)**. Know it *before* you need it.

@@ -112,8 +112,12 @@ def fetch_s3_anchor_by_index(
             try:
                 list_response = client.get(list_url)
                 if list_response.status_code == 200:
-                    # Parse XML listing
-                    import xml.etree.ElementTree as ET
+                    # Parse XML listing. Use defusedxml rather than the stdlib
+                    # ElementTree: the listing is remote, untrusted data and the
+                    # stdlib parser is vulnerable to entity-expansion / XXE
+                    # attacks (bandit B314). defusedxml ships in the [fetchers]
+                    # extra alongside httpx.
+                    import defusedxml.ElementTree as ET  # noqa: N817 — ET is the standard ElementTree alias
 
                     root = ET.fromstring(list_response.text)
                     ns = {"s3": "http://s3.amazonaws.com/doc/2006-03-01/"}

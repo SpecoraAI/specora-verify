@@ -1,0 +1,52 @@
+# CodeQL static analysis for specora-verify.
+#
+# Deeper SAST than the bandit pass in ci.yml: GitHub's CodeQL engine runs the
+# `security-extended` query suite over the Python source and surfaces findings
+# in the repo's Security tab (code scanning alerts). Runs on PRs into the
+# protected branches, on push to those branches, and weekly so newly-published
+# queries catch latent issues without a code change.
+#
+# specora-verify's correctness is load-bearing on real audit opinions, so the
+# verifier's own source is exactly the kind of code that warrants this.
+
+name: CodeQL
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+  schedule:
+    # Mondays 07:00 UTC — same cadence as the Dependabot updates.
+    - cron: "0 7 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: analyze (python)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # upload code-scanning results
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+          queries: security-extended
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"
